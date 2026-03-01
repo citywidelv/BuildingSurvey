@@ -1,0 +1,2177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#D22730">
+<title>City Wide Building Survey</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+/* ============================================
+   CITY WIDE BRAND TOKENS
+   ============================================ */
+:root {
+  --cw-red: #D22730;
+  --cw-red-dark: #a81e26;
+  --cw-red-light: #f5d0d2;
+  --cw-black: #2d2a26;
+  --cw-grey: #636466;
+  --cw-grey-light: #e8e8e9;
+  --cw-grey-lighter: #f5f5f6;
+  --cw-teal: #0AA6A9;
+  --cw-teal-dark: #088c8e;
+  --cw-gold: #E5B423;
+  --cw-orange: #F68C28;
+  --cw-white: #ffffff;
+  --shadow-sm: 0 1px 3px rgba(45,42,38,0.08);
+  --shadow-md: 0 4px 12px rgba(45,42,38,0.1);
+  --shadow-lg: 0 8px 24px rgba(45,42,38,0.14);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --font-stack: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+/* ============================================
+   RESET & BASE
+   ============================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-stack);
+  color: var(--cw-black);
+  background: var(--cw-grey-lighter);
+  min-height: 100dvh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================
+   APP SHELL
+   ============================================ */
+.app-header {
+  background: var(--cw-white);
+  border-bottom: 3px solid var(--cw-red);
+  padding: 12px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+
+.header-inner {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-mark {
+  width: 36px;
+  height: 36px;
+  background: var(--cw-red);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  letter-spacing: -0.5px;
+  flex-shrink: 0;
+}
+
+.logo-text {
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--cw-black);
+  line-height: 1.2;
+}
+
+.logo-text span {
+  display: block;
+  font-size: 9px;
+  font-weight: normal;
+  color: var(--cw-grey);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--cw-grey-light);
+  background: var(--cw-white);
+  color: var(--cw-grey);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.btn-icon:hover { border-color: var(--cw-red); color: var(--cw-red); }
+.btn-icon:active { transform: scale(0.95); }
+
+/* ============================================
+   PROGRESS BAR
+   ============================================ */
+.progress-wrap {
+  background: var(--cw-white);
+  padding: 12px 16px 14px;
+  border-bottom: 1px solid var(--cw-grey-light);
+}
+
+.progress-inner {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 6px;
+}
+
+.progress-step {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--cw-red);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.progress-pct {
+  font-size: 11px;
+  color: var(--cw-grey);
+}
+
+.progress-track {
+  height: 6px;
+  background: var(--cw-grey-light);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cw-red), var(--cw-red-dark));
+  border-radius: 3px;
+  transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* ============================================
+   STEP DOTS (horizontal scroll on mobile)
+   ============================================ */
+.step-dots {
+  display: flex;
+  gap: 4px;
+  margin-top: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 2px;
+}
+.step-dots::-webkit-scrollbar { display: none; }
+
+.step-dot {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--cw-grey-light);
+  background: var(--cw-white);
+  font-size: 9px;
+  font-weight: bold;
+  color: var(--cw-grey);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.step-dot.active {
+  border-color: var(--cw-red);
+  background: var(--cw-red);
+  color: var(--cw-white);
+}
+
+.step-dot.complete {
+  border-color: var(--cw-teal);
+  background: var(--cw-teal);
+  color: var(--cw-white);
+}
+
+.step-dot:hover:not(.active) {
+  border-color: var(--cw-red);
+  color: var(--cw-red);
+}
+
+/* ============================================
+   MAIN CONTENT
+   ============================================ */
+.main-content {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 16px 16px 120px;
+}
+
+/* ============================================
+   STEP PANELS
+   ============================================ */
+.step-panel {
+  display: none;
+  animation: fadeSlideIn 0.3s ease;
+}
+
+.step-panel.active { display: block; }
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.step-title {
+  font-size: 22px;
+  font-weight: bold;
+  color: var(--cw-black);
+  margin-bottom: 4px;
+}
+
+.step-subtitle {
+  font-size: 13px;
+  color: var(--cw-grey);
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+/* ============================================
+   FORM CARDS
+   ============================================ */
+.form-card {
+  background: var(--cw-white);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(99,100,102,0.08);
+}
+
+.form-card-title {
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--cw-red);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--cw-grey-light);
+}
+
+/* ============================================
+   FORM FIELDS
+   ============================================ */
+.field-group {
+  margin-bottom: 14px;
+}
+
+.field-group:last-child { margin-bottom: 0; }
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 420px) {
+  .field-row { grid-template-columns: 1fr; }
+}
+
+.field-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 420px) {
+  .field-row-3 { grid-template-columns: 1fr; }
+}
+
+label {
+  display: block;
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--cw-grey);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="date"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--cw-grey-light);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-stack);
+  font-size: 15px;
+  color: var(--cw-black);
+  background: var(--cw-white);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--cw-red);
+  box-shadow: 0 0 0 3px var(--cw-red-light);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23636466' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+/* ============================================
+   CHECKBOX GROUP
+   ============================================ */
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+@media (max-width: 380px) {
+  .checkbox-grid { grid-template-columns: 1fr; }
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1.5px solid var(--cw-grey-light);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.checkbox-item:active { transform: scale(0.98); }
+
+.checkbox-item.checked {
+  border-color: var(--cw-red);
+  background: var(--cw-red-light);
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--cw-red);
+  flex-shrink: 0;
+}
+
+.checkbox-item span {
+  font-size: 13px;
+  color: var(--cw-black);
+}
+
+/* ============================================
+   SATISFACTION SCALE
+   ============================================ */
+.scale-row {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.scale-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--cw-grey-light);
+  background: var(--cw-white);
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--cw-grey);
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scale-btn:active { transform: scale(0.92); }
+
+.scale-btn.selected {
+  border-color: var(--cw-red);
+  background: var(--cw-red);
+  color: var(--cw-white);
+}
+
+.scale-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--cw-grey);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* ============================================
+   DYNAMIC ROOM ROWS
+   ============================================ */
+.room-entry {
+  background: var(--cw-grey-lighter);
+  border: 1px solid var(--cw-grey-light);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.room-entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.room-number {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--cw-teal);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-remove-room {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: var(--cw-red-light);
+  color: var(--cw-red);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.btn-remove-room:hover { background: var(--cw-red); color: white; }
+
+.floor-type-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.floor-chip {
+  padding: 5px 10px;
+  border: 1.5px solid var(--cw-grey-light);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--cw-grey);
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+  -webkit-user-select: none;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.floor-chip:active { transform: scale(0.95); }
+.floor-chip.selected {
+  border-color: var(--cw-teal);
+  background: var(--cw-teal);
+  color: white;
+}
+
+/* ============================================
+   SPECIAL AREAS CHECKLIST
+   ============================================ */
+.checklist-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.checklist-item:active { background: var(--cw-grey-lighter); }
+
+.checklist-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--cw-teal);
+  flex-shrink: 0;
+}
+
+.checklist-item span {
+  font-size: 12px;
+  color: var(--cw-black);
+}
+
+/* ============================================
+   BOTTOM NAV
+   ============================================ */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--cw-white);
+  border-top: 1px solid var(--cw-grey-light);
+  padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  box-shadow: 0 -4px 12px rgba(45,42,38,0.08);
+  z-index: 100;
+}
+
+.bottom-nav-inner {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  flex: 1;
+  padding: 14px 16px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-stack);
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn:active { transform: scale(0.98); }
+
+.btn-primary {
+  background: var(--cw-red);
+  color: var(--cw-white);
+}
+.btn-primary:hover { background: var(--cw-red-dark); }
+
+.btn-secondary {
+  background: var(--cw-grey-light);
+  color: var(--cw-black);
+}
+.btn-secondary:hover { background: #d8d8da; }
+
+.btn-teal {
+  background: var(--cw-teal);
+  color: var(--cw-white);
+}
+.btn-teal:hover { background: var(--cw-teal-dark); }
+
+.btn-add {
+  width: 100%;
+  padding: 12px;
+  border: 2px dashed var(--cw-grey-light);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--cw-teal);
+  font-family: var(--font-stack);
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-add:hover { border-color: var(--cw-teal); background: rgba(10,166,169,0.04); }
+
+/* ============================================
+   SAVE INDICATOR
+   ============================================ */
+.save-toast {
+  position: fixed;
+  top: 70px;
+  right: 16px;
+  background: var(--cw-black);
+  color: var(--cw-white);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: bold;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: all 0.3s;
+  z-index: 200;
+  pointer-events: none;
+}
+
+.save-toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ============================================
+   REVIEW STEP
+   ============================================ */
+.review-section {
+  margin-bottom: 12px;
+}
+
+.review-section-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--cw-red);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--cw-grey-light);
+}
+
+.review-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(99,100,102,0.06);
+}
+
+.review-row:last-child { border-bottom: none; }
+
+.review-label {
+  color: var(--cw-grey);
+  flex-shrink: 0;
+  margin-right: 8px;
+}
+
+.review-value {
+  color: var(--cw-black);
+  font-weight: bold;
+  text-align: right;
+  word-break: break-word;
+}
+
+.review-note {
+  font-size: 13px;
+  color: var(--cw-black);
+  background: var(--cw-grey-lighter);
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  margin-top: 4px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+
+/* ============================================
+   SAVED SURVEYS MODAL
+   ============================================ */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(45,42,38,0.5);
+  z-index: 300;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s;
+}
+
+.modal-overlay.show { display: flex; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal-sheet {
+  background: var(--cw-white);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  width: 100%;
+  max-width: 640px;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding: 20px;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.modal-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--cw-grey-light);
+  border-radius: 2px;
+  margin: 0 auto 16px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 14px;
+}
+
+.saved-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--cw-grey-light);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.saved-item:hover { border-color: var(--cw-red); }
+
+.saved-item-info h4 {
+  font-size: 14px;
+  color: var(--cw-black);
+  margin-bottom: 2px;
+}
+
+.saved-item-info p {
+  font-size: 11px;
+  color: var(--cw-grey);
+}
+
+.saved-item-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-sm {
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: bold;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-sm-red { background: var(--cw-red-light); color: var(--cw-red); }
+.btn-sm-red:hover { background: var(--cw-red); color: white; }
+
+/* ============================================
+   DENSITY SUMMARY
+   ============================================ */
+.density-chips {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.density-chip {
+  padding: 6px 14px;
+  border: 2px solid var(--cw-grey-light);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--cw-grey);
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.density-chip.selected {
+  border-color: var(--cw-gold);
+  background: var(--cw-gold);
+  color: var(--cw-black);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (min-width: 641px) {
+  .main-content { padding: 24px 24px 120px; }
+  .form-card { padding: 24px; }
+  .step-title { font-size: 26px; }
+}
+
+/* Print styles for PDF */
+@media print {
+  .app-header, .progress-wrap, .bottom-nav, .btn-add, .btn-remove-room { display: none !important; }
+  .step-panel { display: block !important; }
+  .main-content { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================
+     HEADER
+     ============================================ -->
+<header class="app-header">
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="logo-mark">CW</div>
+      <div class="logo-text">
+        Building Survey
+        <span>City Wide Facility Solutions</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-icon" onclick="showSavedSurveys()" title="Saved Surveys">&#128196;</button>
+      <button class="btn-icon" onclick="startNewSurvey()" title="New Survey">&#43;</button>
+    </div>
+  </div>
+</header>
+
+<!-- ============================================
+     PROGRESS
+     ============================================ -->
+<div class="progress-wrap">
+  <div class="progress-inner">
+    <div class="progress-label">
+      <span class="progress-step" id="progressStepLabel">Step 1 of 11</span>
+      <span class="progress-pct" id="progressPct">9%</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width: 9%"></div>
+    </div>
+    <div class="step-dots" id="stepDots"></div>
+  </div>
+</div>
+
+<!-- ============================================
+     SAVE TOAST
+     ============================================ -->
+<div class="save-toast" id="saveToast">Saved</div>
+
+<!-- ============================================
+     MAIN CONTENT
+     ============================================ -->
+<main class="main-content" id="mainContent">
+
+  <!-- ============ STEP 1: Company Info ============ -->
+  <section class="step-panel active" data-step="1">
+    <h2 class="step-title">Company Info</h2>
+    <p class="step-subtitle">Start with the basics. You can pre-fill this in the office before heading on site.</p>
+
+    <div class="form-card">
+      <div class="form-card-title">Business Details</div>
+      <div class="field-group">
+        <label for="companyName">Company Name</label>
+        <input type="text" id="companyName" data-field="companyName" placeholder="ABC Properties LLC">
+      </div>
+      <div class="field-group">
+        <label for="address">Address</label>
+        <input type="text" id="address" data-field="address" placeholder="123 Main St, Suite 200">
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label for="city">City</label>
+          <input type="text" id="city" data-field="city">
+        </div>
+        <div class="field-group">
+          <label for="stateZip">State, Zip</label>
+          <input type="text" id="stateZip" data-field="stateZip" placeholder="NV 89101">
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="businessType">Type of Business</label>
+        <select id="businessType" data-field="businessType">
+          <option value="">Select type...</option>
+          <option value="Medical Office">Medical Office</option>
+          <option value="Corporate Office">Corporate Office</option>
+          <option value="Retail">Retail</option>
+          <option value="Industrial / Warehouse">Industrial / Warehouse</option>
+          <option value="Financial Institution">Financial Institution</option>
+          <option value="Auto Dealership">Auto Dealership</option>
+          <option value="Fitness Center">Fitness Center</option>
+          <option value="School / Daycare">School / Daycare</option>
+          <option value="Religious Facility">Religious Facility</option>
+          <option value="Property Management">Property Management</option>
+          <option value="Government">Government</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-title">Primary Contact</div>
+      <div class="field-group">
+        <label for="contactName">Contact Name</label>
+        <input type="text" id="contactName" data-field="contactName">
+      </div>
+      <div class="field-group">
+        <label for="contactTitle">Title</label>
+        <input type="text" id="contactTitle" data-field="contactTitle" placeholder="Facility Manager">
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label for="phone">Phone</label>
+          <input type="tel" id="phone" data-field="phone" placeholder="(702) 555-1234">
+        </div>
+        <div class="field-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" data-field="email">
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="surveyDate">Survey Date</label>
+        <input type="date" id="surveyDate" data-field="surveyDate">
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 2: Pre-Research ============ -->
+  <section class="step-panel" data-step="2">
+    <h2 class="step-title">Pre-Research</h2>
+    <p class="step-subtitle">Do your homework before the visit. LinkedIn, Google, and their company website are gold.</p>
+
+    <div class="form-card">
+      <div class="form-card-title">Research Notes</div>
+      <div class="field-group">
+        <label for="preResearch">LinkedIn / Google / Website findings</label>
+        <textarea id="preResearch" data-field="preResearch" rows="5" placeholder="What did you learn about the company and decision maker? Company size, recent news, their role, mutual connections..."></textarea>
+      </div>
+      <div class="field-group">
+        <label for="qualifyingInfo">Qualifying Info</label>
+        <textarea id="qualifyingInfo" data-field="qualifyingInfo" rows="4" placeholder="How did this lead come in? Referral? Cold call? Website? What initial qualifying happened?"></textarea>
+      </div>
+      <div class="field-group">
+        <label for="buildingSurveyFor">Building Survey For</label>
+        <input type="text" id="buildingSurveyFor" data-field="buildingSurveyFor" placeholder="Janitorial Services, Floor Care, etc.">
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 3: Set the Agenda ============ -->
+  <section class="step-panel" data-step="3">
+    <h2 class="step-title">Set the Agenda</h2>
+    <p class="step-subtitle">Build rapport and set expectations for the meeting. Check off your objectives as you cover them.</p>
+
+    <div class="form-card">
+      <div class="form-card-title">Meeting Objectives</div>
+      <div class="checkbox-grid">
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="obj_trust"> <span>Build Trust</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="obj_relationships"> <span>Develop Relationships</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="obj_keyInfo"> <span>Learn Key Info</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="obj_timeline"> <span>Confirm Timeline</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="obj_objective"> <span>Establish Objective</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="obj_scope"> <span>Scope of Work</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="obj_floorPlan"> <span>Floor Plan</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="obj_recap"> <span>Recap Last Convo</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-title">Rapport Notes</div>
+      <div class="field-group">
+        <label for="rapportNotes">What did you discuss? Personal interests, common ground, etc.</label>
+        <textarea id="rapportNotes" data-field="rapportNotes" rows="4" placeholder="Kids, sports, hobbies, mutual connections..."></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 4: Current Situation ============ -->
+  <section class="step-panel" data-step="4">
+    <h2 class="step-title">Current Situation</h2>
+    <p class="step-subtitle">Understand who they are working with now and their history with janitorial companies.</p>
+
+    <div class="form-card">
+      <div class="form-card-title">Current Janitorial Info</div>
+      <div class="field-row">
+        <div class="field-group">
+          <label for="currentJSComp">Current JS Company</label>
+          <input type="text" id="currentJSComp" data-field="currentJSComp">
+        </div>
+        <div class="field-group">
+          <label for="timeWithCurrent">Time with Current</label>
+          <input type="text" id="timeWithCurrent" data-field="timeWithCurrent" placeholder="2 years">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label for="previousJSComp">Previous JS Company</label>
+          <input type="text" id="previousJSComp" data-field="previousJSComp">
+        </div>
+        <div class="field-group">
+          <label for="numCompPast5">Companies Past 5 Years</label>
+          <input type="number" id="numCompPast5" data-field="numCompPast5" min="0" max="20" placeholder="3">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-title">Their Perspective</div>
+      <div class="field-group">
+        <label for="currentSituation">Tell me about your current situation?</label>
+        <textarea id="currentSituation" data-field="currentSituation" rows="3" placeholder="Capture their words as closely as possible"></textarea>
+      </div>
+      <div class="field-group">
+        <label for="likesAboutCurrent">What do you like about your current company?</label>
+        <textarea id="likesAboutCurrent" data-field="likesAboutCurrent" rows="2"></textarea>
+      </div>
+      <div class="field-group">
+        <label for="wantChanged">What would you like to see changed?</label>
+        <textarea id="wantChanged" data-field="wantChanged" rows="2"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 5: Pain Discovery ============ -->
+  <section class="step-panel" data-step="5">
+    <h2 class="step-title">Pain Discovery</h2>
+    <p class="step-subtitle">This is where the sale is won or lost. Dig into their frustrations and the personal impact.</p>
+
+    <div class="form-card">
+      <div class="form-card-title">Biggest Frustrations</div>
+      <div class="checkbox-grid">
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="frust_detail"> <span>Attention to Detail</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="frust_basics"> <span>Basics Not Done</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="frust_comm"> <span>Communication</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="frust_consistency"> <span>Consistency</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="frust_costs"> <span>Costs</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="frust_neverImproves"> <span>Never Improves</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="frust_time"> <span>Not Enough Time</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="frust_security"> <span>Security / Theft</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="frust_turnover"> <span>Turnover</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-title">Satisfaction Scale</div>
+      <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 8px;">On a scale of 1 to 5, how satisfied are you with your current service?</p>
+      <div class="scale-row">
+        <button class="scale-btn" onclick="selectScale(this, 1)" data-val="1">1</button>
+        <button class="scale-btn" onclick="selectScale(this, 2)" data-val="2">2</button>
+        <button class="scale-btn" onclick="selectScale(this, 3)" data-val="3">3</button>
+        <button class="scale-btn" onclick="selectScale(this, 4)" data-val="4">4</button>
+        <button class="scale-btn" onclick="selectScale(this, 5)" data-val="5">5</button>
+      </div>
+      <div class="scale-labels">
+        <span>Very Unsatisfied</span>
+        <span>Very Satisfied</span>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-title">Impact Questions</div>
+      <div class="field-group">
+        <label for="timeOnJS">How much time do you spend managing janitorial? How does that affect you?</label>
+        <textarea id="timeOnJS" data-field="timeOnJS" rows="3" placeholder="Get specific: hours per week, personal frustration, what they could be doing instead"></textarea>
+      </div>
+      <div class="field-group">
+        <label for="mostImportantChange">Most important thing to change?</label>
+        <textarea id="mostImportantChange" data-field="mostImportantChange" rows="2"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 6: Budget ============ -->
+  <section class="step-panel" data-step="6">
+    <h2 class="step-title">Budget</h2>
+    <p class="step-subtitle">Ask for the budget. Then justify why it matters by explaining how it shapes the plan.</p>
+
+    <div class="form-card">
+      <div class="form-card-title">Budget Discussion</div>
+      <div class="field-group">
+        <label for="budgetAmount">Budget (Monthly)</label>
+        <input type="text" id="budgetAmount" data-field="budgetAmount" placeholder="$3,500 / month">
+      </div>
+      <div class="field-group">
+        <label for="budgetNotes">Budget Context / Notes</label>
+        <textarea id="budgetNotes" data-field="budgetNotes" rows="3" placeholder="How did they react? Did you justify with the value prop? Is budget flexible?"></textarea>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-title">Value Prop Delivered</div>
+      <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 10px;">Confirm you covered the three uniques and why City Wide:</p>
+      <div class="checkbox-grid">
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="vp_represent"> <span>We represent the client</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="vp_proactive"> <span>Proactive management</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="vp_oneContact"> <span>One point of contact, 20+ solutions</span>
+        </label>
+        <label class="checkbox-item" onclick="toggleCheck(this)">
+          <input type="checkbox" data-field="vp_abc"> <span>A+B+C explained</span>
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 7: Fulfillment ============ -->
+  <section class="step-panel" data-step="7">
+    <h2 class="step-title">Fulfillment</h2>
+    <p class="step-subtitle">Determine the scope of work: cleaning frequency, crew size, and hours needed.</p>
+
+    <div class="form-card">
+      <div class="form-card-title">Scope Details</div>
+      <div class="field-row-3">
+        <div class="field-group">
+          <label for="daysPerWeek">Days / Week</label>
+          <select id="daysPerWeek" data-field="daysPerWeek">
+            <option value="">Select</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label for="peoplePerNight">Crew / Night</label>
+          <input type="number" id="peoplePerNight" data-field="peoplePerNight" min="1" max="50" placeholder="2">
+        </div>
+        <div class="field-group">
+          <label for="hoursPerNight">Hours / Night</label>
+          <input type="text" id="hoursPerNight" data-field="hoursPerNight" placeholder="3.5">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-title">Building Density</div>
+      <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 8px;">How dense is the furniture and equipment layout?</p>
+      <div class="density-chips">
+        <span class="density-chip" onclick="selectDensity(this, 'Dense')">Dense</span>
+        <span class="density-chip" onclick="selectDensity(this, 'Average')">Average</span>
+        <span class="density-chip" onclick="selectDensity(this, 'Light')">Light</span>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-title">Building Totals</div>
+      <div class="field-row">
+        <div class="field-group">
+          <label for="totalSqft">Total Cleanable SqFt</label>
+          <input type="text" id="totalSqft" data-field="totalSqft" placeholder="25,000">
+        </div>
+        <div class="field-group">
+          <label for="totalRR">Total Restrooms</label>
+          <input type="number" id="totalRR" data-field="totalRR" min="0" placeholder="6">
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="totalFixtures">Total Fixtures</label>
+        <input type="number" id="totalFixtures" data-field="totalFixtures" min="0" placeholder="24">
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 8: Decision Making ============ -->
+  <section class="step-panel" data-step="8">
+    <h2 class="step-title">Decision Making</h2>
+    <p class="step-subtitle">Understand the timeline and who is involved. No surprises at proposal delivery.</p>
+
+    <div class="form-card">
+      <div class="form-card-title">Timeline & Process</div>
+      <div class="field-group">
+        <label for="timelineToSwitch">What is the timeline to switch?</label>
+        <input type="text" id="timelineToSwitch" data-field="timelineToSwitch" placeholder="End of month, 30 days, etc.">
+      </div>
+      <div class="field-group">
+        <label for="startRestrictions">Any start time restrictions?</label>
+        <input type="text" id="startRestrictions" data-field="startRestrictions" placeholder="After 6pm, building closes at 5pm, etc.">
+      </div>
+      <div class="field-group">
+        <label for="otherDecisionMakers">Besides yourself, who else is involved in the decision?</label>
+        <textarea id="otherDecisionMakers" data-field="otherDecisionMakers" rows="2" placeholder="Name, title, and role in decision"></textarea>
+      </div>
+      <div class="field-group">
+        <label for="decisionProcess">How does your decision making process work?</label>
+        <textarea id="decisionProcess" data-field="decisionProcess" rows="2" placeholder="Committee vote? Single decision maker? Board approval?"></textarea>
+      </div>
+      <div class="field-group">
+        <label for="proposalDate">Set date for proposal delivery</label>
+        <input type="date" id="proposalDate" data-field="proposalDate">
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 9: Walkthrough ============ -->
+  <section class="step-panel" data-step="9">
+    <h2 class="step-title">Building Walkthrough</h2>
+    <p class="step-subtitle">Add each area as you walk the building. Tap the floor types that apply to each space.</p>
+
+    <div id="roomsContainer"></div>
+    <button class="btn-add" onclick="addRoom()">+ Add Area</button>
+  </section>
+
+  <!-- ============ STEP 10: Floor Care & Extras ============ -->
+  <section class="step-panel" data-step="10">
+    <h2 class="step-title">Floor Care & Special Areas</h2>
+    <p class="step-subtitle">Capture floor care needs and any special requirements or additional services.</p>
+
+    <div class="form-card">
+      <div class="form-card-title">Hard Surface Floor Care</div>
+      <div class="checklist-grid">
+        <label class="checklist-item"><input type="checkbox" data-field="fc_stripWax"> <span>Strip & Wax</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="fc_topScrub"> <span>Top Scrub & Wax</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="fc_machineScrub"> <span>Machine Scrub Ceramic</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="fc_buff"> <span>Hi-Speed Buff</span></label>
+      </div>
+      <div class="field-row" style="margin-top: 12px;">
+        <div class="field-group">
+          <label for="fcFrequency">Frequency</label>
+          <input type="text" id="fcFrequency" data-field="fcFrequency" placeholder="Quarterly, Monthly, etc.">
+        </div>
+        <div class="field-group">
+          <label for="fcFloorType">Primary Floor Type</label>
+          <input type="text" id="fcFloorType" data-field="fcFloorType" placeholder="VCT, Ceramic, Concrete">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Bundle with JS?</label>
+        <div style="display:flex; gap: 8px; margin-top: 4px;">
+          <span class="density-chip" onclick="selectBundle(this, 'Yes')">Yes</span>
+          <span class="density-chip" onclick="selectBundle(this, 'No')">No</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-title">Carpet Care</div>
+      <div class="checklist-grid">
+        <label class="checklist-item"><input type="checkbox" data-field="cc_extraction"> <span>Carpet Extraction</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="cc_trafficPattern"> <span>Traffic Pattern Cleaning</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="cc_bonnet"> <span>Bonnet Cleaning</span></label>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-title">Additional Services Needed</div>
+      <div class="checklist-grid">
+        <label class="checklist-item"><input type="checkbox" data-field="svc_coi"> <span>COI Needed</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_bloodborne"> <span>Bloodborne Pathogens</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_hazard"> <span>Communication Hazard</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_initialClean"> <span>Initial Clean</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_kitchen"> <span>Kitchen Clean</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_alarm"> <span>Alarm Code</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_dumpsters"> <span>Dumpsters</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_recycling"> <span>Recycling</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_windowWash"> <span>Window Washing</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_pest"> <span>Pest Control</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_sidelights"> <span>Sidelights</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_blinds"> <span>Blinds</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_highWork"> <span>High Work</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_pressureWash"> <span>Pressure Washing</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_matting"> <span>Matting Services</span></label>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-title">Extra Notes</div>
+      <div class="field-group">
+        <label for="extraNotes">Anything else relevant to the scope or proposal?</label>
+        <textarea id="extraNotes" data-field="extraNotes" rows="4" placeholder="Security requirements, after-hours access, parking info, key holder contacts..."></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 11: Supplies & Review ============ -->
+  <section class="step-panel" data-step="11">
+    <h2 class="step-title">Supplies & Review</h2>
+    <p class="step-subtitle">Capture supply details, then review everything before generating your report.</p>
+
+    <div class="form-card">
+      <div class="form-card-title">Current Supplies</div>
+      <div class="field-row">
+        <div class="field-group">
+          <label for="supplyBrands">Brands</label>
+          <input type="text" id="supplyBrands" data-field="supplyBrands" placeholder="Spartan, Envirox, etc.">
+        </div>
+        <div class="field-group">
+          <label for="supplyTP">Toilet Paper</label>
+          <input type="text" id="supplyTP" data-field="supplyTP">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label for="supplyTowels">Towels</label>
+          <input type="text" id="supplyTowels" data-field="supplyTowels">
+        </div>
+        <div class="field-group">
+          <label for="supplySoap">Soap</label>
+          <input type="text" id="supplySoap" data-field="supplySoap">
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="supplyDispensers">Dispensers</label>
+        <input type="text" id="supplyDispensers" data-field="supplyDispensers">
+      </div>
+    </div>
+
+    <div class="form-card" id="reviewContainer">
+      <div class="form-card-title">Survey Summary</div>
+      <div id="reviewContent"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============================================
+     BOTTOM NAV
+     ============================================ -->
+<div class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="btn btn-secondary" id="btnBack" onclick="prevStep()">Back</button>
+    <button class="btn btn-primary" id="btnNext" onclick="nextStep()">Next</button>
+  </div>
+</div>
+
+<!-- ============================================
+     SAVED SURVEYS MODAL
+     ============================================ -->
+<div class="modal-overlay" id="savedModal" onclick="closeSavedModal(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Saved Surveys</div>
+    <div id="savedList"></div>
+    <p style="font-size: 12px; color: var(--cw-grey); text-align: center; margin-top: 12px;">Surveys are saved on this device only.</p>
+  </div>
+</div>
+
+<!-- ============================================
+     JAVASCRIPT
+     ============================================ -->
+<script>
+// ============================================
+// STATE
+// ============================================
+const TOTAL_STEPS = 11;
+let currentStep = 1;
+let surveyId = null;
+let formData = {};
+let rooms = [];
+let saveTimeout = null;
+
+// ============================================
+// INIT
+// ============================================
+function init() {
+  // Set today's date as default
+  const today = new Date().toISOString().split('T')[0];
+  const dateField = document.getElementById('surveyDate');
+  if (dateField && !dateField.value) dateField.value = today;
+
+  // Load current survey or start fresh
+  const lastId = localStorage.getItem('cw_current_survey');
+  if (lastId) {
+    loadSurvey(lastId);
+  } else {
+    surveyId = 'survey_' + Date.now();
+    localStorage.setItem('cw_current_survey', surveyId);
+  }
+
+  renderStepDots();
+  updateProgress();
+  updateNav();
+  bindAutoSave();
+
+  // Add initial rooms if empty
+  if (rooms.length === 0) {
+    addRoom('Lobby / Reception');
+    addRoom('Restroom 1');
+    addRoom('Office Area');
+  }
+}
+
+// ============================================
+// NAVIGATION
+// ============================================
+function goToStep(step) {
+  if (step < 1 || step > TOTAL_STEPS) return;
+  saveFormData();
+
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  const panel = document.querySelector(`[data-step="${step}"]`);
+  if (panel) panel.classList.add('active');
+
+  currentStep = step;
+  updateProgress();
+  updateNav();
+  renderStepDots();
+
+  if (step === TOTAL_STEPS) buildReview();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextStep() {
+  if (currentStep === TOTAL_STEPS) {
+    generatePDF();
+    return;
+  }
+  goToStep(currentStep + 1);
+}
+
+function prevStep() {
+  goToStep(currentStep - 1);
+}
+
+function updateProgress() {
+  const pct = Math.round((currentStep / TOTAL_STEPS) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressStepLabel').textContent = `Step ${currentStep} of ${TOTAL_STEPS}`;
+}
+
+function updateNav() {
+  const back = document.getElementById('btnBack');
+  const next = document.getElementById('btnNext');
+
+  back.style.display = currentStep === 1 ? 'none' : 'flex';
+
+  if (currentStep === TOTAL_STEPS) {
+    next.textContent = 'Generate PDF';
+    next.className = 'btn btn-teal';
+  } else {
+    next.textContent = 'Next';
+    next.className = 'btn btn-primary';
+  }
+}
+
+function renderStepDots() {
+  const container = document.getElementById('stepDots');
+  container.innerHTML = '';
+  for (let i = 1; i <= TOTAL_STEPS; i++) {
+    const dot = document.createElement('span');
+    dot.className = 'step-dot';
+    if (i === currentStep) dot.classList.add('active');
+    else if (i < currentStep) dot.classList.add('complete');
+    dot.textContent = i;
+    dot.onclick = () => goToStep(i);
+    container.appendChild(dot);
+  }
+
+  // Scroll active dot into view
+  const activeDot = container.querySelector('.active');
+  if (activeDot) activeDot.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+}
+
+// ============================================
+// DATA PERSISTENCE
+// ============================================
+function bindAutoSave() {
+  document.querySelectorAll('input, textarea, select').forEach(el => {
+    el.addEventListener('input', () => debounceSave());
+    el.addEventListener('change', () => debounceSave());
+  });
+}
+
+function debounceSave() {
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => {
+    saveFormData();
+    showSaveToast();
+  }, 600);
+}
+
+function saveFormData() {
+  // Collect all field values
+  document.querySelectorAll('[data-field]').forEach(el => {
+    const key = el.dataset.field;
+    if (el.type === 'checkbox') {
+      formData[key] = el.checked;
+    } else {
+      formData[key] = el.value;
+    }
+  });
+
+  // Save rooms
+  collectRoomData();
+
+  const saveObj = {
+    id: surveyId,
+    formData: formData,
+    rooms: rooms,
+    step: currentStep,
+    updatedAt: new Date().toISOString(),
+    companyName: formData.companyName || 'Untitled Survey'
+  };
+
+  localStorage.setItem(surveyId, JSON.stringify(saveObj));
+
+  // Update index
+  let index = JSON.parse(localStorage.getItem('cw_survey_index') || '[]');
+  if (!index.includes(surveyId)) {
+    index.push(surveyId);
+    localStorage.setItem('cw_survey_index', JSON.stringify(index));
+  }
+}
+
+function loadSurvey(id) {
+  const raw = localStorage.getItem(id);
+  if (!raw) return;
+
+  const data = JSON.parse(raw);
+  surveyId = data.id;
+  formData = data.formData || {};
+  rooms = data.rooms || [];
+  currentStep = data.step || 1;
+
+  // Populate fields
+  Object.keys(formData).forEach(key => {
+    const el = document.querySelector(`[data-field="${key}"]`);
+    if (!el) return;
+    if (el.type === 'checkbox') {
+      el.checked = formData[key];
+      // Update visual state for checkbox-items
+      const parent = el.closest('.checkbox-item');
+      if (parent) parent.classList.toggle('checked', el.checked);
+    } else {
+      el.value = formData[key];
+    }
+  });
+
+  // Render rooms
+  renderRooms();
+  goToStep(currentStep);
+
+  localStorage.setItem('cw_current_survey', id);
+}
+
+function showSaveToast() {
+  const toast = document.getElementById('saveToast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 1200);
+}
+
+// ============================================
+// ROOMS / WALKTHROUGH
+// ============================================
+function addRoom(defaultName) {
+  const room = {
+    id: 'room_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+    name: defaultName || '',
+    dimensions: '',
+    sqft: '',
+    floorTypes: [],
+    fixtures: '',
+    comments: ''
+  };
+  rooms.push(room);
+  renderRooms();
+  debounceSave();
+}
+
+function removeRoom(roomId) {
+  rooms = rooms.filter(r => r.id !== roomId);
+  renderRooms();
+  debounceSave();
+}
+
+function renderRooms() {
+  const container = document.getElementById('roomsContainer');
+  container.innerHTML = '';
+
+  rooms.forEach((room, idx) => {
+    const el = document.createElement('div');
+    el.className = 'room-entry';
+    el.dataset.roomId = room.id;
+    el.innerHTML = `
+      <div class="room-entry-header">
+        <span class="room-number">Area ${idx + 1}</span>
+        <button class="btn-remove-room" onclick="removeRoom('${room.id}')" title="Remove">&times;</button>
+      </div>
+      <div class="field-group">
+        <label>Area Description</label>
+        <input type="text" class="room-name" value="${escHtml(room.name)}" placeholder="Lobby, Restroom 2, Break Room...">
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Dimensions</label>
+          <input type="text" class="room-dim" value="${escHtml(room.dimensions)}" placeholder="20x30">
+        </div>
+        <div class="field-group">
+          <label>SqFt</label>
+          <input type="text" class="room-sqft" value="${escHtml(room.sqft)}" placeholder="600">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Floor Types</label>
+        <div class="floor-type-chips">
+          ${['CPT','VCT','CER','Other'].map(ft =>
+            `<span class="floor-chip ${room.floorTypes.includes(ft) ? 'selected' : ''}"
+              onclick="toggleFloorType(this, '${room.id}', '${ft}')">${ft}</span>`
+          ).join('')}
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label>Fixtures</label>
+          <input type="text" class="room-fixtures" value="${escHtml(room.fixtures)}" placeholder="# toilets, sinks...">
+        </div>
+        <div class="field-group">
+          <label>Comments</label>
+          <input type="text" class="room-comments" value="${escHtml(room.comments)}" placeholder="Notes...">
+        </div>
+      </div>
+    `;
+    container.appendChild(el);
+
+    // Bind autosave to room fields
+    el.querySelectorAll('input').forEach(input => {
+      input.addEventListener('input', () => debounceSave());
+    });
+  });
+}
+
+function collectRoomData() {
+  document.querySelectorAll('.room-entry').forEach(el => {
+    const roomId = el.dataset.roomId;
+    const room = rooms.find(r => r.id === roomId);
+    if (!room) return;
+    room.name = el.querySelector('.room-name')?.value || '';
+    room.dimensions = el.querySelector('.room-dim')?.value || '';
+    room.sqft = el.querySelector('.room-sqft')?.value || '';
+    room.fixtures = el.querySelector('.room-fixtures')?.value || '';
+    room.comments = el.querySelector('.room-comments')?.value || '';
+  });
+}
+
+function toggleFloorType(chip, roomId, type) {
+  const room = rooms.find(r => r.id === roomId);
+  if (!room) return;
+  const idx = room.floorTypes.indexOf(type);
+  if (idx >= 0) {
+    room.floorTypes.splice(idx, 1);
+    chip.classList.remove('selected');
+  } else {
+    room.floorTypes.push(type);
+    chip.classList.add('selected');
+  }
+  debounceSave();
+}
+
+// ============================================
+// UI HELPERS
+// ============================================
+function toggleCheck(el) {
+  const cb = el.querySelector('input[type="checkbox"]');
+  // The click already toggles the checkbox, so just update visual
+  setTimeout(() => {
+    el.classList.toggle('checked', cb.checked);
+    debounceSave();
+  }, 0);
+}
+
+function selectScale(btn, val) {
+  document.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  formData.satisfactionScale = val;
+  debounceSave();
+}
+
+function selectDensity(chip, val) {
+  document.querySelectorAll('.density-chip').forEach(c => {
+    if (c.closest('.form-card')?.querySelector('.form-card-title')?.textContent === 'Building Density') {
+      c.classList.remove('selected');
+    }
+  });
+  chip.classList.add('selected');
+  formData.density = val;
+  debounceSave();
+}
+
+function selectBundle(chip, val) {
+  const parent = chip.parentElement;
+  parent.querySelectorAll('.density-chip').forEach(c => c.classList.remove('selected'));
+  chip.classList.add('selected');
+  formData.bundleWithJS = val;
+  debounceSave();
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ============================================
+// SAVED SURVEYS
+// ============================================
+function showSavedSurveys() {
+  const modal = document.getElementById('savedModal');
+  const list = document.getElementById('savedList');
+  const index = JSON.parse(localStorage.getItem('cw_survey_index') || '[]');
+
+  if (index.length === 0) {
+    list.innerHTML = '<p style="text-align:center;color:var(--cw-grey);padding:20px;font-size:14px;">No saved surveys yet.</p>';
+  } else {
+    list.innerHTML = index.map(id => {
+      const raw = localStorage.getItem(id);
+      if (!raw) return '';
+      const s = JSON.parse(raw);
+      const date = new Date(s.updatedAt).toLocaleDateString();
+      const name = s.companyName || 'Untitled';
+      const isCurrent = id === surveyId;
+      return `
+        <div class="saved-item" onclick="loadAndClose('${id}')">
+          <div class="saved-item-info">
+            <h4>${escHtml(name)} ${isCurrent ? '<span style="color:var(--cw-teal);font-size:11px;">CURRENT</span>' : ''}</h4>
+            <p>Step ${s.step || 1} of ${TOTAL_STEPS} &middot; ${date}</p>
+          </div>
+          <div class="saved-item-actions" onclick="event.stopPropagation()">
+            <button class="btn-sm btn-sm-red" onclick="deleteSurvey('${id}')">Delete</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  modal.classList.add('show');
+}
+
+function closeSavedModal(e) {
+  if (e && e.target !== document.getElementById('savedModal')) return;
+  document.getElementById('savedModal').classList.remove('show');
+}
+
+function loadAndClose(id) {
+  loadSurvey(id);
+  document.getElementById('savedModal').classList.remove('show');
+}
+
+function deleteSurvey(id) {
+  if (!confirm('Delete this survey?')) return;
+  localStorage.removeItem(id);
+  let index = JSON.parse(localStorage.getItem('cw_survey_index') || '[]');
+  index = index.filter(i => i !== id);
+  localStorage.setItem('cw_survey_index', JSON.stringify(index));
+
+  if (id === surveyId) {
+    surveyId = 'survey_' + Date.now();
+    formData = {};
+    rooms = [];
+    localStorage.setItem('cw_current_survey', surveyId);
+    location.reload();
+  } else {
+    showSavedSurveys();
+  }
+}
+
+function startNewSurvey() {
+  if (!confirm('Start a new survey? Your current survey is saved and accessible from the folder icon.')) return;
+  saveFormData();
+  surveyId = 'survey_' + Date.now();
+  formData = {};
+  rooms = [];
+  localStorage.setItem('cw_current_survey', surveyId);
+  location.reload();
+}
+
+// ============================================
+// REVIEW
+// ============================================
+function buildReview() {
+  saveFormData();
+  const c = document.getElementById('reviewContent');
+
+  const val = (key) => formData[key] || '';
+  const bool = (key) => formData[key] ? '&#10003;' : '';
+
+  // Frustrations list
+  const frustLabels = {
+    frust_detail: 'Attention to Detail', frust_basics: 'Basics', frust_comm: 'Communication',
+    frust_consistency: 'Consistency', frust_costs: 'Costs', frust_neverImproves: 'Never Improves',
+    frust_time: 'Not Enough Time', frust_security: 'Security/Theft', frust_turnover: 'Turnover'
+  };
+  const activeFrust = Object.entries(frustLabels).filter(([k]) => formData[k]).map(([,v]) => v).join(', ') || 'None selected';
+
+  // Services list
+  const svcLabels = {
+    svc_coi: 'COI', svc_bloodborne: 'Bloodborne', svc_hazard: 'Hazard Comm', svc_initialClean: 'Initial Clean',
+    svc_kitchen: 'Kitchen', svc_alarm: 'Alarm Code', svc_dumpsters: 'Dumpsters', svc_recycling: 'Recycling',
+    svc_windowWash: 'Window Wash', svc_pest: 'Pest Control', svc_sidelights: 'Sidelights', svc_blinds: 'Blinds',
+    svc_highWork: 'High Work', svc_pressureWash: 'Pressure Wash', svc_matting: 'Matting'
+  };
+  const activeSvc = Object.entries(svcLabels).filter(([k]) => formData[k]).map(([,v]) => v).join(', ') || 'None';
+
+  let roomsHtml = rooms.map((r, i) =>
+    `<div class="review-row"><span class="review-label">${r.name || 'Area ' + (i+1)}</span><span class="review-value">${r.sqft ? r.sqft + ' sqft' : ''} ${r.floorTypes.join(', ')} ${r.fixtures ? '(' + r.fixtures + ' fix)' : ''}</span></div>`
+  ).join('');
+
+  c.innerHTML = `
+    <div class="review-section">
+      <div class="review-section-title">Company</div>
+      <div class="review-row"><span class="review-label">Name</span><span class="review-value">${escHtml(val('companyName'))}</span></div>
+      <div class="review-row"><span class="review-label">Address</span><span class="review-value">${escHtml(val('address'))}, ${escHtml(val('city'))} ${escHtml(val('stateZip'))}</span></div>
+      <div class="review-row"><span class="review-label">Type</span><span class="review-value">${escHtml(val('businessType'))}</span></div>
+      <div class="review-row"><span class="review-label">Contact</span><span class="review-value">${escHtml(val('contactName'))} (${escHtml(val('contactTitle'))})</span></div>
+      <div class="review-row"><span class="review-label">Phone / Email</span><span class="review-value">${escHtml(val('phone'))} / ${escHtml(val('email'))}</span></div>
+      <div class="review-row"><span class="review-label">Date</span><span class="review-value">${escHtml(val('surveyDate'))}</span></div>
+    </div>
+    <div class="review-section">
+      <div class="review-section-title">Current Situation</div>
+      <div class="review-row"><span class="review-label">Current JS</span><span class="review-value">${escHtml(val('currentJSComp'))} (${escHtml(val('timeWithCurrent'))})</span></div>
+      <div class="review-row"><span class="review-label">Previous JS</span><span class="review-value">${escHtml(val('previousJSComp'))}</span></div>
+      <div class="review-row"><span class="review-label">Companies (5yr)</span><span class="review-value">${escHtml(val('numCompPast5'))}</span></div>
+    </div>
+    <div class="review-section">
+      <div class="review-section-title">Pain & Satisfaction</div>
+      <div class="review-row"><span class="review-label">Frustrations</span><span class="review-value">${activeFrust}</span></div>
+      <div class="review-row"><span class="review-label">Satisfaction</span><span class="review-value">${formData.satisfactionScale || 'Not rated'} / 5</span></div>
+      ${val('mostImportantChange') ? '<div class="review-note">' + escHtml(val('mostImportantChange')) + '</div>' : ''}
+    </div>
+    <div class="review-section">
+      <div class="review-section-title">Budget & Scope</div>
+      <div class="review-row"><span class="review-label">Budget</span><span class="review-value">${escHtml(val('budgetAmount'))}</span></div>
+      <div class="review-row"><span class="review-label">Days/Week</span><span class="review-value">${escHtml(val('daysPerWeek'))}</span></div>
+      <div class="review-row"><span class="review-label">Crew/Night</span><span class="review-value">${escHtml(val('peoplePerNight'))}</span></div>
+      <div class="review-row"><span class="review-label">Hours/Night</span><span class="review-value">${escHtml(val('hoursPerNight'))}</span></div>
+      <div class="review-row"><span class="review-label">Density</span><span class="review-value">${formData.density || ''}</span></div>
+      <div class="review-row"><span class="review-label">Total SqFt</span><span class="review-value">${escHtml(val('totalSqft'))}</span></div>
+      <div class="review-row"><span class="review-label">Total RR</span><span class="review-value">${escHtml(val('totalRR'))}</span></div>
+    </div>
+    <div class="review-section">
+      <div class="review-section-title">Decision Making</div>
+      <div class="review-row"><span class="review-label">Timeline</span><span class="review-value">${escHtml(val('timelineToSwitch'))}</span></div>
+      <div class="review-row"><span class="review-label">Restrictions</span><span class="review-value">${escHtml(val('startRestrictions'))}</span></div>
+      <div class="review-row"><span class="review-label">Other DMs</span><span class="review-value">${escHtml(val('otherDecisionMakers'))}</span></div>
+      <div class="review-row"><span class="review-label">Proposal Date</span><span class="review-value">${escHtml(val('proposalDate'))}</span></div>
+    </div>
+    <div class="review-section">
+      <div class="review-section-title">Walkthrough (${rooms.length} areas)</div>
+      ${roomsHtml || '<p style="font-size:13px;color:var(--cw-grey);">No areas added.</p>'}
+    </div>
+    <div class="review-section">
+      <div class="review-section-title">Services & Supplies</div>
+      <div class="review-row"><span class="review-label">Additional Svc</span><span class="review-value" style="font-size:11px">${activeSvc}</span></div>
+      <div class="review-row"><span class="review-label">Brands</span><span class="review-value">${escHtml(val('supplyBrands'))}</span></div>
+      <div class="review-row"><span class="review-label">Bundle FC w/ JS</span><span class="review-value">${formData.bundleWithJS || ''}</span></div>
+    </div>
+  `;
+}
+
+// ============================================
+// PDF GENERATION
+// ============================================
+function generatePDF() {
+  saveFormData();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'letter' });
+
+  const pageW = doc.internal.pageSize.getWidth();
+  const pageH = doc.internal.pageSize.getHeight();
+  const margin = 16;
+  const contentW = pageW - margin * 2;
+  let y = margin;
+
+  const CW_RED = [210, 39, 48];
+  const CW_BLACK = [45, 42, 38];
+  const CW_GREY = [99, 100, 102];
+  const CW_LIGHT = [245, 245, 246];
+
+  function checkPage(needed) {
+    if (y + needed > pageH - 20) {
+      doc.addPage();
+      y = margin;
+      return true;
+    }
+    return false;
+  }
+
+  function sectionTitle(text) {
+    checkPage(14);
+    doc.setFillColor(...CW_RED);
+    doc.rect(margin, y, contentW, 7, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(255, 255, 255);
+    doc.text(text.toUpperCase(), margin + 3, y + 5);
+    y += 10;
+    doc.setTextColor(...CW_BLACK);
+  }
+
+  function row(label, value) {
+    checkPage(7);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(...CW_GREY);
+    doc.text(label, margin + 2, y + 4);
+    doc.setTextColor(...CW_BLACK);
+    doc.setFont('helvetica', 'bold');
+    const valText = String(value || '').substring(0, 80);
+    doc.text(valText, margin + 52, y + 4);
+    doc.setDrawColor(230, 230, 230);
+    doc.line(margin, y + 6, margin + contentW, y + 6);
+    y += 7;
+  }
+
+  function noteBlock(text) {
+    if (!text) return;
+    checkPage(14);
+    doc.setFillColor(...CW_LIGHT);
+    const lines = doc.splitTextToSize(String(text), contentW - 8);
+    const h = lines.length * 4 + 4;
+    doc.rect(margin + 2, y, contentW - 4, h, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...CW_BLACK);
+    doc.text(lines, margin + 5, y + 4);
+    y += h + 3;
+  }
+
+  const val = (key) => formData[key] || '';
+
+  // Header
+  doc.setFillColor(...CW_RED);
+  doc.rect(0, 0, pageW, 22, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(16);
+  doc.setTextColor(255, 255, 255);
+  doc.text('CITY WIDE FACILITY SOLUTIONS', margin, 10);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Building Survey Report', margin, 16);
+  doc.setFontSize(9);
+  doc.text(val('surveyDate'), pageW - margin - 20, 16);
+  y = 28;
+
+  // Company Info
+  sectionTitle('Company Information');
+  row('Company', val('companyName'));
+  row('Address', `${val('address')}, ${val('city')} ${val('stateZip')}`);
+  row('Business Type', val('businessType'));
+  row('Contact', `${val('contactName')} (${val('contactTitle')})`);
+  row('Phone', val('phone'));
+  row('Email', val('email'));
+  row('Survey Date', val('surveyDate'));
+  y += 3;
+
+  // Pre-Research
+  if (val('preResearch') || val('qualifyingInfo')) {
+    sectionTitle('Pre-Research & Qualifying');
+    noteBlock(val('preResearch'));
+    noteBlock(val('qualifyingInfo'));
+    y += 2;
+  }
+
+  // Current Situation
+  sectionTitle('Current Situation');
+  row('Current JS Co.', `${val('currentJSComp')} (${val('timeWithCurrent')})`);
+  row('Previous JS Co.', val('previousJSComp'));
+  row('Companies (5yr)', val('numCompPast5'));
+  noteBlock(val('currentSituation'));
+  noteBlock(val('wantChanged'));
+  y += 2;
+
+  // Pain Discovery
+  const frustLabels = {
+    frust_detail: 'Attention to Detail', frust_basics: 'Basics', frust_comm: 'Communication',
+    frust_consistency: 'Consistency', frust_costs: 'Costs', frust_neverImproves: 'Never Improves',
+    frust_time: 'Not Enough Time', frust_security: 'Security/Theft', frust_turnover: 'Turnover'
+  };
+  const frusts = Object.entries(frustLabels).filter(([k]) => formData[k]).map(([,v]) => v).join(', ') || 'None';
+
+  sectionTitle('Pain Discovery');
+  row('Frustrations', frusts);
+  row('Satisfaction', `${formData.satisfactionScale || '-'} / 5`);
+  row('Most Important', val('mostImportantChange'));
+  noteBlock(val('timeOnJS'));
+  y += 2;
+
+  // Budget & Scope
+  sectionTitle('Budget & Fulfillment');
+  row('Budget', val('budgetAmount'));
+  row('Days / Week', val('daysPerWeek'));
+  row('Crew / Night', val('peoplePerNight'));
+  row('Hours / Night', val('hoursPerNight'));
+  row('Density', formData.density || '');
+  row('Total Cleanable SqFt', val('totalSqft'));
+  row('Total Restrooms', val('totalRR'));
+  row('Total Fixtures', val('totalFixtures'));
+  y += 2;
+
+  // Decision Making
+  sectionTitle('Decision Making');
+  row('Timeline', val('timelineToSwitch'));
+  row('Start Restrictions', val('startRestrictions'));
+  row('Other DMs', val('otherDecisionMakers'));
+  row('Decision Process', val('decisionProcess'));
+  row('Proposal Date', val('proposalDate'));
+  y += 2;
+
+  // Walkthrough
+  sectionTitle(`Building Walkthrough (${rooms.length} areas)`);
+  rooms.forEach((room, i) => {
+    checkPage(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(...CW_RED);
+    doc.text(`${i + 1}. ${room.name || 'Area ' + (i+1)}`, margin + 2, y + 4);
+    doc.setTextColor(...CW_BLACK);
+    doc.setFont('helvetica', 'normal');
+    const details = [
+      room.sqft ? room.sqft + ' sqft' : '',
+      room.dimensions ? '(' + room.dimensions + ')' : '',
+      room.floorTypes.length ? room.floorTypes.join('/') : '',
+      room.fixtures ? room.fixtures + ' fixtures' : '',
+      room.comments || ''
+    ].filter(Boolean).join('  |  ');
+    doc.setFontSize(8);
+    doc.text(details.substring(0, 100), margin + 2, y + 8);
+    y += 11;
+  });
+  y += 2;
+
+  // Services
+  const svcLabels = {
+    svc_coi: 'COI', svc_bloodborne: 'Bloodborne', svc_hazard: 'Hazard Comm', svc_initialClean: 'Initial Clean',
+    svc_kitchen: 'Kitchen', svc_alarm: 'Alarm Code', svc_dumpsters: 'Dumpsters', svc_recycling: 'Recycling',
+    svc_windowWash: 'Window Wash', svc_pest: 'Pest Control', svc_sidelights: 'Sidelights', svc_blinds: 'Blinds',
+    svc_highWork: 'High Work', svc_pressureWash: 'Pressure Wash', svc_matting: 'Matting'
+  };
+  const svcs = Object.entries(svcLabels).filter(([k]) => formData[k]).map(([,v]) => v).join(', ') || 'None';
+
+  sectionTitle('Floor Care & Services');
+  row('Hard Floor Svc', [
+    formData.fc_stripWax ? 'Strip & Wax' : '',
+    formData.fc_topScrub ? 'Top Scrub' : '',
+    formData.fc_machineScrub ? 'Machine Scrub' : '',
+    formData.fc_buff ? 'Hi-Speed Buff' : ''
+  ].filter(Boolean).join(', ') || 'None');
+  row('Carpet Care', [
+    formData.cc_extraction ? 'Extraction' : '',
+    formData.cc_trafficPattern ? 'Traffic Pattern' : '',
+    formData.cc_bonnet ? 'Bonnet' : ''
+  ].filter(Boolean).join(', ') || 'None');
+  row('Frequency', val('fcFrequency'));
+  row('Bundle w/ JS', formData.bundleWithJS || '');
+  row('Additional Svc', svcs.substring(0, 80));
+  y += 2;
+
+  // Supplies
+  sectionTitle('Supplies');
+  row('Brands', val('supplyBrands'));
+  row('Toilet Paper', val('supplyTP'));
+  row('Towels', val('supplyTowels'));
+  row('Soap', val('supplySoap'));
+  row('Dispensers', val('supplyDispensers'));
+
+  // Notes
+  if (val('extraNotes')) {
+    y += 3;
+    sectionTitle('Additional Notes');
+    noteBlock(val('extraNotes'));
+  }
+
+  // Footer on last page
+  const totalPages = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    doc.setFillColor(...CW_LIGHT);
+    doc.rect(0, pageH - 10, pageW, 10, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(...CW_GREY);
+    doc.text('City Wide Facility Solutions  |  Building Survey  |  Confidential', margin, pageH - 4);
+    doc.text(`Page ${i} of ${totalPages}`, pageW - margin - 18, pageH - 4);
+  }
+
+  // Save
+  const filename = `Building_Survey_${(val('companyName') || 'Draft').replace(/[^a-zA-Z0-9]/g, '_')}_${val('surveyDate') || 'undated'}.pdf`;
+  doc.save(filename);
+}
+
+// ============================================
+// BOOT
+// ============================================
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
