@@ -344,7 +344,7 @@ textarea {
   border: 1.5px solid var(--cw-grey-light);
   border-radius: var(--radius-sm);
   font-family: var(--font-stack);
-  font-size: 15px;
+  font-size: 16px;
   color: var(--cw-black);
   background: var(--cw-white);
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -854,6 +854,373 @@ select {
   .step-panel { display: block !important; }
   .main-content { padding: 0; }
 }
+
+/* ============================================
+   WALKTHROUGH 2.0: AREA CARDS
+   ============================================ */
+.quick-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.quick-chip {
+  padding: 10px 14px;
+  border: 1.5px solid var(--cw-teal);
+  border-radius: 20px;
+  background: var(--cw-white);
+  color: var(--cw-teal);
+  font-family: var(--font-stack);
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 40px;
+}
+.quick-chip:active { transform: scale(0.95); background: var(--cw-teal); color: white; }
+
+.totals-bar {
+  display: flex;
+  justify-content: space-between;
+  background: var(--cw-black);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  position: sticky;
+  top: 64px;
+  z-index: 50;
+  box-shadow: var(--shadow-md);
+}
+.totals-bar .tot { text-align: center; flex: 1; }
+.totals-bar .tot b { display: block; color: var(--cw-white); font-size: 16px; line-height: 1.1; }
+.totals-bar .tot span { font-size: 9px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.4px; }
+.totals-bar .tot.hot b { color: var(--cw-gold); }
+
+.area-card {
+  background: var(--cw-white);
+  border: 1px solid var(--cw-grey-light);
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.area-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  min-height: 56px;
+}
+.area-head:active { background: var(--cw-grey-lighter); }
+
+.area-num {
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  border-radius: 50%;
+  background: var(--cw-teal);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.area-titles { flex: 1; min-width: 0; }
+.area-title-name {
+  font-size: 15px;
+  font-weight: bold;
+  color: var(--cw-black);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.area-title-sub {
+  font-size: 11px;
+  color: var(--cw-grey);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.area-badge {
+  font-size: 10px;
+  font-weight: bold;
+  padding: 3px 6px;
+  border-radius: 10px;
+  align-items: center;
+  flex-shrink: 0;
+}
+.badge-hot { background: var(--cw-red-light); color: var(--cw-red); }
+.badge-flex { background: rgba(10,166,169,0.12); color: var(--cw-teal-dark); }
+.badge-photo { background: var(--cw-grey-lighter); color: var(--cw-grey); }
+
+.area-chev {
+  color: var(--cw-grey);
+  font-size: 14px;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.area-card.collapsed .area-chev { transform: rotate(-90deg); }
+
+.area-body {
+  padding: 0 14px 14px;
+  border-top: 1px solid var(--cw-grey-light);
+  padding-top: 12px;
+}
+.area-card.collapsed .area-body { display: none; }
+
+.rate-hint {
+  font-size: 10px;
+  color: var(--cw-teal-dark);
+  margin-top: 3px;
+  min-height: 12px;
+}
+
+.fixture-block { margin-bottom: 14px; }
+.stepper-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.stepper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: var(--cw-grey-lighter);
+  border-radius: var(--radius-sm);
+  padding: 8px 4px;
+}
+.stepper-label {
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--cw-grey);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.stepper-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.stepper-ctrl button {
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid var(--cw-grey-light);
+  border-radius: var(--radius-sm);
+  background: var(--cw-white);
+  color: var(--cw-black);
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+.stepper-ctrl button:active { transform: scale(0.92); border-color: var(--cw-teal); }
+.stepper-val {
+  min-width: 24px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--cw-black);
+}
+
+.toggle-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.toggle-chip {
+  flex: 1;
+  text-align: center;
+  padding: 10px 12px;
+  border: 1.5px solid var(--cw-grey-light);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--cw-grey);
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+  -webkit-user-select: none;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.toggle-chip:active { transform: scale(0.97); }
+.toggle-chip.t-flex.selected { border-color: var(--cw-teal); background: var(--cw-teal); color: white; }
+.toggle-chip.t-hot.selected { border-color: var(--cw-red); background: var(--cw-red); color: white; }
+
+.hs-note textarea { border-color: var(--cw-red-light); background: #fdf6f6; }
+
+.floor-split {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+.split-label {
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--cw-grey);
+  text-transform: uppercase;
+}
+.split-item {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--cw-black);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.split-inp {
+  width: 52px !important;
+  padding: 6px 8px !important;
+  text-align: center;
+}
+
+.photo-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.photo-thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-sm);
+  background-color: var(--cw-grey-lighter);
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  border: 1px solid var(--cw-grey-light);
+}
+.photo-del {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  background: var(--cw-red);
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.photo-add {
+  width: 64px;
+  height: 64px;
+  border: 2px dashed var(--cw-grey-light);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.photo-add:active { border-color: var(--cw-teal); transform: scale(0.95); }
+
+.area-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.btn-sm-teal { background: rgba(10,166,169,0.12); color: var(--cw-teal-dark); }
+.btn-sm-teal:hover { background: var(--cw-teal); color: white; }
+
+.req-card {
+  background: var(--cw-grey-lighter);
+  border: 1px solid var(--cw-grey-light);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.auto-totals {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(10,166,169,0.08);
+  border: 1px solid rgba(10,166,169,0.25);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--cw-teal-dark);
+  font-weight: bold;
+}
+.auto-totals button {
+  border: none;
+  background: var(--cw-teal);
+  color: white;
+  font-family: var(--font-stack);
+  font-size: 11px;
+  font-weight: bold;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.snackbar {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--cw-black);
+  color: white;
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.25s;
+  z-index: 250;
+  box-shadow: var(--shadow-lg);
+  max-width: calc(100% - 32px);
+  white-space: nowrap;
+}
+.snackbar.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+.snackbar button {
+  border: none;
+  background: transparent;
+  color: var(--cw-gold);
+  font-family: var(--font-stack);
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.hot-note { background: var(--cw-red-light) !important; }
+
+.empty-areas {
+  text-align: center;
+  color: var(--cw-grey);
+  font-size: 13px;
+  padding: 24px 16px;
+  border: 2px dashed var(--cw-grey-light);
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+}
+
 </style>
 </head>
 <body>
@@ -1129,11 +1496,11 @@ select {
       <div class="form-card-title">Satisfaction Scale</div>
       <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 8px;">On a scale of 1 to 5, how satisfied are you with your current service?</p>
       <div class="scale-row">
-        <button class="scale-btn" onclick="selectScale(this, 1)" data-val="1">1</button>
-        <button class="scale-btn" onclick="selectScale(this, 2)" data-val="2">2</button>
-        <button class="scale-btn" onclick="selectScale(this, 3)" data-val="3">3</button>
-        <button class="scale-btn" onclick="selectScale(this, 4)" data-val="4">4</button>
-        <button class="scale-btn" onclick="selectScale(this, 5)" data-val="5">5</button>
+        <button class="scale-btn" data-cf="satisfactionScale" data-cv="1" onclick="selectOpt(this)">1</button>
+        <button class="scale-btn" data-cf="satisfactionScale" data-cv="2" onclick="selectOpt(this)">2</button>
+        <button class="scale-btn" data-cf="satisfactionScale" data-cv="3" onclick="selectOpt(this)">3</button>
+        <button class="scale-btn" data-cf="satisfactionScale" data-cv="4" onclick="selectOpt(this)">4</button>
+        <button class="scale-btn" data-cf="satisfactionScale" data-cv="5" onclick="selectOpt(this)">5</button>
       </div>
       <div class="scale-labels">
         <span>Very Unsatisfied</span>
@@ -1227,9 +1594,76 @@ select {
       <div class="form-card-title">Building Density</div>
       <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 8px;">How dense is the furniture and equipment layout?</p>
       <div class="density-chips">
-        <span class="density-chip" onclick="selectDensity(this, 'Dense')">Dense</span>
-        <span class="density-chip" onclick="selectDensity(this, 'Average')">Average</span>
-        <span class="density-chip" onclick="selectDensity(this, 'Light')">Light</span>
+        <span class="density-chip" data-cf="density" data-cv="Dense" onclick="selectOpt(this)">Dense</span>
+        <span class="density-chip" data-cf="density" data-cv="Average" onclick="selectOpt(this)">Average</span>
+        <span class="density-chip" data-cf="density" data-cv="Light" onclick="selectOpt(this)">Light</span>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-title">Traffic Level</div>
+      <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 8px;">How heavy is foot traffic and soil load?</p>
+      <div class="density-chips">
+        <span class="density-chip" data-cf="traffic" data-cv="Light" onclick="selectOpt(this)">Light</span>
+        <span class="density-chip" data-cf="traffic" data-cv="Normal" onclick="selectOpt(this)">Normal</span>
+        <span class="density-chip" data-cf="traffic" data-cv="Heavy" onclick="selectOpt(this)">Heavy</span>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-title">Building Logistics</div>
+      <div class="field-row">
+        <div class="field-group">
+          <label for="occupants">Occupants (Approx)</label>
+          <input type="number" id="occupants" data-field="occupants" min="0" placeholder="45">
+        </div>
+        <div class="field-group">
+          <label for="buildingHours">Building Hours</label>
+          <input type="text" id="buildingHours" data-field="buildingHours" placeholder="M-F 8am-5pm">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Day Porter Interest?</label>
+        <div class="density-chips">
+          <span class="density-chip" data-cf="porterInterest" data-cv="Yes" onclick="selectOpt(this)">Yes</span>
+          <span class="density-chip" data-cf="porterInterest" data-cv="No" onclick="selectOpt(this)">No</span>
+          <span class="density-chip" data-cf="porterInterest" data-cv="Maybe" onclick="selectOpt(this)">Maybe</span>
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="porterCoverage">Porter Coverage Needed</label>
+        <input type="text" id="porterCoverage" data-field="porterCoverage" placeholder="7am-3pm M-F, lobby + restrooms">
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-title">Access & Security</div>
+      <div class="field-group">
+        <label for="accessMethod">How Does the Crew Get In?</label>
+        <select id="accessMethod" data-field="accessMethod">
+          <option value="">Select...</option>
+          <option>Key</option>
+          <option>Fob / Badge</option>
+          <option>Alarm Code</option>
+          <option>Lockbox</option>
+          <option>Escort Required</option>
+          <option>Open During Service Hours</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="accessNotes">Access / Security Notes</label>
+        <textarea id="accessNotes" data-field="accessNotes" rows="2" placeholder="Alarm details, badging process, cameras, restricted areas, key holder..."></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label for="dumpsterLocation">Dumpster Location</label>
+          <input type="text" id="dumpsterLocation" data-field="dumpsterLocation" placeholder="Rear lot, NE corner">
+        </div>
+        <div class="field-group">
+          <label for="janitorCloset">Janitor Closet / Water</label>
+          <input type="text" id="janitorCloset" data-field="janitorCloset" placeholder="2nd floor, by RR">
+        </div>
       </div>
     </div>
 
@@ -1248,6 +1682,10 @@ select {
       <div class="field-group">
         <label for="totalFixtures">Total Fixtures</label>
         <input type="number" id="totalFixtures" data-field="totalFixtures" min="0" placeholder="24">
+      </div>
+      <div class="auto-totals" id="autoTotalsLine" style="display:none">
+        <span id="autoTotalsText"></span>
+        <button type="button" onclick="applyAutoTotals()">Apply</button>
       </div>
     </div>
   </section>
@@ -1285,10 +1723,13 @@ select {
   <!-- ============ STEP 9: Walkthrough ============ -->
   <section class="step-panel" data-step="9">
     <h2 class="step-title">Building Walkthrough</h2>
-    <p class="step-subtitle">Add each area as you walk the building. Tap the floor types that apply to each space.</p>
+    <p class="step-subtitle">Tap a chip to add each area as you walk. Tap an area&#39;s header to open or close it. Flag problems as hot spots and snap photos.</p>
 
-    <div id="roomsContainer"></div>
-    <button class="btn-add" onclick="addRoom()">+ Add Area</button>
+    <div class="totals-bar" id="totalsBar"></div>
+    <div class="quick-chips" id="quickChips"></div>
+    <div class="empty-areas" id="areasEmpty">No areas yet. Tap a chip above to add your first area.</div>
+    <div id="areasContainer"></div>
+    <button class="btn-add" onclick="addArea('','')">+ Add Custom Area</button>
   </section>
 
   <!-- ============ STEP 10: Floor Care & Extras ============ -->
@@ -1317,8 +1758,8 @@ select {
       <div class="field-group">
         <label>Bundle with JS?</label>
         <div style="display:flex; gap: 8px; margin-top: 4px;">
-          <span class="density-chip" onclick="selectBundle(this, 'Yes')">Yes</span>
-          <span class="density-chip" onclick="selectBundle(this, 'No')">No</span>
+          <span class="density-chip" data-cf="bundleWithJS" data-cv="Yes" onclick="selectOpt(this)">Yes</span>
+          <span class="density-chip" data-cf="bundleWithJS" data-cv="No" onclick="selectOpt(this)">No</span>
         </div>
       </div>
     </div>
@@ -1351,6 +1792,13 @@ select {
         <label class="checklist-item"><input type="checkbox" data-field="svc_pressureWash"> <span>Pressure Washing</span></label>
         <label class="checklist-item"><input type="checkbox" data-field="svc_matting"> <span>Matting Services</span></label>
       </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-title">Special Requests & Hot Buttons</div>
+      <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 10px;">Anything specific they asked for during the visit. Area-level hot spots are captured in the walkthrough.</p>
+      <div id="requestsContainer"></div>
+      <button class="btn-add" type="button" onclick="addRequest()">+ Add Special Request</button>
     </div>
 
     <div class="form-card">
@@ -1409,9 +1857,13 @@ select {
 <div class="bottom-nav">
   <div class="bottom-nav-inner">
     <button class="btn btn-secondary" id="btnBack" onclick="prevStep()">Back</button>
+    <button class="btn btn-teal" id="btnSheets" onclick="saveToSheets()" style="display:none">Save to Sheets</button>
     <button class="btn btn-primary" id="btnNext" onclick="nextStep()">Next</button>
   </div>
 </div>
+
+<div class="snackbar" id="snackbar"><span id="snackMsg"></span><button type="button" id="snackUndo">UNDO</button></div>
+<input type="file" id="photoInput" accept="image/*" capture="environment" multiple hidden>
 
 <!-- ============================================
      SAVED SURVEYS MODAL
@@ -1436,38 +1888,126 @@ const TOTAL_STEPS = 11;
 let currentStep = 1;
 let surveyId = null;
 let formData = {};
-let rooms = [];
+let areas = [];
+let requests = [];
 let saveTimeout = null;
+let lastDeleted = null;
+let photoTarget = null; // {kind:'area'|'request', id}
+
+// ============================================
+// BID MODULE AREA TYPES (with production rate hints)
+// ============================================
+const AREA_TYPES = [
+  ['General Office', '5,500 sf/hr'],
+  ['Private Offices', '5,750 sf/hr'],
+  ['Cubicles / Open Office', '5,500 sf/hr'],
+  ['Conference Room', '7,475 sf/hr'],
+  ['Entry / Lobby / Reception', '6,500 sf/hr'],
+  ['Waiting Area', '4,000 sf/hr'],
+  ['Hallway / Corridor', '8,625 sf/hr'],
+  ['Break Room / Lunch', '4,000 sf/hr'],
+  ['Kitchen (Full Clean)', '1,500-2,500 sf/hr'],
+  ['Restroom', '3 min / fixture'],
+  ['Locker Room', '2,500 sf/hr + fixtures'],
+  ['Exam Room', '1,750 sf/hr'],
+  ['Lab Area', '3,000 sf/hr'],
+  ['Patient Room', '20-30 min / room'],
+  ['Classroom', '5,175 sf/hr'],
+  ['Gym / Workout Area', '6,000 sf/hr'],
+  ['Cafeteria / Dining', '4,000 sf/hr'],
+  ['Teller Area', '6,000 sf/hr'],
+  ['Retail Floor', '5,000 sf/hr'],
+  ['Sanctuary', '7,000 sf/hr'],
+  ['Warehouse / Plant', '5,000-8,000 sf/hr'],
+  ['Service Bay', 'sweep + trash only'],
+  ['Storage', '10,000 sf/hr'],
+  ['Stairwell', ''],
+  ['Elevator', ''],
+  ['Server / Copy Room', ''],
+  ['Other', '']
+];
+
+const QUICK_ADD = [
+  ['Office', 'General Office'],
+  ['Restroom', 'Restroom'],
+  ['Lobby', 'Entry / Lobby / Reception'],
+  ['Break Room', 'Break Room / Lunch'],
+  ['Conference', 'Conference Room'],
+  ['Hallway', 'Hallway / Corridor'],
+  ['Kitchen', 'Kitchen (Full Clean)'],
+  ['Exam Room', 'Exam Room'],
+  ['Warehouse', 'Warehouse / Plant'],
+  ['Storage', 'Storage'],
+  ['Stairwell', 'Stairwell'],
+  ['Custom', '']
+];
+
+const RR_TYPES = ['Restroom', 'Locker Room'];
+const SINK_TYPES = ['Break Room / Lunch', 'Kitchen (Full Clean)', 'Cafeteria / Dining'];
+const FLOOR_TYPES = ['CPT', 'VCT', 'CER', 'CONC', 'Other'];
+
+// ============================================
+// PHOTO STORE (IndexedDB — photos stay off localStorage quota)
+// ============================================
+const photoDB = {
+  db: null,
+  open() {
+    return new Promise((res, rej) => {
+      if (photoDB.db) return res(photoDB.db);
+      const r = indexedDB.open('cw_survey_photos', 1);
+      r.onupgradeneeded = e => e.target.result.createObjectStore('photos');
+      r.onsuccess = e => { photoDB.db = e.target.result; res(photoDB.db); };
+      r.onerror = () => rej(r.error);
+    });
+  },
+  put(key, val) {
+    return photoDB.open().then(db => new Promise((res, rej) => {
+      const tx = db.transaction('photos', 'readwrite');
+      tx.objectStore('photos').put(val, key);
+      tx.oncomplete = res; tx.onerror = () => rej(tx.error);
+    }));
+  },
+  get(key) {
+    return photoDB.open().then(db => new Promise((res, rej) => {
+      const rq = db.transaction('photos').objectStore('photos').get(key);
+      rq.onsuccess = () => res(rq.result); rq.onerror = () => rej(rq.error);
+    }));
+  },
+  del(key) {
+    return photoDB.open().then(db => new Promise((res, rej) => {
+      const tx = db.transaction('photos', 'readwrite');
+      tx.objectStore('photos').delete(key);
+      tx.oncomplete = res; tx.onerror = () => rej(tx.error);
+    }));
+  }
+};
 
 // ============================================
 // INIT
 // ============================================
 function init() {
-  // Set today's date as default
   const today = new Date().toISOString().split('T')[0];
   const dateField = document.getElementById('surveyDate');
   if (dateField && !dateField.value) dateField.value = today;
 
-  // Load current survey or start fresh
+  renderQuickAdd();
+
   const lastId = localStorage.getItem('cw_current_survey');
-  if (lastId) {
+  if (lastId && localStorage.getItem(lastId)) {
     loadSurvey(lastId);
   } else {
     surveyId = 'survey_' + Date.now();
     localStorage.setItem('cw_current_survey', surveyId);
+    renderAreas();
+    renderRequests();
   }
 
   renderStepDots();
   updateProgress();
   updateNav();
   bindAutoSave();
-
-  // Add initial rooms if empty
-  if (rooms.length === 0) {
-    addRoom('Lobby / Reception');
-    addRoom('Restroom 1');
-    addRoom('Office Area');
-  }
+  bindPhotoInput();
+  recalcTotals();
 }
 
 // ============================================
@@ -1478,7 +2018,7 @@ function goToStep(step) {
   saveFormData();
 
   document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
-  const panel = document.querySelector(`[data-step="${step}"]`);
+  const panel = document.querySelector('[data-step="' + step + '"]');
   if (panel) panel.classList.add('active');
 
   currentStep = step;
@@ -1486,42 +2026,41 @@ function goToStep(step) {
   updateNav();
   renderStepDots();
 
+  if (step === 7) updateAutoTotalsLine();
   if (step === TOTAL_STEPS) buildReview();
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function nextStep() {
-  if (currentStep === TOTAL_STEPS) {
-    generatePDF();
-    return;
-  }
+  if (currentStep === TOTAL_STEPS) { generatePDF(); return; }
   goToStep(currentStep + 1);
 }
 
-function prevStep() {
-  goToStep(currentStep - 1);
-}
+function prevStep() { goToStep(currentStep - 1); }
 
 function updateProgress() {
   const pct = Math.round((currentStep / TOTAL_STEPS) * 100);
   document.getElementById('progressFill').style.width = pct + '%';
   document.getElementById('progressPct').textContent = pct + '%';
-  document.getElementById('progressStepLabel').textContent = `Step ${currentStep} of ${TOTAL_STEPS}`;
+  document.getElementById('progressStepLabel').textContent = 'Step ' + currentStep + ' of ' + TOTAL_STEPS;
 }
 
 function updateNav() {
   const back = document.getElementById('btnBack');
   const next = document.getElementById('btnNext');
+  const sheets = document.getElementById('btnSheets');
 
   back.style.display = currentStep === 1 ? 'none' : 'flex';
 
   if (currentStep === TOTAL_STEPS) {
-    next.textContent = 'Generate PDF';
-    next.className = 'btn btn-teal';
+    next.textContent = 'PDF Report';
+    next.className = 'btn btn-primary';
+    sheets.style.display = 'flex';
   } else {
     next.textContent = 'Next';
     next.className = 'btn btn-primary';
+    sheets.style.display = 'none';
   }
 }
 
@@ -1537,8 +2076,6 @@ function renderStepDots() {
     dot.onclick = () => goToStep(i);
     container.appendChild(dot);
   }
-
-  // Scroll active dot into view
   const activeDot = container.querySelector('.active');
   if (activeDot) activeDot.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 }
@@ -1547,51 +2084,62 @@ function renderStepDots() {
 // DATA PERSISTENCE
 // ============================================
 function bindAutoSave() {
-  document.querySelectorAll('input, textarea, select').forEach(el => {
-    el.addEventListener('input', () => debounceSave());
-    el.addEventListener('change', () => debounceSave());
+  document.querySelectorAll('.step-panel input, .step-panel textarea, .step-panel select').forEach(el => {
+    if (el.closest('.area-card') || el.closest('.req-card')) return;
+    el.addEventListener('input', debounceSave);
+    el.addEventListener('change', debounceSave);
   });
 }
 
 function debounceSave() {
   clearTimeout(saveTimeout);
-  saveTimeout = setTimeout(() => {
-    saveFormData();
-    showSaveToast();
-  }, 600);
+  saveTimeout = setTimeout(() => { saveFormData(); showSaveToast(); }, 600);
 }
 
 function saveFormData() {
-  // Collect all field values
   document.querySelectorAll('[data-field]').forEach(el => {
     const key = el.dataset.field;
-    if (el.type === 'checkbox') {
-      formData[key] = el.checked;
-    } else {
-      formData[key] = el.value;
-    }
+    if (el.type === 'checkbox') formData[key] = el.checked;
+    else formData[key] = el.value;
   });
-
-  // Save rooms
-  collectRoomData();
 
   const saveObj = {
     id: surveyId,
     formData: formData,
-    rooms: rooms,
+    areas: areas,
+    requests: requests,
     step: currentStep,
     updatedAt: new Date().toISOString(),
     companyName: formData.companyName || 'Untitled Survey'
   };
 
-  localStorage.setItem(surveyId, JSON.stringify(saveObj));
+  try { localStorage.setItem(surveyId, JSON.stringify(saveObj)); }
+  catch (e) { console.warn('Save failed', e); }
 
-  // Update index
   let index = JSON.parse(localStorage.getItem('cw_survey_index') || '[]');
   if (!index.includes(surveyId)) {
     index.push(surveyId);
     localStorage.setItem('cw_survey_index', JSON.stringify(index));
   }
+}
+
+function migrateRooms(rooms) {
+  return (rooms || []).map(r => ({
+    id: r.id || ('area_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4)),
+    name: r.name || '',
+    type: '',
+    dims: r.dimensions || '',
+    sqft: r.sqft || '',
+    sqftAuto: false,
+    floorTypes: r.floorTypes || [],
+    floorSplit: {},
+    toilets: 0, urinals: 0, sinks: 0,
+    flex: false,
+    hotspot: false, hotspotNote: '',
+    notes: r.comments || '',
+    photos: [],
+    collapsed: true
+  }));
 }
 
 function loadSurvey(id) {
@@ -1601,16 +2149,15 @@ function loadSurvey(id) {
   const data = JSON.parse(raw);
   surveyId = data.id;
   formData = data.formData || {};
-  rooms = data.rooms || [];
+  areas = data.areas || migrateRooms(data.rooms);
+  requests = data.requests || [];
   currentStep = data.step || 1;
 
-  // Populate fields
   Object.keys(formData).forEach(key => {
-    const el = document.querySelector(`[data-field="${key}"]`);
+    const el = document.querySelector('[data-field="' + key + '"]');
     if (!el) return;
     if (el.type === 'checkbox') {
-      el.checked = formData[key];
-      // Update visual state for checkbox-items
+      el.checked = !!formData[key];
       const parent = el.closest('.checkbox-item');
       if (parent) parent.classList.toggle('checked', el.checked);
     } else {
@@ -1618,10 +2165,15 @@ function loadSurvey(id) {
     }
   });
 
-  // Render rooms
-  renderRooms();
-  goToStep(currentStep);
+  // Restore chip selections (density, traffic, satisfaction, bundle, porter...)
+  document.querySelectorAll('[data-cf]').forEach(chip => {
+    chip.classList.toggle('selected', String(formData[chip.dataset.cf]) === chip.dataset.cv);
+  });
 
+  renderAreas();
+  renderRequests();
+  recalcTotals();
+  goToStep(currentStep);
   localStorage.setItem('cw_current_survey', id);
 }
 
@@ -1632,109 +2184,576 @@ function showSaveToast() {
 }
 
 // ============================================
-// ROOMS / WALKTHROUGH
+// WALKTHROUGH: AREAS
 // ============================================
-function addRoom(defaultName) {
-  const room = {
-    id: 'room_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-    name: defaultName || '',
-    dimensions: '',
-    sqft: '',
-    floorTypes: [],
-    fixtures: '',
-    comments: ''
+function newArea(type, name) {
+  return {
+    id: 'area_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+    name: name || '', type: type || '',
+    dims: '', sqft: '', sqftAuto: false,
+    floorTypes: [], floorSplit: {},
+    toilets: 0, urinals: 0, sinks: 0,
+    flex: false, hotspot: false, hotspotNote: '',
+    notes: '', photos: [], collapsed: false
   };
-  rooms.push(room);
-  renderRooms();
-  debounceSave();
 }
 
-function removeRoom(roomId) {
-  rooms = rooms.filter(r => r.id !== roomId);
-  renderRooms();
-  debounceSave();
+function autoName(label) {
+  const count = areas.filter(a => (a.name || '').indexOf(label) === 0).length;
+  return count === 0 ? label : label + ' ' + (count + 1);
 }
 
-function renderRooms() {
-  const container = document.getElementById('roomsContainer');
+function renderQuickAdd() {
+  const wrap = document.getElementById('quickChips');
+  if (!wrap) return;
+  wrap.innerHTML = QUICK_ADD.map(q =>
+    '<button type="button" class="quick-chip" onclick="quickAdd(\'' + q[0] + '\',\'' + q[1] + '\')">+ ' + q[0] + '</button>'
+  ).join('');
+}
+
+function quickAdd(label, type) {
+  addArea(type, label === 'Custom' ? '' : autoName(label));
+}
+
+function addArea(type, name) {
+  areas.forEach(a => a.collapsed = true);
+  document.querySelectorAll('.area-card').forEach(c => c.classList.add('collapsed'));
+  const area = newArea(type, name);
+  areas.push(area);
+  const node = createAreaNode(area, areas.length - 1);
+  document.getElementById('areasContainer').appendChild(node);
+  updateEmptyState();
+  recalcTotals();
+  debounceSave();
+  setTimeout(() => node.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+}
+
+function duplicateArea(id) {
+  const idx = areas.findIndex(a => a.id === id);
+  if (idx < 0) return;
+  const src = areas[idx];
+  const copy = JSON.parse(JSON.stringify(src));
+  copy.id = 'area_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+  copy.photos = [];
+  copy.collapsed = false;
+  copy.name = autoName((src.name || 'Area').replace(/\s+\d+$/, ''));
+  areas.forEach(a => a.collapsed = true);
+  areas.splice(idx + 1, 0, copy);
+  renderAreas();
+  recalcTotals();
+  debounceSave();
+  const node = document.querySelector('[data-area-id="' + copy.id + '"]');
+  if (node) setTimeout(() => node.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+}
+
+function removeArea(id) {
+  const idx = areas.findIndex(a => a.id === id);
+  if (idx < 0) return;
+  if (lastDeleted && lastDeleted.timer) { clearTimeout(lastDeleted.timer); purgeAreaPhotos(lastDeleted.area); }
+  lastDeleted = { area: areas[idx], index: idx, timer: null };
+  areas.splice(idx, 1);
+  const node = document.querySelector('[data-area-id="' + id + '"]');
+  if (node) node.remove();
+  renumberAreas();
+  updateEmptyState();
+  recalcTotals();
+  debounceSave();
+  showSnackbar((lastDeleted.area.name || 'Area') + ' removed', undoRemove);
+  lastDeleted.timer = setTimeout(() => {
+    if (lastDeleted) { purgeAreaPhotos(lastDeleted.area); lastDeleted = null; }
+    hideSnackbar();
+  }, 6000);
+}
+
+function undoRemove() {
+  if (!lastDeleted) return;
+  clearTimeout(lastDeleted.timer);
+  areas.splice(Math.min(lastDeleted.index, areas.length), 0, lastDeleted.area);
+  lastDeleted = null;
+  renderAreas();
+  recalcTotals();
+  debounceSave();
+  hideSnackbar();
+}
+
+function purgeAreaPhotos(area) {
+  (area.photos || []).forEach(pid => photoDB.del(pid).catch(() => {}));
+}
+
+function showSnackbar(msg, onUndo) {
+  const bar = document.getElementById('snackbar');
+  document.getElementById('snackMsg').textContent = msg;
+  const btn = document.getElementById('snackUndo');
+  btn.style.display = onUndo ? 'inline-block' : 'none';
+  btn.onclick = onUndo || null;
+  bar.classList.add('show');
+}
+function hideSnackbar() { document.getElementById('snackbar').classList.remove('show'); }
+
+function renderAreas() {
+  const container = document.getElementById('areasContainer');
   container.innerHTML = '';
+  areas.forEach((area, idx) => container.appendChild(createAreaNode(area, idx)));
+  updateEmptyState();
+}
 
-  rooms.forEach((room, idx) => {
-    const el = document.createElement('div');
-    el.className = 'room-entry';
-    el.dataset.roomId = room.id;
-    el.innerHTML = `
-      <div class="room-entry-header">
-        <span class="room-number">Area ${idx + 1}</span>
-        <button class="btn-remove-room" onclick="removeRoom('${room.id}')" title="Remove">&times;</button>
-      </div>
-      <div class="field-group">
-        <label>Area Description</label>
-        <input type="text" class="room-name" value="${escHtml(room.name)}" placeholder="Lobby, Restroom 2, Break Room...">
-      </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Dimensions</label>
-          <input type="text" class="room-dim" value="${escHtml(room.dimensions)}" placeholder="20x30">
-        </div>
-        <div class="field-group">
-          <label>SqFt</label>
-          <input type="text" class="room-sqft" value="${escHtml(room.sqft)}" placeholder="600">
-        </div>
-      </div>
-      <div class="field-group">
-        <label>Floor Types</label>
-        <div class="floor-type-chips">
-          ${['CPT','VCT','CER','Other'].map(ft =>
-            `<span class="floor-chip ${room.floorTypes.includes(ft) ? 'selected' : ''}"
-              onclick="toggleFloorType(this, '${room.id}', '${ft}')">${ft}</span>`
-          ).join('')}
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label>Fixtures</label>
-          <input type="text" class="room-fixtures" value="${escHtml(room.fixtures)}" placeholder="# toilets, sinks...">
-        </div>
-        <div class="field-group">
-          <label>Comments</label>
-          <input type="text" class="room-comments" value="${escHtml(room.comments)}" placeholder="Notes...">
-        </div>
-      </div>
-    `;
-    container.appendChild(el);
+function updateEmptyState() {
+  const empty = document.getElementById('areasEmpty');
+  if (empty) empty.style.display = areas.length === 0 ? 'block' : 'none';
+}
 
-    // Bind autosave to room fields
-    el.querySelectorAll('input').forEach(input => {
-      input.addEventListener('input', () => debounceSave());
-    });
+function renumberAreas() {
+  document.querySelectorAll('.area-card').forEach((card, i) => {
+    const num = card.querySelector('.area-num');
+    if (num) num.textContent = i + 1;
   });
 }
 
-function collectRoomData() {
-  document.querySelectorAll('.room-entry').forEach(el => {
-    const roomId = el.dataset.roomId;
-    const room = rooms.find(r => r.id === roomId);
-    if (!room) return;
-    room.name = el.querySelector('.room-name')?.value || '';
-    room.dimensions = el.querySelector('.room-dim')?.value || '';
-    room.sqft = el.querySelector('.room-sqft')?.value || '';
-    room.fixtures = el.querySelector('.room-fixtures')?.value || '';
-    room.comments = el.querySelector('.room-comments')?.value || '';
+function areaSummary(area) {
+  const bits = [];
+  if (area.sqft) bits.push(Number(String(area.sqft).replace(/[^\d.]/g, '')).toLocaleString() + ' sqft');
+  if (area.floorTypes.length) bits.push(area.floorTypes.join('/'));
+  const fx = fixtureTotal(area);
+  if (fx) bits.push(fx + ' fixtures');
+  return bits.join(' · ') || 'Tap to fill in';
+}
+
+function fixtureTotal(area) {
+  return (Number(area.toilets) || 0) + (Number(area.urinals) || 0) + (Number(area.sinks) || 0);
+}
+
+function updateAreaHead(area) {
+  const card = document.querySelector('[data-area-id="' + area.id + '"]');
+  if (!card) return;
+  card.querySelector('.area-title-name').textContent = area.name || area.type || 'New Area';
+  card.querySelector('.area-title-sub').textContent = areaSummary(area);
+  card.querySelector('.badge-hot').style.display = area.hotspot ? 'inline-flex' : 'none';
+  card.querySelector('.badge-flex').style.display = area.flex ? 'inline-flex' : 'none';
+  const bp = card.querySelector('.badge-photo');
+  bp.style.display = (area.photos || []).length ? 'inline-flex' : 'none';
+  bp.textContent = '📷 ' + (area.photos || []).length;
+}
+
+function toggleAreaCollapse(id) {
+  const area = areas.find(a => a.id === id);
+  const card = document.querySelector('[data-area-id="' + id + '"]');
+  if (!area || !card) return;
+  area.collapsed = !area.collapsed;
+  card.classList.toggle('collapsed', area.collapsed);
+}
+
+function createAreaNode(area, idx) {
+  const el = document.createElement('div');
+  el.className = 'area-card' + (area.collapsed ? ' collapsed' : '');
+  el.dataset.areaId = area.id;
+
+  const typeOptions = '<option value="">Select type...</option>' + AREA_TYPES.map(t =>
+    '<option value="' + t[0] + '"' + (area.type === t[0] ? ' selected' : '') + '>' + t[0] + '</option>'
+  ).join('');
+
+  el.innerHTML =
+    '<div class="area-head" onclick="toggleAreaCollapse(\'' + area.id + '\')">' +
+      '<span class="area-num">' + (idx + 1) + '</span>' +
+      '<div class="area-titles">' +
+        '<div class="area-title-name">' + escHtml(area.name || area.type || 'New Area') + '</div>' +
+        '<div class="area-title-sub">' + escHtml(areaSummary(area)) + '</div>' +
+      '</div>' +
+      '<span class="area-badge badge-hot" style="display:' + (area.hotspot ? 'inline-flex' : 'none') + '">⚠</span>' +
+      '<span class="area-badge badge-flex" style="display:' + (area.flex ? 'inline-flex' : 'none') + '">FLEX</span>' +
+      '<span class="area-badge badge-photo" style="display:' + ((area.photos || []).length ? 'inline-flex' : 'none') + '">📷 ' + (area.photos || []).length + '</span>' +
+      '<span class="area-chev">▾</span>' +
+      '<button type="button" class="btn-remove-room" onclick="event.stopPropagation();removeArea(\'' + area.id + '\')" title="Remove">&times;</button>' +
+    '</div>' +
+    '<div class="area-body">' +
+      '<div class="field-row">' +
+        '<div class="field-group"><label>Area Name</label>' +
+          '<input type="text" class="a-name" value="' + escHtml(area.name) + '" placeholder="Lobby, Suite 200..."></div>' +
+        '<div class="field-group"><label>Area Type</label>' +
+          '<select class="a-type">' + typeOptions + '</select>' +
+          '<div class="rate-hint"></div></div>' +
+      '</div>' +
+      '<div class="field-row">' +
+        '<div class="field-group"><label>Dimensions (L x W)</label>' +
+          '<input type="text" class="a-dims" inputmode="numeric" value="' + escHtml(area.dims) + '" placeholder="20x30"></div>' +
+        '<div class="field-group"><label>SqFt</label>' +
+          '<input type="text" class="a-sqft" inputmode="numeric" value="' + escHtml(area.sqft) + '" placeholder="600"></div>' +
+      '</div>' +
+      '<div class="field-group"><label>Floor Types</label>' +
+        '<div class="floor-type-chips">' + FLOOR_TYPES.map(ft =>
+          '<span class="floor-chip ' + (area.floorTypes.includes(ft) ? 'selected' : '') + '" onclick="toggleFloor(\'' + area.id + '\',\'' + ft + '\',this)">' + ft + '</span>'
+        ).join('') + '</div>' +
+        '<div class="floor-split"></div>' +
+      '</div>' +
+      '<div class="fixture-block">' +
+        '<label>Fixtures</label>' +
+        '<div class="stepper-row">' +
+          stepperHtml(area.id, 'toilets', 'Toilets', area.toilets) +
+          stepperHtml(area.id, 'urinals', 'Urinals', area.urinals) +
+          stepperHtml(area.id, 'sinks', 'Sinks', area.sinks) +
+        '</div>' +
+      '</div>' +
+      '<div class="toggle-row">' +
+        '<span class="toggle-chip t-flex ' + (area.flex ? 'selected' : '') + '" onclick="toggleFlag(\'' + area.id + '\',\'flex\',this)">Flex Clean</span>' +
+        '<span class="toggle-chip t-hot ' + (area.hotspot ? 'selected' : '') + '" onclick="toggleFlag(\'' + area.id + '\',\'hotspot\',this)">⚠ Hot Spot</span>' +
+      '</div>' +
+      '<div class="field-group hs-note" style="display:' + (area.hotspot ? 'block' : 'none') + '">' +
+        '<label>Hot Spot / Problem Detail</label>' +
+        '<textarea class="a-hsnote" rows="2" placeholder="What is the issue here? Client complaint, damage, odor...">' + escHtml(area.hotspotNote) + '</textarea>' +
+      '</div>' +
+      '<div class="field-group"><label>Notes</label>' +
+        '<textarea class="a-notes" rows="2" placeholder="Special instructions, condition, requests for this area...">' + escHtml(area.notes) + '</textarea></div>' +
+      '<div class="field-group"><label>Photos</label>' +
+        '<div class="photo-row"></div></div>' +
+      '<div class="area-actions">' +
+        '<button type="button" class="btn-sm btn-sm-teal" onclick="duplicateArea(\'' + area.id + '\')">Duplicate</button>' +
+      '</div>' +
+    '</div>';
+
+  // Live-bind inputs straight to the model — no re-render, no lost keystrokes
+  const nameInp = el.querySelector('.a-name');
+  nameInp.addEventListener('input', () => { area.name = nameInp.value; updateAreaHead(area); debounceSave(); });
+
+  const typeSel = el.querySelector('.a-type');
+  typeSel.addEventListener('change', () => {
+    area.type = typeSel.value;
+    updateRateHint(el, area);
+    updateFixtureVisibility(el, area);
+    updateAreaHead(area);
+    recalcTotals();
+    debounceSave();
+  });
+
+  const dimsInp = el.querySelector('.a-dims');
+  const sqftInp = el.querySelector('.a-sqft');
+  dimsInp.addEventListener('input', () => {
+    area.dims = dimsInp.value;
+    const m = dimsInp.value.match(/(\d+(?:\.\d+)?)\s*[xX×]\s*(\d+(?:\.\d+)?)/);
+    if (m && (!area.sqft || area.sqftAuto)) {
+      area.sqft = String(Math.round(parseFloat(m[1]) * parseFloat(m[2])));
+      area.sqftAuto = true;
+      sqftInp.value = area.sqft;
+      updateAreaHead(area);
+      recalcTotals();
+    }
+    debounceSave();
+  });
+  sqftInp.addEventListener('input', () => {
+    area.sqft = sqftInp.value;
+    area.sqftAuto = false;
+    updateAreaHead(area);
+    recalcTotals();
+    debounceSave();
+  });
+
+  const hsNote = el.querySelector('.a-hsnote');
+  hsNote.addEventListener('input', () => { area.hotspotNote = hsNote.value; debounceSave(); });
+
+  const notes = el.querySelector('.a-notes');
+  notes.addEventListener('input', () => { area.notes = notes.value; debounceSave(); });
+
+  updateRateHint(el, area);
+  updateFixtureVisibility(el, area);
+  updateFloorSplit(el, area);
+  renderPhotoRow(el, area);
+
+  return el;
+}
+
+function stepperHtml(id, field, label, val) {
+  return '<div class="stepper"><span class="stepper-label">' + label + '</span>' +
+    '<div class="stepper-ctrl">' +
+    '<button type="button" onclick="stepFixture(\'' + id + '\',\'' + field + '\',-1,this)">&minus;</button>' +
+    '<span class="stepper-val">' + (val || 0) + '</span>' +
+    '<button type="button" onclick="stepFixture(\'' + id + '\',\'' + field + '\',1,this)">+</button>' +
+    '</div></div>';
+}
+
+function stepFixture(id, field, delta, btn) {
+  const area = areas.find(a => a.id === id);
+  if (!area) return;
+  area[field] = Math.max(0, (Number(area[field]) || 0) + delta);
+  btn.parentElement.querySelector('.stepper-val').textContent = area[field];
+  updateAreaHead(area);
+  recalcTotals();
+  debounceSave();
+}
+
+function updateRateHint(el, area) {
+  const hint = el.querySelector('.rate-hint');
+  const t = AREA_TYPES.find(t => t[0] === area.type);
+  hint.textContent = (t && t[1]) ? 'Bid module rate: ' + t[1] : '';
+}
+
+function updateFixtureVisibility(el, area) {
+  const block = el.querySelector('.fixture-block');
+  const isRR = RR_TYPES.includes(area.type);
+  const isSink = SINK_TYPES.includes(area.type);
+  block.style.display = (isRR || isSink || fixtureTotal(area) > 0) ? 'block' : 'none';
+  block.querySelectorAll('.stepper').forEach((s, i) => {
+    // hide toilets/urinals for sink-only areas
+    if (isSink && !isRR && i < 2 && !(i === 0 ? area.toilets : area.urinals)) s.style.display = 'none';
+    else s.style.display = 'flex';
   });
 }
 
-function toggleFloorType(chip, roomId, type) {
-  const room = rooms.find(r => r.id === roomId);
-  if (!room) return;
-  const idx = room.floorTypes.indexOf(type);
-  if (idx >= 0) {
-    room.floorTypes.splice(idx, 1);
-    chip.classList.remove('selected');
-  } else {
-    room.floorTypes.push(type);
-    chip.classList.add('selected');
+function toggleFloor(id, ft, chip) {
+  const area = areas.find(a => a.id === id);
+  if (!area) return;
+  const i = area.floorTypes.indexOf(ft);
+  if (i >= 0) { area.floorTypes.splice(i, 1); delete area.floorSplit[ft]; chip.classList.remove('selected'); }
+  else { area.floorTypes.push(ft); chip.classList.add('selected'); }
+  const card = document.querySelector('[data-area-id="' + id + '"]');
+  updateFloorSplit(card, area);
+  updateAreaHead(area);
+  debounceSave();
+}
+
+function updateFloorSplit(el, area) {
+  const wrap = el.querySelector('.floor-split');
+  if (area.floorTypes.length < 2) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = '<span class="split-label">Split %</span>' + area.floorTypes.map(ft =>
+    '<span class="split-item">' + ft +
+    ' <input type="text" inputmode="numeric" class="split-inp" data-ft="' + ft + '" value="' + escHtml(area.floorSplit[ft] || '') + '" placeholder="%"></span>'
+  ).join('');
+  wrap.querySelectorAll('.split-inp').forEach(inp => {
+    inp.addEventListener('input', () => { area.floorSplit[inp.dataset.ft] = inp.value; debounceSave(); });
+  });
+}
+
+function toggleFlag(id, flag, chip) {
+  const area = areas.find(a => a.id === id);
+  if (!area) return;
+  area[flag] = !area[flag];
+  chip.classList.toggle('selected', area[flag]);
+  if (flag === 'hotspot') {
+    const card = document.querySelector('[data-area-id="' + id + '"]');
+    card.querySelector('.hs-note').style.display = area.hotspot ? 'block' : 'none';
   }
+  updateAreaHead(area);
+  recalcTotals();
+  debounceSave();
+}
+
+// ============================================
+// PHOTOS
+// ============================================
+function bindPhotoInput() {
+  const input = document.getElementById('photoInput');
+  input.addEventListener('change', async () => {
+    if (!photoTarget) return;
+    const files = Array.from(input.files || []);
+    input.value = '';
+    for (const file of files) {
+      try {
+        const photo = await compressImage(file);
+        const pid = 'ph_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+        await photoDB.put(pid, photo);
+        if (photoTarget.kind === 'area') {
+          const area = areas.find(a => a.id === photoTarget.id);
+          if (area) {
+            area.photos.push(pid);
+            const card = document.querySelector('[data-area-id="' + area.id + '"]');
+            if (card) renderPhotoRow(card, area);
+            updateAreaHead(area);
+          }
+        } else {
+          const req = requests.find(r => r.id === photoTarget.id);
+          if (req) {
+            req.photos.push(pid);
+            const card = document.querySelector('[data-req-id="' + req.id + '"]');
+            if (card) renderReqPhotoRow(card, req);
+          }
+        }
+        debounceSave();
+      } catch (e) { console.warn('Photo failed', e); }
+    }
+  });
+}
+
+function pickPhoto(kind, id) {
+  photoTarget = { kind: kind, id: id };
+  document.getElementById('photoInput').click();
+}
+
+function compressImage(file) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const MAX = 1200;
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        const s = MAX / Math.max(w, h);
+        w = Math.round(w * s); h = Math.round(h * s);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      res({ data: canvas.toDataURL('image/jpeg', 0.72), w: w, h: h });
+    };
+    img.onerror = rej;
+    img.src = url;
+  });
+}
+
+function renderPhotoRow(card, area) {
+  const row = card.querySelector('.photo-row');
+  row.innerHTML = '';
+  (area.photos || []).forEach(pid => {
+    const t = document.createElement('div');
+    t.className = 'photo-thumb';
+    t.innerHTML = '<button type="button" class="photo-del" onclick="delPhoto(\'' + area.id + '\',\'' + pid + '\')">&times;</button>';
+    photoDB.get(pid).then(p => {
+      if (p) t.style.backgroundImage = 'url(' + p.data + ')';
+    }).catch(() => {});
+    row.appendChild(t);
+  });
+  const add = document.createElement('button');
+  add.type = 'button';
+  add.className = 'photo-add';
+  add.innerHTML = '📷';
+  add.onclick = () => pickPhoto('area', area.id);
+  row.appendChild(add);
+}
+
+function delPhoto(areaId, pid) {
+  const area = areas.find(a => a.id === areaId);
+  if (!area) return;
+  area.photos = area.photos.filter(p => p !== pid);
+  photoDB.del(pid).catch(() => {});
+  const card = document.querySelector('[data-area-id="' + areaId + '"]');
+  if (card) renderPhotoRow(card, area);
+  updateAreaHead(area);
+  debounceSave();
+}
+
+// ============================================
+// SPECIAL REQUESTS
+// ============================================
+function addRequest() {
+  const req = {
+    id: 'req_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+    text: '', who: '', where: '', photos: []
+  };
+  requests.push(req);
+  document.getElementById('requestsContainer').appendChild(createReqNode(req, requests.length - 1));
+  debounceSave();
+}
+
+function removeRequest(id) {
+  const idx = requests.findIndex(r => r.id === id);
+  if (idx < 0) return;
+  (requests[idx].photos || []).forEach(pid => photoDB.del(pid).catch(() => {}));
+  requests.splice(idx, 1);
+  renderRequests();
+  debounceSave();
+}
+
+function renderRequests() {
+  const container = document.getElementById('requestsContainer');
+  if (!container) return;
+  container.innerHTML = '';
+  requests.forEach((r, i) => container.appendChild(createReqNode(r, i)));
+}
+
+function createReqNode(req, idx) {
+  const el = document.createElement('div');
+  el.className = 'req-card';
+  el.dataset.reqId = req.id;
+  el.innerHTML =
+    '<div class="room-entry-header">' +
+      '<span class="room-number">Request ' + (idx + 1) + '</span>' +
+      '<button type="button" class="btn-remove-room" onclick="removeRequest(\'' + req.id + '\')">&times;</button>' +
+    '</div>' +
+    '<div class="field-group"><label>Request / Requirement</label>' +
+      '<textarea class="r-text" rows="2" placeholder="What did they ask for? Special cleaning, event support, supplies...">' + escHtml(req.text) + '</textarea></div>' +
+    '<div class="field-row">' +
+      '<div class="field-group"><label>Requested By</label>' +
+        '<input type="text" class="r-who" value="' + escHtml(req.who) + '" placeholder="Name / title"></div>' +
+      '<div class="field-group"><label>Location</label>' +
+        '<input type="text" class="r-where" value="' + escHtml(req.where) + '" placeholder="Area / floor"></div>' +
+    '</div>' +
+    '<div class="field-group"><label>Photos</label><div class="photo-row"></div></div>';
+
+  el.querySelector('.r-text').addEventListener('input', e => { req.text = e.target.value; debounceSave(); });
+  el.querySelector('.r-who').addEventListener('input', e => { req.who = e.target.value; debounceSave(); });
+  el.querySelector('.r-where').addEventListener('input', e => { req.where = e.target.value; debounceSave(); });
+  renderReqPhotoRow(el, req);
+  return el;
+}
+
+function renderReqPhotoRow(card, req) {
+  const row = card.querySelector('.photo-row');
+  row.innerHTML = '';
+  (req.photos || []).forEach(pid => {
+    const t = document.createElement('div');
+    t.className = 'photo-thumb';
+    t.innerHTML = '<button type="button" class="photo-del" onclick="delReqPhoto(\'' + req.id + '\',\'' + pid + '\')">&times;</button>';
+    photoDB.get(pid).then(p => { if (p) t.style.backgroundImage = 'url(' + p.data + ')'; }).catch(() => {});
+    row.appendChild(t);
+  });
+  const add = document.createElement('button');
+  add.type = 'button';
+  add.className = 'photo-add';
+  add.innerHTML = '📷';
+  add.onclick = () => pickPhoto('request', req.id);
+  row.appendChild(add);
+}
+
+function delReqPhoto(reqId, pid) {
+  const req = requests.find(r => r.id === reqId);
+  if (!req) return;
+  req.photos = req.photos.filter(p => p !== pid);
+  photoDB.del(pid).catch(() => {});
+  const card = document.querySelector('[data-req-id="' + reqId + '"]');
+  if (card) renderReqPhotoRow(card, req);
+  debounceSave();
+}
+
+// ============================================
+// TOTALS
+// ============================================
+function surveyTotals() {
+  let sqft = 0, fixtures = 0, restrooms = 0, hotspots = 0;
+  areas.forEach(a => {
+    sqft += Number(String(a.sqft || '').replace(/[^\d.]/g, '')) || 0;
+    fixtures += fixtureTotal(a);
+    if (RR_TYPES.includes(a.type)) restrooms++;
+    if (a.hotspot) hotspots++;
+  });
+  return { areas: areas.length, sqft: Math.round(sqft), fixtures: fixtures, restrooms: restrooms, hotspots: hotspots };
+}
+
+function recalcTotals() {
+  const t = surveyTotals();
+  const bar = document.getElementById('totalsBar');
+  if (bar) {
+    bar.innerHTML =
+      '<div class="tot"><b>' + t.areas + '</b><span>Areas</span></div>' +
+      '<div class="tot"><b>' + t.sqft.toLocaleString() + '</b><span>SqFt</span></div>' +
+      '<div class="tot"><b>' + t.restrooms + '</b><span>Restrooms</span></div>' +
+      '<div class="tot"><b>' + t.fixtures + '</b><span>Fixtures</span></div>' +
+      '<div class="tot' + (t.hotspots ? ' hot' : '') + '"><b>' + t.hotspots + '</b><span>Hot Spots</span></div>';
+  }
+  updateAutoTotalsLine();
+}
+
+function updateAutoTotalsLine() {
+  const line = document.getElementById('autoTotalsLine');
+  if (!line) return;
+  const t = surveyTotals();
+  if (t.areas === 0) { line.style.display = 'none'; return; }
+  line.style.display = 'flex';
+  document.getElementById('autoTotalsText').textContent =
+    'Walkthrough: ' + t.sqft.toLocaleString() + ' sqft · ' + t.restrooms + ' RR · ' + t.fixtures + ' fixtures';
+}
+
+function applyAutoTotals() {
+  const t = surveyTotals();
+  document.getElementById('totalSqft').value = t.sqft ? t.sqft.toLocaleString() : '';
+  document.getElementById('totalRR').value = t.restrooms || '';
+  document.getElementById('totalFixtures').value = t.fixtures || '';
   debounceSave();
 }
 
@@ -1743,42 +2762,21 @@ function toggleFloorType(chip, roomId, type) {
 // ============================================
 function toggleCheck(el) {
   const cb = el.querySelector('input[type="checkbox"]');
-  // The click already toggles the checkbox, so just update visual
-  setTimeout(() => {
-    el.classList.toggle('checked', cb.checked);
-    debounceSave();
-  }, 0);
+  setTimeout(() => { el.classList.toggle('checked', cb.checked); debounceSave(); }, 0);
 }
 
-function selectScale(btn, val) {
-  document.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  formData.satisfactionScale = val;
-  debounceSave();
-}
-
-function selectDensity(chip, val) {
-  document.querySelectorAll('.density-chip').forEach(c => {
-    if (c.closest('.form-card')?.querySelector('.form-card-title')?.textContent === 'Building Density') {
-      c.classList.remove('selected');
-    }
-  });
+function selectOpt(chip) {
+  const field = chip.dataset.cf, val = chip.dataset.cv;
+  document.querySelectorAll('[data-cf="' + field + '"]').forEach(c => c.classList.remove('selected'));
   chip.classList.add('selected');
-  formData.density = val;
-  debounceSave();
-}
-
-function selectBundle(chip, val) {
-  const parent = chip.parentElement;
-  parent.querySelectorAll('.density-chip').forEach(c => c.classList.remove('selected'));
-  chip.classList.add('selected');
-  formData.bundleWithJS = val;
+  formData[field] = val;
   debounceSave();
 }
 
 function escHtml(str) {
+  if (str === 0) return '0';
   if (!str) return '';
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 // ============================================
@@ -1799,20 +2797,13 @@ function showSavedSurveys() {
       const date = new Date(s.updatedAt).toLocaleDateString();
       const name = s.companyName || 'Untitled';
       const isCurrent = id === surveyId;
-      return `
-        <div class="saved-item" onclick="loadAndClose('${id}')">
-          <div class="saved-item-info">
-            <h4>${escHtml(name)} ${isCurrent ? '<span style="color:var(--cw-teal);font-size:11px;">CURRENT</span>' : ''}</h4>
-            <p>Step ${s.step || 1} of ${TOTAL_STEPS} &middot; ${date}</p>
-          </div>
-          <div class="saved-item-actions" onclick="event.stopPropagation()">
-            <button class="btn-sm btn-sm-red" onclick="deleteSurvey('${id}')">Delete</button>
-          </div>
-        </div>
-      `;
+      return '<div class="saved-item" onclick="loadAndClose(\'' + id + '\')">' +
+        '<div class="saved-item-info"><h4>' + escHtml(name) + (isCurrent ? ' <span style="color:var(--cw-teal);font-size:11px;">CURRENT</span>' : '') + '</h4>' +
+        '<p>Step ' + (s.step || 1) + ' of ' + TOTAL_STEPS + ' &middot; ' + date + '</p></div>' +
+        '<div class="saved-item-actions" onclick="event.stopPropagation()">' +
+        '<button class="btn-sm btn-sm-red" onclick="deleteSurvey(\'' + id + '\')">Delete</button></div></div>';
     }).join('');
   }
-
   modal.classList.add('show');
 }
 
@@ -1822,12 +2813,26 @@ function closeSavedModal(e) {
 }
 
 function loadAndClose(id) {
+  // Reset chips before loading another survey
+  document.querySelectorAll('[data-cf]').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('[data-field]').forEach(el => {
+    if (el.type === 'checkbox') { el.checked = false; const p = el.closest('.checkbox-item'); if (p) p.classList.remove('checked'); }
+    else el.value = '';
+  });
   loadSurvey(id);
   document.getElementById('savedModal').classList.remove('show');
 }
 
 function deleteSurvey(id) {
   if (!confirm('Delete this survey?')) return;
+  const raw = localStorage.getItem(id);
+  if (raw) {
+    try {
+      const s = JSON.parse(raw);
+      (s.areas || []).forEach(a => (a.photos || []).forEach(pid => photoDB.del(pid).catch(() => {})));
+      (s.requests || []).forEach(r => (r.photos || []).forEach(pid => photoDB.del(pid).catch(() => {})));
+    } catch (e) {}
+  }
   localStorage.removeItem(id);
   let index = JSON.parse(localStorage.getItem('cw_survey_index') || '[]');
   index = index.filter(i => i !== id);
@@ -1835,8 +2840,7 @@ function deleteSurvey(id) {
 
   if (id === surveyId) {
     surveyId = 'survey_' + Date.now();
-    formData = {};
-    rooms = [];
+    formData = {}; areas = []; requests = [];
     localStorage.setItem('cw_current_survey', surveyId);
     location.reload();
   } else {
@@ -1848,8 +2852,7 @@ function startNewSurvey() {
   if (!confirm('Start a new survey? Your current survey is saved and accessible from the folder icon.')) return;
   saveFormData();
   surveyId = 'survey_' + Date.now();
-  formData = {};
-  rooms = [];
+  formData = {}; areas = []; requests = [];
   localStorage.setItem('cw_current_survey', surveyId);
   location.reload();
 }
@@ -1857,404 +2860,506 @@ function startNewSurvey() {
 // ============================================
 // REVIEW
 // ============================================
+const FRUST_LABELS = {
+  frust_detail: 'Attention to Detail', frust_basics: 'Basics', frust_comm: 'Communication',
+  frust_consistency: 'Consistency', frust_costs: 'Costs', frust_neverImproves: 'Never Improves',
+  frust_time: 'Not Enough Time', frust_security: 'Security/Theft', frust_turnover: 'Turnover'
+};
+const SVC_LABELS = {
+  svc_coi: 'COI', svc_bloodborne: 'Bloodborne', svc_hazard: 'Hazard Comm', svc_initialClean: 'Initial Clean',
+  svc_kitchen: 'Kitchen', svc_alarm: 'Alarm Code', svc_dumpsters: 'Dumpsters', svc_recycling: 'Recycling',
+  svc_windowWash: 'Window Wash', svc_pest: 'Pest Control', svc_sidelights: 'Sidelights', svc_blinds: 'Blinds',
+  svc_highWork: 'High Work', svc_pressureWash: 'Pressure Wash', svc_matting: 'Matting'
+};
+
+function checkedList(labels) {
+  return Object.entries(labels).filter(([k]) => formData[k]).map(([, v]) => v).join(', ');
+}
+
+function areaLine(a) {
+  const bits = [];
+  if (a.type) bits.push(a.type);
+  if (a.sqft) bits.push(a.sqft + ' sqft');
+  if (a.dims) bits.push('(' + a.dims + ')');
+  if (a.floorTypes.length) {
+    let f = a.floorTypes.map(ft => ft + (a.floorSplit[ft] ? ' ' + a.floorSplit[ft] + '%' : '')).join('/');
+    bits.push(f);
+  }
+  const fx = fixtureTotal(a);
+  if (fx) bits.push(a.toilets + 'T/' + a.urinals + 'U/' + a.sinks + 'S (' + fx + ' fix)');
+  if (a.flex) bits.push('FLEX');
+  return bits.join(' · ');
+}
+
 function buildReview() {
   saveFormData();
   const c = document.getElementById('reviewContent');
-
   const val = (key) => formData[key] || '';
-  const bool = (key) => formData[key] ? '&#10003;' : '';
+  const t = surveyTotals();
 
-  // Frustrations list
-  const frustLabels = {
-    frust_detail: 'Attention to Detail', frust_basics: 'Basics', frust_comm: 'Communication',
-    frust_consistency: 'Consistency', frust_costs: 'Costs', frust_neverImproves: 'Never Improves',
-    frust_time: 'Not Enough Time', frust_security: 'Security/Theft', frust_turnover: 'Turnover'
-  };
-  const activeFrust = Object.entries(frustLabels).filter(([k]) => formData[k]).map(([,v]) => v).join(', ') || 'None selected';
+  const activeFrust = checkedList(FRUST_LABELS) || 'None selected';
+  const activeSvc = checkedList(SVC_LABELS) || 'None';
 
-  // Services list
-  const svcLabels = {
-    svc_coi: 'COI', svc_bloodborne: 'Bloodborne', svc_hazard: 'Hazard Comm', svc_initialClean: 'Initial Clean',
-    svc_kitchen: 'Kitchen', svc_alarm: 'Alarm Code', svc_dumpsters: 'Dumpsters', svc_recycling: 'Recycling',
-    svc_windowWash: 'Window Wash', svc_pest: 'Pest Control', svc_sidelights: 'Sidelights', svc_blinds: 'Blinds',
-    svc_highWork: 'High Work', svc_pressureWash: 'Pressure Wash', svc_matting: 'Matting'
-  };
-  const activeSvc = Object.entries(svcLabels).filter(([k]) => formData[k]).map(([,v]) => v).join(', ') || 'None';
-
-  let roomsHtml = rooms.map((r, i) =>
-    `<div class="review-row"><span class="review-label">${r.name || 'Area ' + (i+1)}</span><span class="review-value">${r.sqft ? r.sqft + ' sqft' : ''} ${r.floorTypes.join(', ')} ${r.fixtures ? '(' + r.fixtures + ' fix)' : ''}</span></div>`
+  let roomsHtml = areas.map((r, i) =>
+    '<div class="review-row"><span class="review-label">' + escHtml(r.name || 'Area ' + (i + 1)) + (r.hotspot ? ' ⚠' : '') + '</span>' +
+    '<span class="review-value">' + escHtml(areaLine(r)) + '</span></div>' +
+    (r.hotspot && r.hotspotNote ? '<div class="review-note hot-note">⚠ ' + escHtml(r.hotspotNote) + '</div>' : '')
   ).join('');
 
-  c.innerHTML = `
-    <div class="review-section">
-      <div class="review-section-title">Company</div>
-      <div class="review-row"><span class="review-label">Name</span><span class="review-value">${escHtml(val('companyName'))}</span></div>
-      <div class="review-row"><span class="review-label">Address</span><span class="review-value">${escHtml(val('address'))}, ${escHtml(val('city'))} ${escHtml(val('stateZip'))}</span></div>
-      <div class="review-row"><span class="review-label">Type</span><span class="review-value">${escHtml(val('businessType'))}</span></div>
-      <div class="review-row"><span class="review-label">Contact</span><span class="review-value">${escHtml(val('contactName'))} (${escHtml(val('contactTitle'))})</span></div>
-      <div class="review-row"><span class="review-label">Phone / Email</span><span class="review-value">${escHtml(val('phone'))} / ${escHtml(val('email'))}</span></div>
-      <div class="review-row"><span class="review-label">Date</span><span class="review-value">${escHtml(val('surveyDate'))}</span></div>
-    </div>
-    <div class="review-section">
-      <div class="review-section-title">Current Situation</div>
-      <div class="review-row"><span class="review-label">Current JS</span><span class="review-value">${escHtml(val('currentJSComp'))} (${escHtml(val('timeWithCurrent'))})</span></div>
-      <div class="review-row"><span class="review-label">Previous JS</span><span class="review-value">${escHtml(val('previousJSComp'))}</span></div>
-      <div class="review-row"><span class="review-label">Companies (5yr)</span><span class="review-value">${escHtml(val('numCompPast5'))}</span></div>
-    </div>
-    <div class="review-section">
-      <div class="review-section-title">Pain & Satisfaction</div>
-      <div class="review-row"><span class="review-label">Frustrations</span><span class="review-value">${activeFrust}</span></div>
-      <div class="review-row"><span class="review-label">Satisfaction</span><span class="review-value">${formData.satisfactionScale || 'Not rated'} / 5</span></div>
-      ${val('mostImportantChange') ? '<div class="review-note">' + escHtml(val('mostImportantChange')) + '</div>' : ''}
-    </div>
-    <div class="review-section">
-      <div class="review-section-title">Budget & Scope</div>
-      <div class="review-row"><span class="review-label">Budget</span><span class="review-value">${escHtml(val('budgetAmount'))}</span></div>
-      <div class="review-row"><span class="review-label">Days/Week</span><span class="review-value">${escHtml(val('daysPerWeek'))}</span></div>
-      <div class="review-row"><span class="review-label">Crew/Night</span><span class="review-value">${escHtml(val('peoplePerNight'))}</span></div>
-      <div class="review-row"><span class="review-label">Hours/Night</span><span class="review-value">${escHtml(val('hoursPerNight'))}</span></div>
-      <div class="review-row"><span class="review-label">Density</span><span class="review-value">${formData.density || ''}</span></div>
-      <div class="review-row"><span class="review-label">Total SqFt</span><span class="review-value">${escHtml(val('totalSqft'))}</span></div>
-      <div class="review-row"><span class="review-label">Total RR</span><span class="review-value">${escHtml(val('totalRR'))}</span></div>
-    </div>
-    <div class="review-section">
-      <div class="review-section-title">Decision Making</div>
-      <div class="review-row"><span class="review-label">Timeline</span><span class="review-value">${escHtml(val('timelineToSwitch'))}</span></div>
-      <div class="review-row"><span class="review-label">Restrictions</span><span class="review-value">${escHtml(val('startRestrictions'))}</span></div>
-      <div class="review-row"><span class="review-label">Other DMs</span><span class="review-value">${escHtml(val('otherDecisionMakers'))}</span></div>
-      <div class="review-row"><span class="review-label">Proposal Date</span><span class="review-value">${escHtml(val('proposalDate'))}</span></div>
-    </div>
-    <div class="review-section">
-      <div class="review-section-title">Walkthrough (${rooms.length} areas)</div>
-      ${roomsHtml || '<p style="font-size:13px;color:var(--cw-grey);">No areas added.</p>'}
-    </div>
-    <div class="review-section">
-      <div class="review-section-title">Services & Supplies</div>
-      <div class="review-row"><span class="review-label">Additional Svc</span><span class="review-value" style="font-size:11px">${activeSvc}</span></div>
-      <div class="review-row"><span class="review-label">Brands</span><span class="review-value">${escHtml(val('supplyBrands'))}</span></div>
-      <div class="review-row"><span class="review-label">Bundle FC w/ JS</span><span class="review-value">${formData.bundleWithJS || ''}</span></div>
-    </div>
-  `;
+  let reqHtml = requests.filter(r => r.text).map(r =>
+    '<div class="review-note">' + escHtml(r.text) + (r.who ? ' — ' + escHtml(r.who) : '') + (r.where ? ' (' + escHtml(r.where) + ')' : '') + '</div>'
+  ).join('') || '<p style="font-size:13px;color:var(--cw-grey);">None captured.</p>';
+
+  c.innerHTML =
+    '<div class="review-section"><div class="review-section-title">Company</div>' +
+    '<div class="review-row"><span class="review-label">Name</span><span class="review-value">' + escHtml(val('companyName')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Address</span><span class="review-value">' + escHtml(val('address')) + ', ' + escHtml(val('city')) + ' ' + escHtml(val('stateZip')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Type</span><span class="review-value">' + escHtml(val('businessType')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Contact</span><span class="review-value">' + escHtml(val('contactName')) + ' (' + escHtml(val('contactTitle')) + ')</span></div>' +
+    '<div class="review-row"><span class="review-label">Phone / Email</span><span class="review-value">' + escHtml(val('phone')) + ' / ' + escHtml(val('email')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Date</span><span class="review-value">' + escHtml(val('surveyDate')) + '</span></div></div>' +
+
+    '<div class="review-section"><div class="review-section-title">Current Situation</div>' +
+    '<div class="review-row"><span class="review-label">Current JS</span><span class="review-value">' + escHtml(val('currentJSComp')) + ' (' + escHtml(val('timeWithCurrent')) + ')</span></div>' +
+    '<div class="review-row"><span class="review-label">Previous JS</span><span class="review-value">' + escHtml(val('previousJSComp')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Companies (5yr)</span><span class="review-value">' + escHtml(val('numCompPast5')) + '</span></div></div>' +
+
+    '<div class="review-section"><div class="review-section-title">Pain & Satisfaction</div>' +
+    '<div class="review-row"><span class="review-label">Frustrations</span><span class="review-value">' + activeFrust + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Satisfaction</span><span class="review-value">' + (formData.satisfactionScale || 'Not rated') + ' / 5</span></div>' +
+    (val('mostImportantChange') ? '<div class="review-note">' + escHtml(val('mostImportantChange')) + '</div>' : '') + '</div>' +
+
+    '<div class="review-section"><div class="review-section-title">Budget & Scope</div>' +
+    '<div class="review-row"><span class="review-label">Budget</span><span class="review-value">' + escHtml(val('budgetAmount')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Days/Week</span><span class="review-value">' + escHtml(val('daysPerWeek')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Crew/Night</span><span class="review-value">' + escHtml(val('peoplePerNight')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Hours/Night</span><span class="review-value">' + escHtml(val('hoursPerNight')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Density / Traffic</span><span class="review-value">' + (formData.density || '') + ' / ' + (formData.traffic || '') + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Occupants / Hours</span><span class="review-value">' + escHtml(val('occupants')) + ' / ' + escHtml(val('buildingHours')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Day Porter</span><span class="review-value">' + (formData.porterInterest || '') + ' ' + escHtml(val('porterCoverage')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Total SqFt</span><span class="review-value">' + escHtml(val('totalSqft')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Total RR / Fixtures</span><span class="review-value">' + escHtml(val('totalRR')) + ' / ' + escHtml(val('totalFixtures')) + '</span></div></div>' +
+
+    '<div class="review-section"><div class="review-section-title">Access & Logistics</div>' +
+    '<div class="review-row"><span class="review-label">Access</span><span class="review-value">' + escHtml(val('accessMethod')) + '</span></div>' +
+    (val('accessNotes') ? '<div class="review-note">' + escHtml(val('accessNotes')) + '</div>' : '') +
+    '<div class="review-row"><span class="review-label">Dumpster</span><span class="review-value">' + escHtml(val('dumpsterLocation')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Jan. Closet / Water</span><span class="review-value">' + escHtml(val('janitorCloset')) + '</span></div></div>' +
+
+    '<div class="review-section"><div class="review-section-title">Decision Making</div>' +
+    '<div class="review-row"><span class="review-label">Timeline</span><span class="review-value">' + escHtml(val('timelineToSwitch')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Restrictions</span><span class="review-value">' + escHtml(val('startRestrictions')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Other DMs</span><span class="review-value">' + escHtml(val('otherDecisionMakers')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Proposal Date</span><span class="review-value">' + escHtml(val('proposalDate')) + '</span></div></div>' +
+
+    '<div class="review-section"><div class="review-section-title">Walkthrough (' + areas.length + ' areas · ' + t.sqft.toLocaleString() + ' sqft · ' + t.hotspots + ' hot spots)</div>' +
+    (roomsHtml || '<p style="font-size:13px;color:var(--cw-grey);">No areas added.</p>') + '</div>' +
+
+    '<div class="review-section"><div class="review-section-title">Special Requests</div>' + reqHtml + '</div>' +
+
+    '<div class="review-section"><div class="review-section-title">Services & Supplies</div>' +
+    '<div class="review-row"><span class="review-label">Additional Svc</span><span class="review-value" style="font-size:11px">' + activeSvc + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Brands</span><span class="review-value">' + escHtml(val('supplyBrands')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Bundle FC w/ JS</span><span class="review-value">' + (formData.bundleWithJS || '') + '</span></div></div>';
+}
+
+// ============================================
+// SAVE TO GOOGLE SHEETS (structured, same Apps Script hook)
+// ============================================
+const CW_HOOK = 'https://script.google.com/macros/s/AKfycbyZz6vEqjzdq0v15FVMfnrC5-lC_urvHe9aUI8LMaWHv_muqLGximMocH0_6IwB3mZOZQ/exec';
+
+const SHEET_FIELDS = [
+  ['Company Name', 'companyName'], ['Address', 'address'], ['City', 'city'], ['State, Zip', 'stateZip'],
+  ['Type of Business', 'businessType'], ['Contact Name', 'contactName'], ['Title', 'contactTitle'],
+  ['Phone', 'phone'], ['Email', 'email'], ['Survey Date', 'surveyDate'],
+  ['Building Survey For', 'buildingSurveyFor'], ['Pre-Research', 'preResearch'], ['Qualifying Info', 'qualifyingInfo'],
+  ['Rapport Notes', 'rapportNotes'],
+  ['Current JS Company', 'currentJSComp'], ['Time with Current', 'timeWithCurrent'],
+  ['Previous JS Company', 'previousJSComp'], ['Companies Past 5 Years', 'numCompPast5'],
+  ['Current Situation', 'currentSituation'], ['Likes About Current', 'likesAboutCurrent'], ['Wants Changed', 'wantChanged'],
+  ['Satisfaction (1-5)', 'satisfactionScale'], ['Time Spent on JS', 'timeOnJS'], ['Most Important Change', 'mostImportantChange'],
+  ['Budget (Monthly)', 'budgetAmount'], ['Budget Notes', 'budgetNotes'],
+  ['Days / Week', 'daysPerWeek'], ['Crew / Night', 'peoplePerNight'], ['Hours / Night', 'hoursPerNight'],
+  ['Density', 'density'], ['Traffic', 'traffic'], ['Occupants', 'occupants'], ['Building Hours', 'buildingHours'],
+  ['Day Porter Interest', 'porterInterest'], ['Porter Coverage', 'porterCoverage'],
+  ['Access Method', 'accessMethod'], ['Access / Security Notes', 'accessNotes'],
+  ['Dumpster Location', 'dumpsterLocation'], ['Janitor Closet / Water', 'janitorCloset'],
+  ['Total Cleanable SqFt', 'totalSqft'], ['Total Restrooms', 'totalRR'], ['Total Fixtures', 'totalFixtures'],
+  ['Timeline to Switch', 'timelineToSwitch'], ['Start Restrictions', 'startRestrictions'],
+  ['Other Decision Makers', 'otherDecisionMakers'], ['Decision Process', 'decisionProcess'], ['Proposal Date', 'proposalDate'],
+  ['Floor Care Frequency', 'fcFrequency'], ['Primary Floor Type', 'fcFloorType'], ['Bundle FC with JS', 'bundleWithJS'],
+  ['Extra Notes', 'extraNotes'],
+  ['Supply Brands', 'supplyBrands'], ['Toilet Paper', 'supplyTP'], ['Towels', 'supplyTowels'],
+  ['Soap', 'supplySoap'], ['Dispensers', 'supplyDispensers']
+];
+
+function buildSheetPayload() {
+  saveFormData();
+  const t = surveyTotals();
+
+  const inputs = [];
+  SHEET_FIELDS.forEach(([label, key]) => {
+    const v = formData[key];
+    if (v !== undefined && v !== null && String(v).trim() !== '') inputs.push([label, String(v)]);
+  });
+
+  const objectives = checkedList({
+    obj_trust: 'Build Trust', obj_relationships: 'Develop Relationships', obj_keyInfo: 'Learn Key Info',
+    obj_timeline: 'Confirm Timeline', obj_objective: 'Establish Objective', obj_scope: 'Scope of Work',
+    obj_floorPlan: 'Floor Plan', obj_recap: 'Recap Last Convo'
+  });
+  if (objectives) inputs.push(['Meeting Objectives', objectives]);
+
+  const frusts = checkedList(FRUST_LABELS);
+  if (frusts) inputs.push(['Biggest Frustrations', frusts]);
+
+  const vps = checkedList({
+    vp_represent: 'We represent the client', vp_proactive: 'Proactive management',
+    vp_oneContact: 'One contact / 20+ solutions', vp_abc: 'A+B+C explained'
+  });
+  if (vps) inputs.push(['Value Prop Delivered', vps]);
+
+  const fc = checkedList({ fc_stripWax: 'Strip & Wax', fc_topScrub: 'Top Scrub & Wax', fc_machineScrub: 'Machine Scrub Ceramic', fc_buff: 'Hi-Speed Buff' });
+  if (fc) inputs.push(['Hard Surface Floor Care', fc]);
+
+  const cc = checkedList({ cc_extraction: 'Extraction', cc_trafficPattern: 'Traffic Pattern', cc_bonnet: 'Bonnet' });
+  if (cc) inputs.push(['Carpet Care', cc]);
+
+  const svcs = checkedList(SVC_LABELS);
+  if (svcs) inputs.push(['Additional Services', svcs]);
+
+  const areaRows = areas.map((a, i) => {
+    let parts = [areaLine(a)];
+    if (a.hotspot) parts.push('HOT SPOT' + (a.hotspotNote ? ': ' + a.hotspotNote : ''));
+    if (a.notes) parts.push('Notes: ' + a.notes);
+    if ((a.photos || []).length) parts.push(a.photos.length + ' photo(s) on device');
+    return ['Area ' + (i + 1) + ': ' + (a.name || a.type || 'Unnamed'), parts.filter(Boolean).join(' | ')];
+  });
+
+  const reqRows = requests.filter(r => r.text).map((r, i) =>
+    ['Request ' + (i + 1), r.text + (r.who ? ' | By: ' + r.who : '') + (r.where ? ' | Where: ' + r.where : '')]
+  );
+
+  const results = [
+    ['Total Areas Surveyed', String(t.areas)],
+    ['Walkthrough SqFt', t.sqft.toLocaleString()],
+    ['Walkthrough Restrooms', String(t.restrooms)],
+    ['Walkthrough Fixtures', String(t.fixtures)],
+    ['Hot Spots Flagged', String(t.hotspots)]
+  ];
+
+  return {
+    tool: 'buildingsurvey',
+    title: document.title,
+    url: location.href,
+    meta: { client: formData.companyName || '', preparedBy: '' },
+    sections: [
+      { title: 'Inputs', rows: inputs },
+      { title: 'Walkthrough Areas', rows: areaRows },
+      { title: 'Special Requests', rows: reqRows },
+      { title: 'Results', rows: results }
+    ]
+  };
+}
+
+function saveToSheets() {
+  const btn = document.getElementById('btnSheets');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  const payload = JSON.stringify(buildSheetPayload());
+  fetch(CW_HOOK, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: payload })
+    .then(() => {
+      btn.textContent = 'Saved ✓';
+      btn.classList.add('btn-teal');
+      setTimeout(() => { btn.textContent = 'Save to Sheets'; btn.disabled = false; }, 4000);
+    })
+    .catch(() => {
+      btn.textContent = 'Retry Save';
+      btn.disabled = false;
+    });
 }
 
 // ============================================
 // PDF GENERATION
 // ============================================
-function generatePDF() {
+async function generatePDF() {
   saveFormData();
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'mm', format: 'letter' });
+  const btn = document.getElementById('btnNext');
+  const orig = btn.textContent;
+  btn.textContent = 'Building PDF...';
+  btn.disabled = true;
 
-  const pageW = doc.internal.pageSize.getWidth();
-  const pageH = doc.internal.pageSize.getHeight();
-  const margin = 16;
-  const contentW = pageW - margin * 2;
-  let y = margin;
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'letter' });
 
-  const CW_RED = [210, 39, 48];
-  const CW_BLACK = [45, 42, 38];
-  const CW_GREY = [99, 100, 102];
-  const CW_LIGHT = [245, 245, 246];
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const margin = 16;
+    const contentW = pageW - margin * 2;
+    let y = margin;
 
-  function checkPage(needed) {
-    if (y + needed > pageH - 20) {
-      doc.addPage();
-      y = margin;
-      return true;
+    const CW_RED = [210, 39, 48];
+    const CW_BLACK = [45, 42, 38];
+    const CW_GREY = [99, 100, 102];
+    const CW_LIGHT = [245, 245, 246];
+
+    function checkPage(needed) {
+      if (y + needed > pageH - 20) { doc.addPage(); y = margin; return true; }
+      return false;
     }
-    return false;
-  }
 
-  function sectionTitle(text) {
-    checkPage(14);
+    function sectionTitle(text) {
+      checkPage(14);
+      doc.setFillColor(...CW_RED);
+      doc.rect(margin, y, contentW, 7, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(255, 255, 255);
+      doc.text(text.toUpperCase(), margin + 3, y + 5);
+      y += 10;
+      doc.setTextColor(...CW_BLACK);
+    }
+
+    function row(label, value) {
+      checkPage(7);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(...CW_GREY);
+      doc.text(label, margin + 2, y + 4);
+      doc.setTextColor(...CW_BLACK);
+      doc.setFont('helvetica', 'bold');
+      const valText = String(value || '').substring(0, 80);
+      doc.text(valText, margin + 52, y + 4);
+      doc.setDrawColor(230, 230, 230);
+      doc.line(margin, y + 6, margin + contentW, y + 6);
+      y += 7;
+    }
+
+    function noteBlock(text, color) {
+      if (!text) return;
+      checkPage(14);
+      doc.setFillColor(...(color || CW_LIGHT));
+      const lines = doc.splitTextToSize(String(text), contentW - 8);
+      const h = lines.length * 4 + 4;
+      doc.rect(margin + 2, y, contentW - 4, h, 'F');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(...CW_BLACK);
+      doc.text(lines, margin + 5, y + 4);
+      y += h + 3;
+    }
+
+    const val = (key) => formData[key] || '';
+    const t = surveyTotals();
+
+    // Header band
     doc.setFillColor(...CW_RED);
-    doc.rect(margin, y, contentW, 7, 'F');
+    doc.rect(0, 0, pageW, 22, 'F');
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
+    doc.setFontSize(16);
     doc.setTextColor(255, 255, 255);
-    doc.text(text.toUpperCase(), margin + 3, y + 5);
-    y += 10;
-    doc.setTextColor(...CW_BLACK);
-  }
-
-  function row(label, value) {
-    checkPage(7);
+    doc.text('CITY WIDE FACILITY SOLUTIONS', margin, 10);
+    doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
+    doc.text('Building Survey Report', margin, 16);
     doc.setFontSize(9);
-    doc.setTextColor(...CW_GREY);
-    doc.text(label, margin + 2, y + 4);
-    doc.setTextColor(...CW_BLACK);
-    doc.setFont('helvetica', 'bold');
-    const valText = String(value || '').substring(0, 80);
-    doc.text(valText, margin + 52, y + 4);
-    doc.setDrawColor(230, 230, 230);
-    doc.line(margin, y + 6, margin + contentW, y + 6);
-    y += 7;
-  }
+    doc.text(val('surveyDate'), pageW - margin - 20, 16);
+    y = 28;
 
-  function noteBlock(text) {
-    if (!text) return;
-    checkPage(14);
-    doc.setFillColor(...CW_LIGHT);
-    const lines = doc.splitTextToSize(String(text), contentW - 8);
-    const h = lines.length * 4 + 4;
-    doc.rect(margin + 2, y, contentW - 4, h, 'F');
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(...CW_BLACK);
-    doc.text(lines, margin + 5, y + 4);
-    y += h + 3;
-  }
-
-  const val = (key) => formData[key] || '';
-
-  // Header
-  doc.setFillColor(...CW_RED);
-  doc.rect(0, 0, pageW, 22, 'F');
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(16);
-  doc.setTextColor(255, 255, 255);
-  doc.text('CITY WIDE FACILITY SOLUTIONS', margin, 10);
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Building Survey Report', margin, 16);
-  doc.setFontSize(9);
-  doc.text(val('surveyDate'), pageW - margin - 20, 16);
-  y = 28;
-
-  // Company Info
-  sectionTitle('Company Information');
-  row('Company', val('companyName'));
-  row('Address', `${val('address')}, ${val('city')} ${val('stateZip')}`);
-  row('Business Type', val('businessType'));
-  row('Contact', `${val('contactName')} (${val('contactTitle')})`);
-  row('Phone', val('phone'));
-  row('Email', val('email'));
-  row('Survey Date', val('surveyDate'));
-  y += 3;
-
-  // Pre-Research
-  if (val('preResearch') || val('qualifyingInfo')) {
-    sectionTitle('Pre-Research & Qualifying');
-    noteBlock(val('preResearch'));
-    noteBlock(val('qualifyingInfo'));
-    y += 2;
-  }
-
-  // Current Situation
-  sectionTitle('Current Situation');
-  row('Current JS Co.', `${val('currentJSComp')} (${val('timeWithCurrent')})`);
-  row('Previous JS Co.', val('previousJSComp'));
-  row('Companies (5yr)', val('numCompPast5'));
-  noteBlock(val('currentSituation'));
-  noteBlock(val('wantChanged'));
-  y += 2;
-
-  // Pain Discovery
-  const frustLabels = {
-    frust_detail: 'Attention to Detail', frust_basics: 'Basics', frust_comm: 'Communication',
-    frust_consistency: 'Consistency', frust_costs: 'Costs', frust_neverImproves: 'Never Improves',
-    frust_time: 'Not Enough Time', frust_security: 'Security/Theft', frust_turnover: 'Turnover'
-  };
-  const frusts = Object.entries(frustLabels).filter(([k]) => formData[k]).map(([,v]) => v).join(', ') || 'None';
-
-  sectionTitle('Pain Discovery');
-  row('Frustrations', frusts);
-  row('Satisfaction', `${formData.satisfactionScale || '-'} / 5`);
-  row('Most Important', val('mostImportantChange'));
-  noteBlock(val('timeOnJS'));
-  y += 2;
-
-  // Budget & Scope
-  sectionTitle('Budget & Fulfillment');
-  row('Budget', val('budgetAmount'));
-  row('Days / Week', val('daysPerWeek'));
-  row('Crew / Night', val('peoplePerNight'));
-  row('Hours / Night', val('hoursPerNight'));
-  row('Density', formData.density || '');
-  row('Total Cleanable SqFt', val('totalSqft'));
-  row('Total Restrooms', val('totalRR'));
-  row('Total Fixtures', val('totalFixtures'));
-  y += 2;
-
-  // Decision Making
-  sectionTitle('Decision Making');
-  row('Timeline', val('timelineToSwitch'));
-  row('Start Restrictions', val('startRestrictions'));
-  row('Other DMs', val('otherDecisionMakers'));
-  row('Decision Process', val('decisionProcess'));
-  row('Proposal Date', val('proposalDate'));
-  y += 2;
-
-  // Walkthrough
-  sectionTitle(`Building Walkthrough (${rooms.length} areas)`);
-  rooms.forEach((room, i) => {
-    checkPage(10);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.setTextColor(...CW_RED);
-    doc.text(`${i + 1}. ${room.name || 'Area ' + (i+1)}`, margin + 2, y + 4);
-    doc.setTextColor(...CW_BLACK);
-    doc.setFont('helvetica', 'normal');
-    const details = [
-      room.sqft ? room.sqft + ' sqft' : '',
-      room.dimensions ? '(' + room.dimensions + ')' : '',
-      room.floorTypes.length ? room.floorTypes.join('/') : '',
-      room.fixtures ? room.fixtures + ' fixtures' : '',
-      room.comments || ''
-    ].filter(Boolean).join('  |  ');
-    doc.setFontSize(8);
-    doc.text(details.substring(0, 100), margin + 2, y + 8);
-    y += 11;
-  });
-  y += 2;
-
-  // Services
-  const svcLabels = {
-    svc_coi: 'COI', svc_bloodborne: 'Bloodborne', svc_hazard: 'Hazard Comm', svc_initialClean: 'Initial Clean',
-    svc_kitchen: 'Kitchen', svc_alarm: 'Alarm Code', svc_dumpsters: 'Dumpsters', svc_recycling: 'Recycling',
-    svc_windowWash: 'Window Wash', svc_pest: 'Pest Control', svc_sidelights: 'Sidelights', svc_blinds: 'Blinds',
-    svc_highWork: 'High Work', svc_pressureWash: 'Pressure Wash', svc_matting: 'Matting'
-  };
-  const svcs = Object.entries(svcLabels).filter(([k]) => formData[k]).map(([,v]) => v).join(', ') || 'None';
-
-  sectionTitle('Floor Care & Services');
-  row('Hard Floor Svc', [
-    formData.fc_stripWax ? 'Strip & Wax' : '',
-    formData.fc_topScrub ? 'Top Scrub' : '',
-    formData.fc_machineScrub ? 'Machine Scrub' : '',
-    formData.fc_buff ? 'Hi-Speed Buff' : ''
-  ].filter(Boolean).join(', ') || 'None');
-  row('Carpet Care', [
-    formData.cc_extraction ? 'Extraction' : '',
-    formData.cc_trafficPattern ? 'Traffic Pattern' : '',
-    formData.cc_bonnet ? 'Bonnet' : ''
-  ].filter(Boolean).join(', ') || 'None');
-  row('Frequency', val('fcFrequency'));
-  row('Bundle w/ JS', formData.bundleWithJS || '');
-  row('Additional Svc', svcs.substring(0, 80));
-  y += 2;
-
-  // Supplies
-  sectionTitle('Supplies');
-  row('Brands', val('supplyBrands'));
-  row('Toilet Paper', val('supplyTP'));
-  row('Towels', val('supplyTowels'));
-  row('Soap', val('supplySoap'));
-  row('Dispensers', val('supplyDispensers'));
-
-  // Notes
-  if (val('extraNotes')) {
+    sectionTitle('Company Information');
+    row('Company', val('companyName'));
+    row('Address', val('address') + ', ' + val('city') + ' ' + val('stateZip'));
+    row('Business Type', val('businessType'));
+    row('Contact', val('contactName') + ' (' + val('contactTitle') + ')');
+    row('Phone', val('phone'));
+    row('Email', val('email'));
+    row('Survey Date', val('surveyDate'));
     y += 3;
-    sectionTitle('Additional Notes');
-    noteBlock(val('extraNotes'));
-  }
 
-  // Footer on last page
-  const totalPages = doc.internal.getNumberOfPages();
-  for (let i = 1; i <= totalPages; i++) {
-    doc.setPage(i);
-    doc.setFillColor(...CW_LIGHT);
-    doc.rect(0, pageH - 10, pageW, 10, 'F');
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7);
-    doc.setTextColor(...CW_GREY);
-    doc.text('City Wide Facility Solutions  |  Building Survey  |  Confidential', margin, pageH - 4);
-    doc.text(`Page ${i} of ${totalPages}`, pageW - margin - 18, pageH - 4);
-  }
+    if (val('preResearch') || val('qualifyingInfo')) {
+      sectionTitle('Pre-Research & Qualifying');
+      noteBlock(val('preResearch'));
+      noteBlock(val('qualifyingInfo'));
+      y += 2;
+    }
 
-  // Save
-  const filename = `Building_Survey_${(val('companyName') || 'Draft').replace(/[^a-zA-Z0-9]/g, '_')}_${val('surveyDate') || 'undated'}.pdf`;
-  doc.save(filename);
+    sectionTitle('Current Situation');
+    row('Current JS Co.', val('currentJSComp') + ' (' + val('timeWithCurrent') + ')');
+    row('Previous JS Co.', val('previousJSComp'));
+    row('Companies (5yr)', val('numCompPast5'));
+    noteBlock(val('currentSituation'));
+    noteBlock(val('wantChanged'));
+    y += 2;
+
+    sectionTitle('Pain Discovery');
+    row('Frustrations', checkedList(FRUST_LABELS) || 'None');
+    row('Satisfaction', (formData.satisfactionScale || '-') + ' / 5');
+    row('Most Important', val('mostImportantChange'));
+    noteBlock(val('timeOnJS'));
+    y += 2;
+
+    sectionTitle('Budget & Fulfillment');
+    row('Budget', val('budgetAmount'));
+    row('Days / Week', val('daysPerWeek'));
+    row('Crew / Night', val('peoplePerNight'));
+    row('Hours / Night', val('hoursPerNight'));
+    row('Density / Traffic', (formData.density || '') + ' / ' + (formData.traffic || ''));
+    row('Occupants', val('occupants'));
+    row('Building Hours', val('buildingHours'));
+    row('Day Porter', (formData.porterInterest || '') + ' ' + val('porterCoverage'));
+    row('Total Cleanable SqFt', val('totalSqft'));
+    row('Total Restrooms', val('totalRR'));
+    row('Total Fixtures', val('totalFixtures'));
+    y += 2;
+
+    sectionTitle('Access & Logistics');
+    row('Access Method', val('accessMethod'));
+    row('Dumpster Location', val('dumpsterLocation'));
+    row('Jan. Closet / Water', val('janitorCloset'));
+    noteBlock(val('accessNotes'));
+    y += 2;
+
+    sectionTitle('Decision Making');
+    row('Timeline', val('timelineToSwitch'));
+    row('Start Restrictions', val('startRestrictions'));
+    row('Other DMs', val('otherDecisionMakers'));
+    row('Decision Process', val('decisionProcess'));
+    row('Proposal Date', val('proposalDate'));
+    y += 2;
+
+    // Hot spots first — the money section
+    const hotAreas = areas.filter(a => a.hotspot);
+    if (hotAreas.length) {
+      sectionTitle('Hot Spots (' + hotAreas.length + ')');
+      hotAreas.forEach(a => {
+        checkPage(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.setTextColor(...CW_RED);
+        doc.text('• ' + (a.name || a.type || 'Area'), margin + 2, y + 4);
+        y += 6;
+        doc.setTextColor(...CW_BLACK);
+        noteBlock(a.hotspotNote || '(no detail entered)', [245, 208, 210]);
+      });
+      y += 2;
+    }
+
+    // Walkthrough with photos
+    sectionTitle('Building Walkthrough (' + areas.length + ' areas · ' + t.sqft.toLocaleString() + ' sqft)');
+    for (let i = 0; i < areas.length; i++) {
+      const a = areas[i];
+      checkPage(12);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(...CW_RED);
+      doc.text((i + 1) + '. ' + (a.name || 'Area ' + (i + 1)) + (a.hotspot ? '  [HOT SPOT]' : ''), margin + 2, y + 4);
+      doc.setTextColor(...CW_BLACK);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.text(areaLine(a).substring(0, 110), margin + 2, y + 8);
+      y += 11;
+      if (a.notes) noteBlock(a.notes);
+      if (a.hotspot && a.hotspotNote) noteBlock('HOT SPOT: ' + a.hotspotNote, [245, 208, 210]);
+
+      // Photos: 3-across grid
+      if ((a.photos || []).length) {
+        const thumbW = (contentW - 8) / 3;
+        let x = margin + 2;
+        for (const pid of a.photos) {
+          let p = null;
+          try { p = await photoDB.get(pid); } catch (e) {}
+          if (!p) continue;
+          const thumbH = thumbW * (p.h / p.w);
+          if (x + thumbW > margin + contentW) { x = margin + 2; y += 2; }
+          checkPage(thumbH + 4);
+          try { doc.addImage(p.data, 'JPEG', x, y, thumbW, thumbH); } catch (e) {}
+          x += thumbW + 4;
+          if (x + thumbW > margin + contentW + 1) { x = margin + 2; y += thumbH + 3; }
+        }
+        if (x > margin + 2) {
+          // finish partial row: advance by tallest assumed
+          y += (thumbW * 0.75) + 3;
+        }
+        y += 2;
+      }
+    }
+    y += 2;
+
+    // Special requests
+    const activeReqs = requests.filter(r => r.text);
+    if (activeReqs.length) {
+      sectionTitle('Special Requests (' + activeReqs.length + ')');
+      for (const r of activeReqs) {
+        noteBlock(r.text + (r.who ? '  — ' + r.who : '') + (r.where ? '  (' + r.where + ')' : ''));
+        if ((r.photos || []).length) {
+          const thumbW = (contentW - 8) / 3;
+          let x = margin + 2;
+          for (const pid of r.photos) {
+            let p = null;
+            try { p = await photoDB.get(pid); } catch (e) {}
+            if (!p) continue;
+            const thumbH = thumbW * (p.h / p.w);
+            checkPage(thumbH + 4);
+            try { doc.addImage(p.data, 'JPEG', x, y, thumbW, thumbH); } catch (e) {}
+            x += thumbW + 4;
+            if (x + thumbW > margin + contentW + 1) { x = margin + 2; y += thumbH + 3; }
+          }
+          if (x > margin + 2) y += (thumbW * 0.75) + 3;
+        }
+      }
+      y += 2;
+    }
+
+    sectionTitle('Floor Care & Services');
+    row('Hard Floor Svc', checkedList({ fc_stripWax: 'Strip & Wax', fc_topScrub: 'Top Scrub', fc_machineScrub: 'Machine Scrub', fc_buff: 'Hi-Speed Buff' }) || 'None');
+    row('Carpet Care', checkedList({ cc_extraction: 'Extraction', cc_trafficPattern: 'Traffic Pattern', cc_bonnet: 'Bonnet' }) || 'None');
+    row('Frequency', val('fcFrequency'));
+    row('Bundle w/ JS', formData.bundleWithJS || '');
+    row('Additional Svc', (checkedList(SVC_LABELS) || 'None').substring(0, 80));
+    y += 2;
+
+    sectionTitle('Supplies');
+    row('Brands', val('supplyBrands'));
+    row('Toilet Paper', val('supplyTP'));
+    row('Towels', val('supplyTowels'));
+    row('Soap', val('supplySoap'));
+    row('Dispensers', val('supplyDispensers'));
+
+    if (val('extraNotes')) {
+      y += 3;
+      sectionTitle('Additional Notes');
+      noteBlock(val('extraNotes'));
+    }
+
+    // Footer
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setFillColor(...CW_LIGHT);
+      doc.rect(0, pageH - 10, pageW, 10, 'F');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(...CW_GREY);
+      doc.text('City Wide Facility Solutions  |  Building Survey  |  Confidential', margin, pageH - 4);
+      doc.text('Page ' + i + ' of ' + totalPages, pageW - margin - 18, pageH - 4);
+    }
+
+    const filename = 'Building_Survey_' + (val('companyName') || 'Draft').replace(/[^a-zA-Z0-9]/g, '_') + '_' + (val('surveyDate') || 'undated') + '.pdf';
+    doc.save(filename);
+  } finally {
+    btn.textContent = orig;
+    btn.disabled = false;
+  }
 }
 
 // ============================================
 // BOOT
 // ============================================
 document.addEventListener('DOMContentLoaded', init);
+
 </script>
-<!-- CW Save Results to Google Sheets -->
-<div id="cwSaveBar" style="position:fixed;bottom:18px;right:18px;z-index:9999;font-family:Verdana,'Liberation Sans','DejaVu Sans',Geneva,Tahoma,sans-serif;">
-<button id="cwSaveBtn" type="button" style="background:#D22730;color:#FFFFFF;border:none;border-radius:6px;padding:12px 20px;font-size:13px;font-weight:bold;font-family:inherit;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.25);">Save Results</button>
-</div>
-<script>
-(function(){
-  var CW_TOOL='buildingsurvey';var CW_ALL=true;
-  var CW_HOOK='https://script.google.com/macros/s/AKfycbyZz6vEqjzdq0v15FVMfnrC5-lC_urvHe9aUI8LMaWHv_muqLGximMocH0_6IwB3mZOZQ/exec';
-  function txt(el){return (el.innerText||'').replace(/\s+/g,' ').trim();}
-  function vis(el){return !!(el.offsetWidth||el.offsetHeight||el.getClientRects().length);}
-  function labelFor(inp){
-    if(inp.id){var l=document.querySelector('label[for="'+inp.id+'"]');if(l&&txt(l))return txt(l);}
-    var w=inp.closest('label');if(w){var t=txt(w);if(t)return t;}
-    var p=inp.previousElementSibling;
-    while(p){if(/^(LABEL|H[1-6]|SPAN|DIV|P|STRONG|B)$/.test(p.tagName)){var t2=txt(p);if(t2&&t2.length<90)return t2;}p=p.previousElementSibling;}
-    var par=inp.parentElement;
-    if(par){var l2=par.querySelector('label');if(l2&&txt(l2))return txt(l2);
-      var pp=par.previousElementSibling;
-      while(pp){if(/^(LABEL|H[1-6]|SPAN|DIV|P|STRONG|B)$/.test(pp.tagName)){var t3=txt(pp);if(t3&&t3.length<90)return t3;}pp=pp.previousElementSibling;}}
-    return inp.name||inp.id||'Field';
-  }
-  function collect(){
-    var inputs=[];
-    document.querySelectorAll('input,select,textarea').forEach(function(el){
-      if(!CW_ALL&&!vis(el))return;
-      if(el.closest('#cwSaveBar'))return;
-      if(el.type==='button'||el.type==='submit'||el.type==='hidden')return;
-      var v;
-      if(el.type==='checkbox'){v=el.checked?'Yes':'No';}
-      else if(el.type==='radio'){if(!el.checked)return;v=el.value;}
-      else if(el.tagName==='SELECT'){v=el.selectedIndex>=0?txt(el.options[el.selectedIndex])||el.value:'';}
-      else{v=el.value;}
-      if(v==null||String(v).trim()==='')return;
-      inputs.push([labelFor(el),String(v)]);
-    });
-    var results=[],seenR={};
-    document.querySelectorAll('.result-card,.result-box').forEach(function(card){
-      if(!vis(card))return;
-      var lab=card.querySelector('.result-label,h3,h4,.label')||null;
-      var val=card.querySelector('.result-value,.value')||null;
-      var L=lab?txt(lab):'',V=val?txt(val):'';
-      var unit=card.querySelector('.result-unit');if(unit&&V)V+=' '+txt(unit);
-      if(!V){var t=txt(card);if(L)t=t.replace(L,'').trim();V=t;}
-      if(!L&&!V)return;
-      var k=L+'|'+V;if(seenR[k])return;seenR[k]=1;
-      results.push([L,V]);
-    });
-    var details=[],seenD={};
-    document.querySelectorAll('body *').forEach(function(el){
-      if(el.children.length>0)return;
-      if(!vis(el))return;
-      if(el.closest('#cwSaveBar'))return;
-      if(el.closest('.result-card')||el.closest('.result-box'))return;
-      if(/^(INPUT|SELECT|TEXTAREA|OPTION|SCRIPT|STYLE|BUTTON|LABEL|A|TITLE)$/.test(el.tagName))return;
-      var t=txt(el);
-      if(!t||t.length>130)return;
-      if(!/\$\s?[\d,.]|[\d.]+\s?%/.test(t))return;
-      var lbl='';
-      var par=el.parentElement;
-      if(par){var pt=txt(par);if(pt!==t&&pt.length<170){lbl=pt.replace(t,'').replace(/[:\s]+$/,'').trim();}}
-      var k=lbl+'|'+t;if(seenD[k])return;seenD[k]=1;
-      details.push([lbl,t]);
-    });
-    var meta={};
-    var c=document.querySelector('#clientName,#client,input[id*="lient"]');
-    if(c&&c.value)meta.client=c.value;
-    var p=document.querySelector('#preparedBy,input[id*="repared"]');
-    if(p&&p.value)meta.preparedBy=p.value;
-    return {tool:CW_TOOL,title:document.title,url:location.href,meta:meta,
-      sections:[{title:'Inputs',rows:inputs},{title:'Results',rows:results},{title:'Detail Lines',rows:details}]};
-  }
-  var btn=document.getElementById('cwSaveBtn');
-  btn.addEventListener('click',function(){
-    btn.disabled=true;btn.textContent='Saving...';
-    var payload=JSON.stringify(collect());
-    fetch(CW_HOOK,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:payload})
-      .then(function(){btn.textContent='Saved to Google Sheets';btn.style.background='#0AA6A9';
-        setTimeout(function(){btn.textContent='Save Results';btn.style.background='#D22730';btn.disabled=false;},4000);})
-      .catch(function(){btn.textContent='Save failed, retry';btn.style.background='#2D2A26';btn.disabled=false;});
-  });
-})();
-</script>
+
 
 </body>
 </html>
