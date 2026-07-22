@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#D22730">
 <title>City Wide Building Survey</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 /* ============================================
    CITY WIDE BRAND TOKENS
@@ -1220,6 +1221,29 @@ select {
   margin-bottom: 12px;
 }
 
+/* ============================================
+   SETUP PAGE EXTRAS (sales notes + hints)
+   ============================================ */
+.field-hint { font-size: 12px; color: var(--cw-grey); margin-top: 6px; }
+.sales-notes {
+  background: var(--cw-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-top: 20px;
+  padding: 0 0 4px 0;
+}
+.sales-notes > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 16px 18px;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--cw-grey);
+  user-select: none;
+}
+.sales-notes > summary::before { content: '▸ '; color: var(--cw-red); }
+.sales-notes[open] > summary::before { content: '▾ '; }
+.sales-notes > .form-card { margin: 0 12px 12px 12px; box-shadow: none; border: 1px solid var(--cw-grey-light); }
 </style>
 </head>
 <body>
@@ -1271,10 +1295,10 @@ select {
 
   <!-- ============ STEP 1: Company Info ============ -->
   <section class="step-panel active" data-step="1">
-    <h2 class="step-title">Company Info</h2>
-    <p class="step-subtitle">Start with the basics. You can pre-fill this in the office before heading on site.</p>
+    <h2 class="step-title">Building Setup</h2>
+    <p class="step-subtitle">Everything the bid needs, on one page. Fill what you can, skip what you can't. Sales notes are at the bottom if you want them.</p>
 
-    <div class="form-card">
+<div class="form-card">
       <div class="form-card-title">Business Details</div>
       <div class="field-group">
         <label for="companyName">Company Name</label>
@@ -1295,26 +1319,261 @@ select {
         </div>
       </div>
       <div class="field-group">
-        <label for="businessType">Type of Business</label>
-        <select id="businessType" data-field="businessType">
-          <option value="">Select type...</option>
-          <option value="Medical Office">Medical Office</option>
-          <option value="Corporate Office">Corporate Office</option>
-          <option value="Retail">Retail</option>
-          <option value="Industrial / Warehouse">Industrial / Warehouse</option>
-          <option value="Financial Institution">Financial Institution</option>
-          <option value="Auto Dealership">Auto Dealership</option>
-          <option value="Fitness Center">Fitness Center</option>
-          <option value="School / Daycare">School / Daycare</option>
-          <option value="Religious Facility">Religious Facility</option>
-          <option value="Property Management">Property Management</option>
-          <option value="Government">Government</option>
-          <option value="Other">Other</option>
+        <label for="businessType">Industry Type (Bid Calculator list)</label>
+        <input type="text" id="businessType" data-field="businessType" list="industryList" placeholder="Start typing... e.g. Office - General (Single-Tenant)" autocomplete="off">
+        <datalist id="industryList">
+          <option value="Agricultural Facility/Greenhouse"></option>
+          <option value="Amusement Park"></option>
+          <option value="Aquarium/Zoo"></option>
+          <option value="Aquatic Center"></option>
+          <option value="Art Gallery/Museum"></option>
+          <option value="Bank - ATM/Drive-Thru Facility"></option>
+          <option value="Bank - Community Bank Branch"></option>
+          <option value="Bank - Corporate Headquarters"></option>
+          <option value="Bank - Investment Bank Office"></option>
+          <option value="Bank - Loan/Mortgage Office"></option>
+          <option value="Bank - Regional Operations Center"></option>
+          <option value="Bank - Retail Branch"></option>
+          <option value="Cannabis Cultivation Facility"></option>
+          <option value="Car Wash - Express/Full Service"></option>
+          <option value="Casino / Resort"></option>
+          <option value="Church - Buddhist Temple"></option>
+          <option value="Church - Catholic Church"></option>
+          <option value="Church - Christian Church"></option>
+          <option value="Church - Hindu Temple"></option>
+          <option value="Church - LDS Temple"></option>
+          <option value="Church - Mosque"></option>
+          <option value="Church - Other Religious Facility"></option>
+          <option value="Church - Sikh Gurdwara"></option>
+          <option value="Church - Synagogue"></option>
+          <option value="Condo (Temporary Stay)"></option>
+          <option value="Construction Site"></option>
+          <option value="Convention Center"></option>
+          <option value="Correctional Facility"></option>
+          <option value="Coworking - Shared Kitchen/Food Hall"></option>
+          <option value="Data Center"></option>
+          <option value="Electric Vehicle Charging Station"></option>
+          <option value="Event Venue"></option>
+          <option value="Fire Station"></option>
+          <option value="Funeral Home"></option>
+          <option value="Golf Course Clubhouse"></option>
+          <option value="Government - Courthouse"></option>
+          <option value="Government - DMV Office"></option>
+          <option value="Government - Police Station"></option>
+          <option value="Government - Post Office"></option>
+          <option value="Government Building"></option>
+          <option value="HOA Clubhouse"></option>
+          <option value="Hotel"></option>
+          <option value="Hotel - Convention"></option>
+          <option value="Indoor Shooting Range"></option>
+          <option value="Indoor Trampoline Park"></option>
+          <option value="Laundromat/Coin Laundry"></option>
+          <option value="Library - General"></option>
+          <option value="Library - Public"></option>
+          <option value="Light Industrial - Indoor Farming Facility"></option>
+          <option value="Light Industrial - Renewable Energy Facility"></option>
+          <option value="Luxury Amenity Center"></option>
+          <option value="Manufacturing - Aerospace"></option>
+          <option value="Manufacturing - Biotechnology"></option>
+          <option value="Manufacturing - Cold Storage"></option>
+          <option value="Manufacturing - Food"></option>
+          <option value="Manufacturing - Gaming Equipment (Las Vegas)"></option>
+          <option value="Manufacturing - General"></option>
+          <option value="Manufacturing - Pharmaceutical"></option>
+          <option value="Manufacturing - Semiconductor"></option>
+          <option value="Manufacturing - Tesla Gigafactory"></option>
+          <option value="Manufacturing - Winery/Brewery"></option>
+          <option value="Marijuana Dispensary"></option>
+          <option value="Medical - ABA Therapy Center"></option>
+          <option value="Medical - Ambulatory Surgery Center"></option>
+          <option value="Medical - Assisted Living (General)"></option>
+          <option value="Medical - Blood Bank"></option>
+          <option value="Medical - Chiropractic Office"></option>
+          <option value="Medical - Community Health Center"></option>
+          <option value="Medical - Dental"></option>
+          <option value="Medical - Dermatology"></option>
+          <option value="Medical - Dialysis Center"></option>
+          <option value="Medical - Emergency Room"></option>
+          <option value="Medical - Endodontic Office"></option>
+          <option value="Medical - Family Practice"></option>
+          <option value="Medical - Fertility Clinic"></option>
+          <option value="Medical - Freestanding Emergency Room"></option>
+          <option value="Medical - Hospice"></option>
+          <option value="Medical - Hospital"></option>
+          <option value="Medical - Independent Living Facility"></option>
+          <option value="Medical - Med Spa"></option>
+          <option value="Medical - Memory Care Facility"></option>
+          <option value="Medical - Mental Health"></option>
+          <option value="Medical - Nursery"></option>
+          <option value="Medical - OBGYN"></option>
+          <option value="Medical - Oncology Center"></option>
+          <option value="Medical - Optometry/Ophthalmology"></option>
+          <option value="Medical - Oral Surgery Office"></option>
+          <option value="Medical - Orthodontic Office"></option>
+          <option value="Medical - Orthopedic Clinic"></option>
+          <option value="Medical - Outpatient"></option>
+          <option value="Medical - Pediatric Dental Office"></option>
+          <option value="Medical - Pharmacy/Health Clinic"></option>
+          <option value="Medical - Physical Therapy"></option>
+          <option value="Medical - Plasma Donation"></option>
+          <option value="Medical - Plastic Surgery"></option>
+          <option value="Medical - Podiatry"></option>
+          <option value="Medical - Radiology/Imaging Center"></option>
+          <option value="Medical - Specialty"></option>
+          <option value="Medical - Spine Center"></option>
+          <option value="Medical - Surgery Center"></option>
+          <option value="Medical - Urgent Care"></option>
+          <option value="Medical - Veterinary Clinic"></option>
+          <option value="Medical - Veterinary Emergency Hospital"></option>
+          <option value="Medical - Veterinary Surgery"></option>
+          <option value="Medical - Wound Care Center"></option>
+          <option value="Military Facility"></option>
+          <option value="Nonprofit - Food Bank"></option>
+          <option value="Office - Accounting/CPA Office"></option>
+          <option value="Office - Broadcast Studio"></option>
+          <option value="Office - Call Center"></option>
+          <option value="Office - Co-Working"></option>
+          <option value="Office - Corporate Campus"></option>
+          <option value="Office - General (Multi-Tenant Medical-Professional)"></option>
+          <option value="Office - General (Multi-Tenant Non-Medical)"></option>
+          <option value="Office - General (Single-Tenant)"></option>
+          <option value="Office - Insurance Agency Office"></option>
+          <option value="Office - Law Firm"></option>
+          <option value="Office - Model Home Sales"></option>
+          <option value="Office - Nonprofit Organization Office"></option>
+          <option value="Office - Real Estate Office"></option>
+          <option value="Office - Tech Startup"></option>
+          <option value="Office - Union Hall"></option>
+          <option value="Parking Garage"></option>
+          <option value="Private Club"></option>
+          <option value="Public Park"></option>
+          <option value="Public Transportation"></option>
+          <option value="Public Utility"></option>
+          <option value="Recreation - Athletic Center"></option>
+          <option value="Recreation - Bowling Alley"></option>
+          <option value="Recreation - Concert Venue"></option>
+          <option value="Recreation - Escape Room/Entertainment Center"></option>
+          <option value="Recreation - Festival Venue"></option>
+          <option value="Recreation - Fitness Recovery Center"></option>
+          <option value="Recreation - Fitness Studio"></option>
+          <option value="Recreation - Gym/Health Club"></option>
+          <option value="Recreation - RV Park/Campground"></option>
+          <option value="Recreation - Racing Venue (NASCAR/F1)"></option>
+          <option value="Recreation - Recreation Center"></option>
+          <option value="Recreation - Sports Arena"></option>
+          <option value="Recreation - YMCA"></option>
+          <option value="Recycling / Waste Management"></option>
+          <option value="Research & Development Lab"></option>
+          <option value="Residential - Apartment/Condo Common Areas"></option>
+          <option value="Restaurant - Bakery"></option>
+          <option value="Restaurant - Bar"></option>
+          <option value="Restaurant - Brewery"></option>
+          <option value="Restaurant - Buffet"></option>
+          <option value="Restaurant - Café/Bistro"></option>
+          <option value="Restaurant - Chick-fil-A"></option>
+          <option value="Restaurant - Ethnic Cuisine"></option>
+          <option value="Restaurant - Family Dining"></option>
+          <option value="Restaurant - Fast Casual"></option>
+          <option value="Restaurant - Fast Food"></option>
+          <option value="Restaurant - Fine Dining"></option>
+          <option value="Restaurant - General"></option>
+          <option value="Restaurant - Seafood"></option>
+          <option value="Restaurant - Steakhouse"></option>
+          <option value="Restaurant - Sushi"></option>
+          <option value="Restaurant - Winery"></option>
+          <option value="Retail - Auto Collision Center"></option>
+          <option value="Retail - Auto Dealership"></option>
+          <option value="Retail - Commercial Vehicle Repair Facility"></option>
+          <option value="Retail - Grocery Store"></option>
+          <option value="Retail - Luxury Auto Dealership"></option>
+          <option value="Retail - Outdoor Shopping Center"></option>
+          <option value="Retail - Pet Boarding"></option>
+          <option value="Retail - Pet Daycare"></option>
+          <option value="Retail - Pet Grooming/Training"></option>
+          <option value="Retail - Retail Showroom"></option>
+          <option value="Retail - Retail Store"></option>
+          <option value="Retail - Retail Warehouse Club"></option>
+          <option value="Retail - Shopping Mall"></option>
+          <option value="Retail - Tattoo/Piercing Studio"></option>
+          <option value="Salon - Barbershop"></option>
+          <option value="Salon - Hair"></option>
+          <option value="Salon - Nail"></option>
+          <option value="Salon - Tanning"></option>
+          <option value="Salon - Waxing"></option>
+          <option value="School - Aesthetics"></option>
+          <option value="School - Autism-Focused"></option>
+          <option value="School - Beauty/Cosmetology"></option>
+          <option value="School - Business School"></option>
+          <option value="School - Charter"></option>
+          <option value="School - Church"></option>
+          <option value="School - Daycare/Pre-School"></option>
+          <option value="School - Dental"></option>
+          <option value="School - Dorm Housing"></option>
+          <option value="School - Massage Therapy"></option>
+          <option value="School - Medical School"></option>
+          <option value="School - Montessori"></option>
+          <option value="School - Private"></option>
+          <option value="School - Public"></option>
+          <option value="School - Trade/Vocational"></option>
+          <option value="School - University Campus"></option>
+          <option value="Self Storage Facility"></option>
+          <option value="Solar/Wind Farm Operations Building"></option>
+          <option value="TV/Film Studio"></option>
+          <option value="Theater - Movie"></option>
+          <option value="Theatre - Live"></option>
+          <option value="Transportation - Bus/Train Station"></option>
+          <option value="Transportation - Charter Airport"></option>
+          <option value="Transportation - Helicopter Pad/Facility"></option>
+          <option value="Transportation - Logistics Center"></option>
+          <option value="Transportation - Marina/Dockside"></option>
+          <option value="Transportation - Private Airport"></option>
+          <option value="Transportation - Public Airport"></option>
+          <option value="Transportation - Transportation Hub"></option>
+          <option value="Transportation - Truck Stop"></option>
+          <option value="Vertical Farming Facility"></option>
+          <option value="Warehouse - Cold Chain/Refrigerated"></option>
+          <option value="Warehouse - Distribution Center"></option>
+          <option value="Warehouse - E-Commerce Fulfillment"></option>
+          <option value="Warehouse - Food Distribution (Sanitation)"></option>
+          <option value="Warehouse - General"></option>
+          <option value="Wedding/Event Center"></option>
+        </datalist>
+        <p class="field-hint">Matches the Bid Calculator industry list. Pick an exact match so room types load right.</p>
+      </div>
+    
+      <div class="field-group">
+        <label for="rateTier">Region &amp; Shift (labor rate)</label>
+        <select id="rateTier" data-field="rateTier">
+            <option value="Nevada — Standard" selected>Nevada — Standard</option>
+            <option value="Nevada — Day">Nevada — Day</option>
+            <option value="Nevada — 3rd Shift">Nevada — 3rd Shift</option>
+            <option value="Nevada — Kitchen">Nevada — Kitchen</option>
+            <option value="Nevada — Medical">Nevada — Medical</option>
+            <option value="Arizona — Standard">Arizona — Standard</option>
+            <option value="Arizona — Day">Arizona — Day</option>
+            <option value="Arizona — 3rd Shift">Arizona — 3rd Shift</option>
+            <option value="Arizona — Kitchen">Arizona — Kitchen</option>
+            <option value="Arizona — Medical">Arizona — Medical</option>
+            <option value="Reno — Standard">Reno — Standard</option>
+            <option value="Reno — Day">Reno — Day</option>
+            <option value="Reno — 3rd Shift">Reno — 3rd Shift</option>
+            <option value="Reno — Kitchen">Reno — Kitchen</option>
+            <option value="Reno — Medical">Reno — Medical</option>
+            <option value="TRIC / US Parkway — Standard">TRIC / US Parkway — Standard</option>
+            <option value="TRIC / US Parkway — Day">TRIC / US Parkway — Day</option>
+            <option value="TRIC / US Parkway — 3rd Shift">TRIC / US Parkway — 3rd Shift</option>
+            <option value="TRIC / US Parkway — Kitchen">TRIC / US Parkway — Kitchen</option>
+            <option value="TRIC / US Parkway — Medical">TRIC / US Parkway — Medical</option>
+            <option value="TRIC / US Parkway — Industrial">TRIC / US Parkway — Industrial</option>
+            <option value="Carson City — Standard">Carson City — Standard</option>
+            <option value="Carson City — Day">Carson City — Day</option>
+            <option value="Carson City — 3rd Shift">Carson City — 3rd Shift</option>
+            <option value="Carson City — Kitchen">Carson City — Kitchen</option>
+            <option value="Carson City — Medical">Carson City — Medical</option>
         </select>
       </div>
     </div>
-
-    <div class="form-card">
+<div class="form-card">
       <div class="form-card-title">Primary Contact</div>
       <div class="field-group">
         <label for="contactName">Contact Name</label>
@@ -1339,14 +1598,239 @@ select {
         <input type="date" id="surveyDate" data-field="surveyDate">
       </div>
     </div>
-  </section>
+<div class="form-card">
+      <div class="form-card-title">Scope Details</div>
+      <div class="field-row-3">
+        <div class="field-group">
+          <label for="daysPerWeek">Days / Week</label>
+          <select id="daysPerWeek" data-field="daysPerWeek">
+            <option value="">Select</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label for="peoplePerNight">Crew / Night</label>
+          <input type="number" id="peoplePerNight" data-field="peoplePerNight" min="1" max="50" placeholder="2">
+        </div>
+        <div class="field-group">
+          <label for="hoursPerNight">Hours / Night</label>
+          <input type="text" id="hoursPerNight" data-field="hoursPerNight" placeholder="3.5">
+        </div>
+      </div>
+    </div>
+<div class="form-card">
+      <div class="form-card-title">Building Density</div>
+      <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 8px;">Furniture / clutter level. Matches the Bid Calculator density dropdown.</p>
+      <div class="density-chips">
+        <span class="density-chip" data-cf="density" data-cv="Open Plan" onclick="selectOpt(this)">Open Plan</span>
+        <span class="density-chip" data-cf="density" data-cv="Very Light Use" onclick="selectOpt(this)">Very Light Use</span>
+        <span class="density-chip" data-cf="density" data-cv="Light Use" onclick="selectOpt(this)">Light Use</span>
+        <span class="density-chip" data-cf="density" data-cv="Normal" onclick="selectOpt(this)">Normal</span>
+        <span class="density-chip" data-cf="density" data-cv="Heavy Use" onclick="selectOpt(this)">Heavy Use</span>
+        <span class="density-chip" data-cf="density" data-cv="Very Heavy Use" onclick="selectOpt(this)">Very Heavy Use</span>
+        <span class="density-chip" data-cf="density" data-cv="Extreme Clutter" onclick="selectOpt(this)">Extreme Clutter</span>
+      </div>
+    </div>
+<div class="form-card">
+      <div class="form-card-title">Traffic Level</div>
+      <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 8px;">How heavy is foot traffic and soil load?</p>
+      <div class="density-chips">
+        <span class="density-chip" data-cf="traffic" data-cv="Light" onclick="selectOpt(this)">Light</span>
+        <span class="density-chip" data-cf="traffic" data-cv="Normal" onclick="selectOpt(this)">Normal</span>
+        <span class="density-chip" data-cf="traffic" data-cv="Heavy" onclick="selectOpt(this)">Heavy</span>
+      </div>
+    </div>
+<div class="form-card">
+      <div class="form-card-title">Building Logistics</div>
+      <div class="field-row">
+        <div class="field-group">
+          <label for="occupants">Occupants (Approx)</label>
+          <input type="number" id="occupants" data-field="occupants" min="0" placeholder="45">
+        </div>
+        <div class="field-group">
+          <label for="buildingHours">Building Hours</label>
+          <input type="text" id="buildingHours" data-field="buildingHours" placeholder="M-F 8am-5pm">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Day Porter Interest?</label>
+        <div class="density-chips">
+          <span class="density-chip" data-cf="porterInterest" data-cv="Yes" onclick="selectOpt(this)">Yes</span>
+          <span class="density-chip" data-cf="porterInterest" data-cv="No" onclick="selectOpt(this)">No</span>
+          <span class="density-chip" data-cf="porterInterest" data-cv="Maybe" onclick="selectOpt(this)">Maybe</span>
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="porterCoverage">Porter Coverage Needed</label>
+        <input type="text" id="porterCoverage" data-field="porterCoverage" placeholder="7am-3pm M-F, lobby + restrooms">
+      </div>
+    </div>
+<div class="form-card">
+      <div class="form-card-title">Access & Security</div>
+      <div class="field-group">
+        <label for="accessMethod">How Does the Crew Get In?</label>
+        <select id="accessMethod" data-field="accessMethod">
+          <option value="">Select...</option>
+          <option>Key</option>
+          <option>Fob / Badge</option>
+          <option>Alarm Code</option>
+          <option>Lockbox</option>
+          <option>Escort Required</option>
+          <option>Open During Service Hours</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label for="accessNotes">Access / Security Notes</label>
+        <textarea id="accessNotes" data-field="accessNotes" rows="2" placeholder="Alarm details, badging process, cameras, restricted areas, key holder..."></textarea>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label for="dumpsterLocation">Dumpster Location</label>
+          <input type="text" id="dumpsterLocation" data-field="dumpsterLocation" placeholder="Rear lot, NE corner">
+        </div>
+        <div class="field-group">
+          <label for="janitorCloset">Janitor Closet / Water</label>
+          <input type="text" id="janitorCloset" data-field="janitorCloset" placeholder="2nd floor, by RR">
+        </div>
+      </div>
+    </div>
+<div class="form-card">
+      <div class="form-card-title">Building Totals</div>
+      <div class="field-row">
+        <div class="field-group">
+          <label for="totalSqft">Total Cleanable SqFt</label>
+          <input type="text" id="totalSqft" data-field="totalSqft" placeholder="25,000">
+        </div>
+        <div class="field-group">
+          <label for="totalRR">Total Restrooms</label>
+          <input type="number" id="totalRR" data-field="totalRR" min="0" placeholder="6">
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="totalFixtures">Total Fixtures</label>
+        <input type="number" id="totalFixtures" data-field="totalFixtures" min="0" placeholder="24">
+      </div>
+      <div class="auto-totals" id="autoTotalsLine" style="display:none">
+        <span id="autoTotalsText"></span>
+        <button type="button" onclick="applyAutoTotals()">Apply</button>
+      </div>
+    </div>
+<div class="form-card">
+      <div class="form-card-title">Budget Discussion</div>
+      <div class="field-group">
+        <label for="budgetAmount">Budget (Monthly)</label>
+        <input type="text" id="budgetAmount" data-field="budgetAmount" placeholder="$3,500 / month">
+      </div>
+      <div class="field-group">
+        <label for="budgetNotes">Budget Context / Notes</label>
+        <textarea id="budgetNotes" data-field="budgetNotes" rows="3" placeholder="How did they react? Did you justify with the value prop? Is budget flexible?"></textarea>
+      </div>
+    </div>
+<div class="form-card">
+      <div class="form-card-title">Hard Surface Floor Care</div>
+      <div class="checklist-grid">
+        <label class="checklist-item"><input type="checkbox" data-field="fc_stripWax"> <span>Strip & Wax</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="fc_topScrub"> <span>Top Scrub & Wax</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="fc_machineScrub"> <span>Machine Scrub Ceramic</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="fc_buff"> <span>Hi-Speed Buff</span></label>
+      </div>
+      <div class="field-row" style="margin-top: 12px;">
+        <div class="field-group">
+          <label for="fcFrequency">Frequency</label>
+          <input type="text" id="fcFrequency" data-field="fcFrequency" placeholder="Quarterly, Monthly, etc.">
+        </div>
+        <div class="field-group">
+          <label for="fcFloorType">Primary Floor Type</label>
+          <input type="text" id="fcFloorType" data-field="fcFloorType" placeholder="VCT, Ceramic, Concrete">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Bundle with JS?</label>
+        <div style="display:flex; gap: 8px; margin-top: 4px;">
+          <span class="density-chip" data-cf="bundleWithJS" data-cv="Yes" onclick="selectOpt(this)">Yes</span>
+          <span class="density-chip" data-cf="bundleWithJS" data-cv="No" onclick="selectOpt(this)">No</span>
+        </div>
+      </div>
+    </div>
+<div class="form-card">
+      <div class="form-card-title">Carpet Care</div>
+      <div class="checklist-grid">
+        <label class="checklist-item"><input type="checkbox" data-field="cc_extraction"> <span>Carpet Extraction</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="cc_trafficPattern"> <span>Traffic Pattern Cleaning</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="cc_bonnet"> <span>Bonnet Cleaning</span></label>
+      </div>
+    </div>
+<div class="form-card">
+      <div class="form-card-title">Additional Services Needed</div>
+      <div class="checklist-grid">
+        <label class="checklist-item"><input type="checkbox" data-field="svc_coi"> <span>COI Needed</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_bloodborne"> <span>Bloodborne Pathogens</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_hazard"> <span>Communication Hazard</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_initialClean"> <span>Initial Clean</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_kitchen"> <span>Kitchen Clean</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_alarm"> <span>Alarm Code</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_dumpsters"> <span>Dumpsters</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_recycling"> <span>Recycling</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_windowWash"> <span>Window Washing</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_pest"> <span>Pest Control</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_sidelights"> <span>Sidelights</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_blinds"> <span>Blinds</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_highWork"> <span>High Work</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_pressureWash"> <span>Pressure Washing</span></label>
+        <label class="checklist-item"><input type="checkbox" data-field="svc_matting"> <span>Matting Services</span></label>
+      </div>
+    </div>
+<div class="form-card">
+      <div class="form-card-title">Current Supplies</div>
+      <div class="field-row">
+        <div class="field-group">
+          <label for="supplyBrands">Brands</label>
+          <input type="text" id="supplyBrands" data-field="supplyBrands" placeholder="Spartan, Envirox, etc.">
+        </div>
+        <div class="field-group">
+          <label for="supplyTP">Toilet Paper</label>
+          <input type="text" id="supplyTP" data-field="supplyTP">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field-group">
+          <label for="supplyTowels">Towels</label>
+          <input type="text" id="supplyTowels" data-field="supplyTowels">
+        </div>
+        <div class="field-group">
+          <label for="supplySoap">Soap</label>
+          <input type="text" id="supplySoap" data-field="supplySoap">
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="supplyDispensers">Dispensers</label>
+        <input type="text" id="supplyDispensers" data-field="supplyDispensers">
+      </div>
+    </div>
+<div class="form-card">
+      <div class="form-card-title">Special Requests & Hot Buttons</div>
+      <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 10px;">Anything specific they asked for during the visit. Area-level hot spots are captured in the walkthrough.</p>
+      <div id="requestsContainer"></div>
+      <button class="btn-add" type="button" onclick="addRequest()">+ Add Special Request</button>
+    </div>
+<div class="form-card">
+      <div class="form-card-title">Extra Notes</div>
+      <div class="field-group">
+        <label for="extraNotes">Anything else relevant to the scope or proposal?</label>
+        <textarea id="extraNotes" data-field="extraNotes" rows="4" placeholder="Security requirements, after-hours access, parking info, key holder contacts..."></textarea>
+      </div>
+    </div>
 
-  <!-- ============ STEP 2: Pre-Research ============ -->
-  <section class="step-panel" data-step="2">
-    <h2 class="step-title">Pre-Research</h2>
-    <p class="step-subtitle">Do your homework before the visit. LinkedIn, Google, and their company website are gold.</p>
-
-    <div class="form-card">
+    <details class="sales-notes" id="salesNotes">
+      <summary>Sales Notes (optional) — discovery, pain, decision process</summary>
+<div class="form-card">
       <div class="form-card-title">Research Notes</div>
       <div class="field-group">
         <label for="preResearch">LinkedIn / Google / Website findings</label>
@@ -1361,14 +1845,7 @@ select {
         <input type="text" id="buildingSurveyFor" data-field="buildingSurveyFor" placeholder="Janitorial Services, Floor Care, etc.">
       </div>
     </div>
-  </section>
-
-  <!-- ============ STEP 3: Set the Agenda ============ -->
-  <section class="step-panel" data-step="3">
-    <h2 class="step-title">Set the Agenda</h2>
-    <p class="step-subtitle">Build rapport and set expectations for the meeting. Check off your objectives as you cover them.</p>
-
-    <div class="form-card">
+<div class="form-card">
       <div class="form-card-title">Meeting Objectives</div>
       <div class="checkbox-grid">
         <label class="checkbox-item" onclick="toggleCheck(this)">
@@ -1397,22 +1874,14 @@ select {
         </label>
       </div>
     </div>
-
-    <div class="form-card">
+<div class="form-card">
       <div class="form-card-title">Rapport Notes</div>
       <div class="field-group">
         <label for="rapportNotes">What did you discuss? Personal interests, common ground, etc.</label>
         <textarea id="rapportNotes" data-field="rapportNotes" rows="4" placeholder="Kids, sports, hobbies, mutual connections..."></textarea>
       </div>
     </div>
-  </section>
-
-  <!-- ============ STEP 4: Current Situation ============ -->
-  <section class="step-panel" data-step="4">
-    <h2 class="step-title">Current Situation</h2>
-    <p class="step-subtitle">Understand who they are working with now and their history with janitorial companies.</p>
-
-    <div class="form-card">
+<div class="form-card">
       <div class="form-card-title">Current Janitorial Info</div>
       <div class="field-row">
         <div class="field-group">
@@ -1435,8 +1904,7 @@ select {
         </div>
       </div>
     </div>
-
-    <div class="form-card">
+<div class="form-card">
       <div class="form-card-title">Their Perspective</div>
       <div class="field-group">
         <label for="currentSituation">Tell me about your current situation?</label>
@@ -1451,14 +1919,7 @@ select {
         <textarea id="wantChanged" data-field="wantChanged" rows="2"></textarea>
       </div>
     </div>
-  </section>
-
-  <!-- ============ STEP 5: Pain Discovery ============ -->
-  <section class="step-panel" data-step="5">
-    <h2 class="step-title">Pain Discovery</h2>
-    <p class="step-subtitle">This is where the sale is won or lost. Dig into their frustrations and the personal impact.</p>
-
-    <div class="form-card">
+<div class="form-card">
       <div class="form-card-title">Biggest Frustrations</div>
       <div class="checkbox-grid">
         <label class="checkbox-item" onclick="toggleCheck(this)">
@@ -1490,8 +1951,7 @@ select {
         </label>
       </div>
     </div>
-
-    <div class="form-card">
+<div class="form-card">
       <div class="form-card-title">Satisfaction Scale</div>
       <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 8px;">On a scale of 1 to 5, how satisfied are you with your current service?</p>
       <div class="scale-row">
@@ -1506,8 +1966,7 @@ select {
         <span>Very Satisfied</span>
       </div>
     </div>
-
-    <div class="form-card">
+<div class="form-card">
       <div class="form-card-title">Impact Questions</div>
       <div class="field-group">
         <label for="timeOnJS">How much time do you spend managing janitorial? How does that affect you?</label>
@@ -1518,26 +1977,7 @@ select {
         <textarea id="mostImportantChange" data-field="mostImportantChange" rows="2"></textarea>
       </div>
     </div>
-  </section>
-
-  <!-- ============ STEP 6: Budget ============ -->
-  <section class="step-panel" data-step="6">
-    <h2 class="step-title">Budget</h2>
-    <p class="step-subtitle">Ask for the budget. Then justify why it matters by explaining how it shapes the plan.</p>
-
-    <div class="form-card">
-      <div class="form-card-title">Budget Discussion</div>
-      <div class="field-group">
-        <label for="budgetAmount">Budget (Monthly)</label>
-        <input type="text" id="budgetAmount" data-field="budgetAmount" placeholder="$3,500 / month">
-      </div>
-      <div class="field-group">
-        <label for="budgetNotes">Budget Context / Notes</label>
-        <textarea id="budgetNotes" data-field="budgetNotes" rows="3" placeholder="How did they react? Did you justify with the value prop? Is budget flexible?"></textarea>
-      </div>
-    </div>
-
-    <div class="form-card">
+<div class="form-card">
       <div class="form-card-title">Value Prop Delivered</div>
       <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 10px;">Confirm you covered the three uniques and why City Wide:</p>
       <div class="checkbox-grid">
@@ -1555,146 +1995,7 @@ select {
         </label>
       </div>
     </div>
-  </section>
-
-  <!-- ============ STEP 7: Fulfillment ============ -->
-  <section class="step-panel" data-step="7">
-    <h2 class="step-title">Fulfillment</h2>
-    <p class="step-subtitle">Determine the scope of work: cleaning frequency, crew size, and hours needed.</p>
-
-    <div class="form-card">
-      <div class="form-card-title">Scope Details</div>
-      <div class="field-row-3">
-        <div class="field-group">
-          <label for="daysPerWeek">Days / Week</label>
-          <select id="daysPerWeek" data-field="daysPerWeek">
-            <option value="">Select</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-          </select>
-        </div>
-        <div class="field-group">
-          <label for="peoplePerNight">Crew / Night</label>
-          <input type="number" id="peoplePerNight" data-field="peoplePerNight" min="1" max="50" placeholder="2">
-        </div>
-        <div class="field-group">
-          <label for="hoursPerNight">Hours / Night</label>
-          <input type="text" id="hoursPerNight" data-field="hoursPerNight" placeholder="3.5">
-        </div>
-      </div>
-    </div>
-
-    <div class="form-card">
-      <div class="form-card-title">Building Density</div>
-      <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 8px;">How dense is the furniture and equipment layout?</p>
-      <div class="density-chips">
-        <span class="density-chip" data-cf="density" data-cv="Dense" onclick="selectOpt(this)">Dense</span>
-        <span class="density-chip" data-cf="density" data-cv="Average" onclick="selectOpt(this)">Average</span>
-        <span class="density-chip" data-cf="density" data-cv="Light" onclick="selectOpt(this)">Light</span>
-      </div>
-    </div>
-
-    <div class="form-card">
-      <div class="form-card-title">Traffic Level</div>
-      <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 8px;">How heavy is foot traffic and soil load?</p>
-      <div class="density-chips">
-        <span class="density-chip" data-cf="traffic" data-cv="Light" onclick="selectOpt(this)">Light</span>
-        <span class="density-chip" data-cf="traffic" data-cv="Normal" onclick="selectOpt(this)">Normal</span>
-        <span class="density-chip" data-cf="traffic" data-cv="Heavy" onclick="selectOpt(this)">Heavy</span>
-      </div>
-    </div>
-
-    <div class="form-card">
-      <div class="form-card-title">Building Logistics</div>
-      <div class="field-row">
-        <div class="field-group">
-          <label for="occupants">Occupants (Approx)</label>
-          <input type="number" id="occupants" data-field="occupants" min="0" placeholder="45">
-        </div>
-        <div class="field-group">
-          <label for="buildingHours">Building Hours</label>
-          <input type="text" id="buildingHours" data-field="buildingHours" placeholder="M-F 8am-5pm">
-        </div>
-      </div>
-      <div class="field-group">
-        <label>Day Porter Interest?</label>
-        <div class="density-chips">
-          <span class="density-chip" data-cf="porterInterest" data-cv="Yes" onclick="selectOpt(this)">Yes</span>
-          <span class="density-chip" data-cf="porterInterest" data-cv="No" onclick="selectOpt(this)">No</span>
-          <span class="density-chip" data-cf="porterInterest" data-cv="Maybe" onclick="selectOpt(this)">Maybe</span>
-        </div>
-      </div>
-      <div class="field-group">
-        <label for="porterCoverage">Porter Coverage Needed</label>
-        <input type="text" id="porterCoverage" data-field="porterCoverage" placeholder="7am-3pm M-F, lobby + restrooms">
-      </div>
-    </div>
-
-    <div class="form-card">
-      <div class="form-card-title">Access & Security</div>
-      <div class="field-group">
-        <label for="accessMethod">How Does the Crew Get In?</label>
-        <select id="accessMethod" data-field="accessMethod">
-          <option value="">Select...</option>
-          <option>Key</option>
-          <option>Fob / Badge</option>
-          <option>Alarm Code</option>
-          <option>Lockbox</option>
-          <option>Escort Required</option>
-          <option>Open During Service Hours</option>
-          <option>Other</option>
-        </select>
-      </div>
-      <div class="field-group">
-        <label for="accessNotes">Access / Security Notes</label>
-        <textarea id="accessNotes" data-field="accessNotes" rows="2" placeholder="Alarm details, badging process, cameras, restricted areas, key holder..."></textarea>
-      </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label for="dumpsterLocation">Dumpster Location</label>
-          <input type="text" id="dumpsterLocation" data-field="dumpsterLocation" placeholder="Rear lot, NE corner">
-        </div>
-        <div class="field-group">
-          <label for="janitorCloset">Janitor Closet / Water</label>
-          <input type="text" id="janitorCloset" data-field="janitorCloset" placeholder="2nd floor, by RR">
-        </div>
-      </div>
-    </div>
-
-    <div class="form-card">
-      <div class="form-card-title">Building Totals</div>
-      <div class="field-row">
-        <div class="field-group">
-          <label for="totalSqft">Total Cleanable SqFt</label>
-          <input type="text" id="totalSqft" data-field="totalSqft" placeholder="25,000">
-        </div>
-        <div class="field-group">
-          <label for="totalRR">Total Restrooms</label>
-          <input type="number" id="totalRR" data-field="totalRR" min="0" placeholder="6">
-        </div>
-      </div>
-      <div class="field-group">
-        <label for="totalFixtures">Total Fixtures</label>
-        <input type="number" id="totalFixtures" data-field="totalFixtures" min="0" placeholder="24">
-      </div>
-      <div class="auto-totals" id="autoTotalsLine" style="display:none">
-        <span id="autoTotalsText"></span>
-        <button type="button" onclick="applyAutoTotals()">Apply</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ STEP 8: Decision Making ============ -->
-  <section class="step-panel" data-step="8">
-    <h2 class="step-title">Decision Making</h2>
-    <p class="step-subtitle">Understand the timeline and who is involved. No surprises at proposal delivery.</p>
-
-    <div class="form-card">
+<div class="form-card">
       <div class="form-card-title">Timeline & Process</div>
       <div class="field-group">
         <label for="timelineToSwitch">What is the timeline to switch?</label>
@@ -1717,132 +2018,40 @@ select {
         <input type="date" id="proposalDate" data-field="proposalDate">
       </div>
     </div>
+    </details>
   </section>
 
-  <!-- ============ STEP 9: Walkthrough ============ -->
-  <section class="step-panel" data-step="9">
+  <!-- ============ STEP 2: Walkthrough ============ -->
+  <section class="step-panel" data-step="2">
     <h2 class="step-title">Building Walkthrough</h2>
     <p class="step-subtitle">Tap a chip to add each area as you walk. Tap an area&#39;s header to open or close it. Flag problems as hot spots and snap photos.</p>
+
 
     <div class="totals-bar" id="totalsBar"></div>
     <div class="quick-chips" id="quickChips"></div>
     <div class="empty-areas" id="areasEmpty">No areas yet. Tap a chip above to add your first area.</div>
     <div id="areasContainer"></div>
     <button class="btn-add" onclick="addArea('','')">+ Add Custom Area</button>
+  
   </section>
 
-  <!-- ============ STEP 10: Floor Care & Extras ============ -->
-  <section class="step-panel" data-step="10">
-    <h2 class="step-title">Floor Care & Special Areas</h2>
-    <p class="step-subtitle">Capture floor care needs and any special requirements or additional services.</p>
+  <!-- ============ STEP 3: Review & Send ============ -->
+  <section class="step-panel" data-step="3">
+    <h2 class="step-title">Review &amp; Send</h2>
+    <p class="step-subtitle">Check the numbers, then email yourself the bid-ready Excel. Paste its Bid Input sheet into Claude in Excel inside the Bid Calculator.</p>
 
     <div class="form-card">
-      <div class="form-card-title">Hard Surface Floor Care</div>
-      <div class="checklist-grid">
-        <label class="checklist-item"><input type="checkbox" data-field="fc_stripWax"> <span>Strip & Wax</span></label>
-        <label class="checklist-item"><input type="checkbox" data-field="fc_topScrub"> <span>Top Scrub & Wax</span></label>
-        <label class="checklist-item"><input type="checkbox" data-field="fc_machineScrub"> <span>Machine Scrub Ceramic</span></label>
-        <label class="checklist-item"><input type="checkbox" data-field="fc_buff"> <span>Hi-Speed Buff</span></label>
-      </div>
-      <div class="field-row" style="margin-top: 12px;">
-        <div class="field-group">
-          <label for="fcFrequency">Frequency</label>
-          <input type="text" id="fcFrequency" data-field="fcFrequency" placeholder="Quarterly, Monthly, etc.">
-        </div>
-        <div class="field-group">
-          <label for="fcFloorType">Primary Floor Type</label>
-          <input type="text" id="fcFloorType" data-field="fcFloorType" placeholder="VCT, Ceramic, Concrete">
-        </div>
-      </div>
+      <div class="form-card-title">Bid-Ready Excel</div>
       <div class="field-group">
-        <label>Bundle with JS?</label>
-        <div style="display:flex; gap: 8px; margin-top: 4px;">
-          <span class="density-chip" data-cf="bundleWithJS" data-cv="Yes" onclick="selectOpt(this)">Yes</span>
-          <span class="density-chip" data-cf="bundleWithJS" data-cv="No" onclick="selectOpt(this)">No</span>
-        </div>
+        <label for="senderEmail">Send to (your email)</label>
+        <input type="email" id="senderEmail" data-field="senderEmail" placeholder="you@gocitywide.com">
       </div>
+      <button class="btn btn-primary" type="button" id="btnEmailXlsx" onclick="emailExcel()" style="width:100%; margin-bottom:8px;">📧 Email Me the Excel</button>
+      <button class="btn btn-secondary" type="button" id="btnDownloadXlsx" onclick="downloadExcel()" style="width:100%;">Download .xlsx (backup)</button>
+      <p class="field-hint" style="margin-top:8px;">The file lands in your Outlook inbox. Open the Bid Calculator, open Claude, and paste the whole Bid Input sheet in. Rooms are already consolidated by type and floor.</p>
     </div>
 
-    <div class="form-card">
-      <div class="form-card-title">Carpet Care</div>
-      <div class="checklist-grid">
-        <label class="checklist-item"><input type="checkbox" data-field="cc_extraction"> <span>Carpet Extraction</span></label>
-        <label class="checklist-item"><input type="checkbox" data-field="cc_trafficPattern"> <span>Traffic Pattern Cleaning</span></label>
-        <label class="checklist-item"><input type="checkbox" data-field="cc_bonnet"> <span>Bonnet Cleaning</span></label>
-      </div>
-    </div>
-
-    <div class="form-card">
-      <div class="form-card-title">Additional Services Needed</div>
-      <div class="checklist-grid">
-        <label class="checklist-item"><input type="checkbox" data-field="svc_coi"> <span>COI Needed</span></label>
-        <label class="checklist-item"><input type="checkbox" data-field="svc_bloodborne"> <span>Bloodborne Pathogens</span></label>
-        <label class="checklist-item"><input type="checkbox" data-field="svc_hazard"> <span>Communication Hazard</span></label>
-        <label class="checklist-item"><input type="checkbox" data-field="svc_initialClean"> <span>Initial Clean</span></label>
-        <label class="checklist-item"><input type="checkbox" data-field="svc_kitchen"> <span>Kitchen Clean</span></label>
-        <label class="checklist-item"><input type="checkbox" data-field="svc_alarm"> <span>Alarm Code</span></label>
-        <label class="checklist-item"><input type="checkbox" data-field="svc_dumpsters"> <span>Dumpsters</span></label>
-        <label class="checklist-item"><input type="checkbox" data-field="svc_recycling"> <span>Recycling</span></label>
-        <label class="checklist-item"><input type="checkbox" data-field="svc_windowWash"> <span>Window Washing</span></label>
-        <label class="checklist-item"><input type="checkbox" data-field="svc_pest"> <span>Pest Control</span></label>
-        <label class="checklist-item"><input type="checkbox" data-field="svc_sidelights"> <span>Sidelights</span></label>
-        <label class="checklist-item"><input type="checkbox" data-field="svc_blinds"> <span>Blinds</span></label>
-        <label class="checklist-item"><input type="checkbox" data-field="svc_highWork"> <span>High Work</span></label>
-        <label class="checklist-item"><input type="checkbox" data-field="svc_pressureWash"> <span>Pressure Washing</span></label>
-        <label class="checklist-item"><input type="checkbox" data-field="svc_matting"> <span>Matting Services</span></label>
-      </div>
-    </div>
-
-    <div class="form-card">
-      <div class="form-card-title">Special Requests & Hot Buttons</div>
-      <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 10px;">Anything specific they asked for during the visit. Area-level hot spots are captured in the walkthrough.</p>
-      <div id="requestsContainer"></div>
-      <button class="btn-add" type="button" onclick="addRequest()">+ Add Special Request</button>
-    </div>
-
-    <div class="form-card">
-      <div class="form-card-title">Extra Notes</div>
-      <div class="field-group">
-        <label for="extraNotes">Anything else relevant to the scope or proposal?</label>
-        <textarea id="extraNotes" data-field="extraNotes" rows="4" placeholder="Security requirements, after-hours access, parking info, key holder contacts..."></textarea>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ STEP 11: Supplies & Review ============ -->
-  <section class="step-panel" data-step="11">
-    <h2 class="step-title">Supplies & Review</h2>
-    <p class="step-subtitle">Capture supply details, then review everything before generating your report.</p>
-
-    <div class="form-card">
-      <div class="form-card-title">Current Supplies</div>
-      <div class="field-row">
-        <div class="field-group">
-          <label for="supplyBrands">Brands</label>
-          <input type="text" id="supplyBrands" data-field="supplyBrands" placeholder="Spartan, Envirox, etc.">
-        </div>
-        <div class="field-group">
-          <label for="supplyTP">Toilet Paper</label>
-          <input type="text" id="supplyTP" data-field="supplyTP">
-        </div>
-      </div>
-      <div class="field-row">
-        <div class="field-group">
-          <label for="supplyTowels">Towels</label>
-          <input type="text" id="supplyTowels" data-field="supplyTowels">
-        </div>
-        <div class="field-group">
-          <label for="supplySoap">Soap</label>
-          <input type="text" id="supplySoap" data-field="supplySoap">
-        </div>
-      </div>
-      <div class="field-group">
-        <label for="supplyDispensers">Dispensers</label>
-        <input type="text" id="supplyDispensers" data-field="supplyDispensers">
-      </div>
-    </div>
-
-    <div class="form-card" id="reviewContainer">
+<div class="form-card" id="reviewContainer">
       <div class="form-card-title">Survey Summary</div>
       <div id="reviewContent"></div>
     </div>
@@ -1883,7 +2092,7 @@ select {
 // ============================================
 // STATE
 // ============================================
-const TOTAL_STEPS = 11;
+const TOTAL_STEPS = 3;
 let currentStep = 1;
 let surveyId = null;
 let formData = {};
@@ -1989,6 +2198,11 @@ function init() {
   const dateField = document.getElementById('surveyDate');
   if (dateField && !dateField.value) dateField.value = today;
 
+  // Prefill the salesperson's email from last time
+  const savedEmail = localStorage.getItem('cw_survey_email');
+  const emailField = document.getElementById('senderEmail');
+  if (savedEmail && emailField && !emailField.value) emailField.value = savedEmail;
+
   renderQuickAdd();
 
   const lastId = localStorage.getItem('cw_current_survey');
@@ -2031,7 +2245,7 @@ function goToStep(step) {
   updateNav();
   renderStepDots();
 
-  if (step === 7) updateAutoTotalsLine();
+  if (step === 1) updateAutoTotalsLine();
   if (step === TOTAL_STEPS) buildReview();
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2171,6 +2385,9 @@ function loadSurvey(id) {
   const data = JSON.parse(raw);
   surveyId = data.id;
   formData = data.formData || {};
+  // Migrate old 3-level density values to Bid Calculator scale
+  const densityMap = { 'Dense': 'Heavy Use', 'Average': 'Normal', 'Light': 'Light Use' };
+  if (densityMap[formData.density]) formData.density = densityMap[formData.density];
   areas = data.areas || migrateRooms(data.rooms);
   requests = data.requests || [];
   currentStep = data.step || 1;
@@ -2988,7 +3205,7 @@ const CW_HOOK = 'https://script.google.com/macros/s/AKfycbyZz6vEqjzdq0v15FVMfnrC
 
 const SHEET_FIELDS = [
   ['Company Name', 'companyName'], ['Address', 'address'], ['City', 'city'], ['State, Zip', 'stateZip'],
-  ['Type of Business', 'businessType'], ['Contact Name', 'contactName'], ['Title', 'contactTitle'],
+  ['Industry Type', 'businessType'], ['Region & Shift', 'rateTier'], ['Contact Name', 'contactName'], ['Title', 'contactTitle'],
   ['Phone', 'phone'], ['Email', 'email'], ['Survey Date', 'surveyDate'],
   ['Building Survey For', 'buildingSurveyFor'], ['Pre-Research', 'preResearch'], ['Qualifying Info', 'qualifyingInfo'],
   ['Rapport Notes', 'rapportNotes'],
@@ -3095,6 +3312,183 @@ function saveToSheets() {
       btn.textContent = 'Retry Save';
       btn.disabled = false;
     });
+}
+
+// ============================================
+// BID-READY EXCEL EXPORT
+// ============================================
+const FLOOR_MAP = { 'CPT': 'Carpet', 'VCT': 'VCT', 'CER': 'Ceramic Tile', 'CONC': 'Concrete', 'Other': '' };
+
+const CLAUDE_PROMPT_LINES = [
+  'INSTRUCTIONS — INCLUDE THIS WHOLE SHEET IN YOUR PASTE INTO CLAUDE IN EXCEL:',
+  'You are filling out the City Wide Bid Calculator workbook from this building survey. Before writing anything:',
+  '1. Analyze the formulas inside this workbook first (Bid Calculator sheet, the Calc table, RoomKey, Rates for Service, Pricing Control) so you understand how it computes. Only put values in input cells; never type over a formula cell.',
+  '2. Work within the matrix of dropdowns. Every value you enter in a data-validation cell must be an exact allowed value from that cell\'s dropdown list. Do not overwrite or remove any data validation. If a Room Type below is not an exact match for the selected Industry Type, pick the closest valid Room Type from the dropdown.',
+  '3. The rooms below are already consolidated by room type + floor type (one row per type per floor, with Room Count and total Square Feet). Keep them consolidated — do not expand back into one row per room. If any further rows share the same Room Type and Floor Type, merge them too.',
+  '4. Fill in: Account Name (C3), Industry Type (C5), Shift (C6) from the General Info block; then the Calc table rows from the Rooms table; leave defaulted columns (Fixture Mins, Clean Mode, Room Count formulas) alone unless a value is given.',
+  '5. Put the Prospect Budget in its input cell if one is given. Add Additional Tasks (Step 3) for the services listed under Requested Services, using the task dropdown.',
+  ''
+];
+
+function mapDensity(d) {
+  const legacy = { 'Dense': 'Heavy Use', 'Average': 'Normal', 'Light': 'Light Use' };
+  return legacy[d] || d || 'Normal';
+}
+
+function cleanSqft(v) { return Number(String(v || '').replace(/[^\d.]/g, '')) || 0; }
+
+// Consolidate walkthrough areas by (room type, floor type).
+// Areas with floor splits contribute proportional sqft to each floor bucket.
+function consolidateRooms() {
+  const buckets = {};
+  areas.forEach(a => {
+    const type = a.type || a.name || 'Other';
+    const sqft = cleanSqft(a.sqft);
+    const fixtures = fixtureTotal(a);
+    let floors = (a.floorTypes || []).filter(Boolean);
+    if (!floors.length) floors = [''];
+    // work out share per floor
+    let shares = {};
+    if (floors.length === 1) { shares[floors[0]] = 1; }
+    else {
+      let totalPct = 0, given = 0;
+      floors.forEach(ft => { const p = Number(a.floorSplit && a.floorSplit[ft]) || 0; totalPct += p; if (p) given++; });
+      floors.forEach(ft => {
+        const p = Number(a.floorSplit && a.floorSplit[ft]) || 0;
+        shares[ft] = totalPct > 0 ? (p / totalPct) : (1 / floors.length);
+      });
+    }
+    floors.forEach((ft, fi) => {
+      const key = type + '||' + ft;
+      if (!buckets[key]) buckets[key] = { type: type, floor: FLOOR_MAP[ft] !== undefined ? FLOOR_MAP[ft] : ft, sqft: 0, count: 0, fixtures: 0, names: [], notes: [] };
+      const b = buckets[key];
+      b.sqft += sqft * shares[ft];
+      // count the room once, on its first floor bucket
+      if (fi === 0) {
+        b.count += 1;
+        b.fixtures += fixtures;
+        if (a.name && a.name !== type) b.names.push(a.name);
+        if (a.hotspot) b.notes.push('HOT SPOT' + (a.hotspotNote ? ': ' + a.hotspotNote : '') + (a.name ? ' (' + a.name + ')' : ''));
+        if (a.notes) b.notes.push(a.notes);
+      }
+    });
+  });
+  return Object.values(buckets).filter(b => b.sqft > 0 || b.count > 0);
+}
+
+function buildExcelWorkbook() {
+  saveFormData();
+  const t = surveyTotals();
+  const v = k => (formData[k] !== undefined && formData[k] !== null) ? String(formData[k]) : '';
+  const rows = [];
+
+  CLAUDE_PROMPT_LINES.forEach(l => rows.push([l]));
+
+  rows.push(['GENERAL INFO (Bid Calculator Step 1a)']);
+  rows.push(['Account Name', v('companyName')]);
+  rows.push(['Industry Type', v('businessType')]);
+  rows.push(['Shift (Rates for Service)', v('rateTier') || 'Nevada — Standard']);
+  rows.push(['CW Provides Tools & Chemicals?', 'TRUE']);
+  rows.push(['Prospect Budget (Monthly)', v('budgetAmount')]);
+  rows.push(['Days per Week (default for all rooms)', v('daysPerWeek')]);
+  rows.push(['Building Density (default)', mapDensity(formData.density)]);
+  rows.push(['Traffic Level (context)', v('traffic')]);
+  rows.push(['Total Cleanable SqFt (stated)', v('totalSqft')]);
+  rows.push(['Total Restrooms / Fixtures (stated)', v('totalRR') + ' / ' + v('totalFixtures')]);
+  rows.push(['Building Hours', v('buildingHours')]);
+  rows.push(['Occupants', v('occupants')]);
+  rows.push([]);
+
+  rows.push(['ROOMS — consolidated by type + floor. Paste into the Calc table (Step 2).']);
+  rows.push(['Room Type', 'Room Name', 'Square Feet', 'Floor Type', 'Room Count', 'Fixtures', 'Days per Week', 'Density', 'Notes']);
+  const consolidated = consolidateRooms();
+  consolidated.forEach(b => {
+    rows.push([
+      b.type,
+      b.count > 1 ? b.count + 'x ' + b.type : (b.names[0] || b.type),
+      Math.round(b.sqft),
+      b.floor,
+      b.count || '',
+      b.fixtures || '',
+      v('daysPerWeek'),
+      mapDensity(formData.density),
+      b.notes.join(' | ')
+    ]);
+  });
+  rows.push(['TOTAL', '', Math.round(consolidated.reduce((s, b) => s + b.sqft, 0)), '', consolidated.reduce((s, b) => s + b.count, 0), consolidated.reduce((s, b) => s + (b.fixtures || 0), 0)]);
+  rows.push([]);
+
+  const fcList = checkedList({ fc_stripWax: 'Strip & Wax', fc_topScrub: 'Top Scrub & Wax', fc_machineScrub: 'Machine Scrub Ceramic', fc_buff: 'Hi-Speed Buff' });
+  const ccList = checkedList({ cc_extraction: 'Carpet Extraction', cc_trafficPattern: 'Traffic Pattern Cleaning', cc_bonnet: 'Bonnet Cleaning' });
+  const svcList = checkedList(SVC_LABELS);
+  rows.push(['REQUESTED SERVICES — use for Additional Tasks (Step 3) and OS quotes']);
+  if (fcList) rows.push(['Hard Surface Floor Care', fcList + (v('fcFrequency') ? ' | Frequency: ' + v('fcFrequency') : '') + (v('fcFloorType') ? ' | Floor: ' + v('fcFloorType') : '') + (formData.bundleWithJS ? ' | Bundle with JS: ' + formData.bundleWithJS : '')]);
+  if (ccList) rows.push(['Carpet Care', ccList]);
+  if (svcList) rows.push(['Additional Services', svcList]);
+  if (formData.porterInterest && formData.porterInterest !== 'No') rows.push(['Day Porter', formData.porterInterest + (v('porterCoverage') ? ' | ' + v('porterCoverage') : '')]);
+  requests.filter(r => r.text).forEach((r, i) => rows.push(['Special Request ' + (i + 1), r.text + (r.who ? ' | By: ' + r.who : '') + (r.where ? ' | Where: ' + r.where : '')]));
+
+  const wb = XLSX.utils.book_new();
+  const ws1 = XLSX.utils.aoa_to_sheet(rows);
+  ws1['!cols'] = [{ wch: 34 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 11 }, { wch: 9 }, { wch: 14 }, { wch: 14 }, { wch: 50 }];
+  XLSX.utils.book_append_sheet(wb, ws1, 'Bid Input');
+
+  // Sheet 2: full survey detail (same content as the Sheets push)
+  const payload = buildSheetPayload();
+  const rows2 = [];
+  payload.sections.forEach(sec => {
+    rows2.push([sec.title.toUpperCase()]);
+    sec.rows.forEach(r => rows2.push(r));
+    rows2.push([]);
+  });
+  const ws2 = XLSX.utils.aoa_to_sheet(rows2);
+  ws2['!cols'] = [{ wch: 30 }, { wch: 90 }];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Survey Detail');
+  return wb;
+}
+
+function excelFileName() {
+  const name = (formData.companyName || 'Building Survey').replace(/[^\w\- ]/g, '').trim() || 'Building Survey';
+  const d = formData.surveyDate || new Date().toISOString().split('T')[0];
+  return name + ' - Bid Input ' + d + '.xlsx';
+}
+
+function downloadExcel() {
+  try {
+    XLSX.writeFile(buildExcelWorkbook(), excelFileName());
+  } catch (e) { alert('Could not build the Excel file: ' + e.message); }
+}
+
+function emailExcel() {
+  const email = (formData.senderEmail || document.getElementById('senderEmail').value || '').trim();
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    document.getElementById('senderEmail').focus();
+    showSnackbar('Enter your email address first');
+    setTimeout(hideSnackbar, 3000);
+    return;
+  }
+  localStorage.setItem('cw_survey_email', email);
+  const btn = document.getElementById('btnEmailXlsx');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  try {
+    const b64 = XLSX.write(buildExcelWorkbook(), { bookType: 'xlsx', type: 'base64' });
+    const payload = JSON.stringify({
+      tool: 'buildingsurvey',
+      kind: 'email_excel',
+      email: email,
+      filename: excelFileName(),
+      client: formData.companyName || '',
+      xlsxBase64: b64
+    });
+    fetch(CW_HOOK, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: payload })
+      .then(() => { btn.textContent = 'Sent ✓ Check your inbox'; setTimeout(() => { btn.textContent = '📧 Email Me the Excel'; btn.disabled = false; }, 5000); })
+      .catch(() => { btn.textContent = 'Failed — tap to retry'; btn.disabled = false; });
+  } catch (e) {
+    btn.textContent = '📧 Email Me the Excel';
+    btn.disabled = false;
+    alert('Could not build the Excel file: ' + e.message);
+  }
 }
 
 // ============================================
