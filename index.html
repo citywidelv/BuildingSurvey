@@ -3161,10 +3161,10 @@ function deleteSurvey(id) {
   localStorage.setItem('cw_survey_index', JSON.stringify(index));
 
   if (id === surveyId) {
-    surveyId = 'survey_' + Date.now();
-    formData = {}; areas = []; requests = [];
-    localStorage.setItem('cw_current_survey', surveyId);
-    location.reload();
+    // Deleting the survey you're in: reset in place (reload had the same
+    // carryover bug as startNewSurvey - see resetToBlankSurvey)
+    resetToBlankSurvey();
+    document.getElementById('savedModal').classList.remove('show');
   } else {
     showSavedSurveys();
   }
@@ -3172,11 +3172,55 @@ function deleteSurvey(id) {
 
 function startNewSurvey() {
   if (!confirm('Start a new survey? Your current survey is saved and accessible from the folder icon.')) return;
-  saveFormData();
+  saveFormData(); // persist the OLD survey under its own id first
+  resetToBlankSurvey();
+  showSnackbar('New survey started');
+  setTimeout(hideSnackbar, 2000);
+}
+
+// Full in-place reset. No location.reload() here on purpose: reloading let the
+// pagehide autosave harvest the still-filled form into the NEW survey id, and
+// browsers also restore form fields after reload - both carried old data over.
+function resetToBlankSurvey() {
+  clearTimeout(saveTimeout);
   surveyId = 'survey_' + Date.now();
   formData = {}; areas = []; requests = [];
+  lastDeleted = null;
   localStorage.setItem('cw_current_survey', surveyId);
-  location.reload();
+
+  // Wipe every bound field and selection chip in the DOM
+  document.querySelectorAll('[data-field]').forEach(el => {
+    if (el.type === 'checkbox') {
+      el.checked = false;
+      const p = el.closest('.checkbox-item'); if (p) p.classList.remove('checked');
+    } else {
+      el.value = '';
+    }
+  });
+  document.querySelectorAll('[data-cf]').forEach(c => c.classList.remove('selected'));
+
+  // Re-apply the two conveniences a fresh page load gives you
+  const dateField = document.getElementById('surveyDate');
+  if (dateField) dateField.value = new Date().toISOString().split('T')[0];
+  const savedEmail = localStorage.getItem('cw_survey_email');
+  const emailField = document.getElementById('senderEmail');
+  if (savedEmail && emailField) emailField.value = savedEmail;
+
+  renderAreas();
+  renderRequests();
+  recalcTotals();
+
+  // Go to step 1 WITHOUT goToStep() - goToStep calls saveFormData(), which
+  // would immediately file an empty "Untitled Survey" in the saved list.
+  currentStep = 1;
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  const panel = document.querySelector('[data-step="1"]');
+  if (panel) panel.classList.add('active');
+  updateProgress();
+  updateNav();
+  renderStepDots();
+  updateAutoTotalsLine();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ============================================
