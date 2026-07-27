@@ -532,6 +532,33 @@ select {
   color: white;
 }
 
+.btn-done-room {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  margin-top: 10px;
+  background: var(--cw-teal);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-stack);
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-done-room:active { background: var(--cw-teal-dark); transform: scale(0.98); }
+
+.bottom-add { margin-top: 16px; }
+.bottom-add-label {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--cw-grey);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
 /* ============================================
    SPECIAL AREAS CHECKLIST
    ============================================ */
@@ -2031,8 +2058,11 @@ select {
     <div class="quick-chips" id="quickChips"></div>
     <div class="empty-areas" id="areasEmpty">No areas yet. Tap a chip above to add your first area.</div>
     <div id="areasContainer"></div>
-    <button class="btn-add" onclick="addArea('','')">+ Add Custom Area</button>
-  
+    <div class="bottom-add" id="bottomAdd" style="display:none">
+      <div class="bottom-add-label">Add the next area</div>
+      <div class="quick-chips" id="quickChipsBottom"></div>
+      <button class="btn-add" onclick="addArea('','')">+ Add Custom Area</button>
+    </div>
   </section>
 
   <!-- ============ STEP 3: Review & Send ============ -->
@@ -2152,7 +2182,28 @@ const QUICK_ADD = [
 
 const RR_TYPES = ['Restroom', 'Locker Room'];
 const SINK_TYPES = ['Break Room / Lunch', 'Kitchen (Full Clean)', 'Cafeteria / Dining'];
-const FLOOR_TYPES = ['CPT', 'VCT', 'CER', 'CONC', 'Other'];
+// Values match the Bid Calculator floor type dropdown; labels are what the chips show
+const FLOOR_TYPES = [
+  ['Carpet', 'Carpet'], ['VCT', 'VCT'], ['LVT', 'LVT'], ['LVP', 'LVP'],
+  ['Ceramic Tile', 'Ceramic'], ['Concrete', 'Concrete'], ['Polished Concrete', 'Polished'],
+  ['Epoxy', 'Epoxy'], ['Marble', 'Marble'], ['Terrazzo', 'Terrazzo'],
+  ['Wood', 'Wood'], ['Rubber', 'Rubber'], ['Other', 'Other']
+];
+const FLOOR_LABEL = Object.fromEntries(FLOOR_TYPES);
+// Old surveys stored short codes — map them forward so saved data keeps working
+const LEGACY_FLOORS = { 'CPT': 'Carpet', 'CER': 'Ceramic Tile', 'CONC': 'Concrete' };
+function normalizeAreaFloors(a) {
+  if (!a) return a;
+  a.floorTypes = (a.floorTypes || []).map(ft => LEGACY_FLOORS[ft] || ft);
+  const split = {};
+  Object.keys(a.floorSplit || {}).forEach(k => { split[LEGACY_FLOORS[k] || k] = a.floorSplit[k]; });
+  a.floorSplit = split;
+  if (a.floorOther === undefined) a.floorOther = '';
+  return a;
+}
+function floorDisplay(a, ft) {
+  return ft === 'Other' && a.floorOther ? a.floorOther : (FLOOR_LABEL[ft] || ft);
+}
 
 // ============================================
 // PHOTO STORE (IndexedDB — photos stay off localStorage quota)
@@ -2367,8 +2418,8 @@ function migrateRooms(rooms) {
     dims: r.dimensions || '',
     sqft: r.sqft || '',
     sqftAuto: false,
-    floorTypes: r.floorTypes || [],
-    floorSplit: {},
+    floorTypes: (r.floorTypes || []).map(ft => LEGACY_FLOORS[ft] || ft),
+    floorSplit: {}, floorOther: '',
     toilets: 0, urinals: 0, sinks: 0,
     flex: false,
     hotspot: false, hotspotNote: '',
@@ -2389,6 +2440,7 @@ function loadSurvey(id) {
   const densityMap = { 'Dense': 'Heavy Use', 'Average': 'Normal', 'Light': 'Light Use' };
   if (densityMap[formData.density]) formData.density = densityMap[formData.density];
   areas = data.areas || migrateRooms(data.rooms);
+  areas.forEach(normalizeAreaFloors);
   requests = data.requests || [];
   currentStep = data.step || 1;
 
@@ -2426,7 +2478,7 @@ function newArea(type, name) {
     id: 'area_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
     name: name || '', type: type || '',
     dims: '', sqft: '', sqftAuto: false,
-    floorTypes: [], floorSplit: {},
+    floorTypes: [], floorSplit: {}, floorOther: '',
     toilets: 0, urinals: 0, sinks: 0,
     flex: false, hotspot: false, hotspotNote: '',
     notes: '', photos: [], collapsed: false
@@ -2439,11 +2491,13 @@ function autoName(label) {
 }
 
 function renderQuickAdd() {
-  const wrap = document.getElementById('quickChips');
-  if (!wrap) return;
-  wrap.innerHTML = QUICK_ADD.map(q =>
+  const html = QUICK_ADD.map(q =>
     '<button type="button" class="quick-chip" onclick="quickAdd(\'' + q[0] + '\',\'' + q[1] + '\')">+ ' + q[0] + '</button>'
   ).join('');
+  ['quickChips', 'quickChipsBottom'].forEach(cid => {
+    const wrap = document.getElementById(cid);
+    if (wrap) wrap.innerHTML = html;
+  });
 }
 
 function quickAdd(label, type) {
@@ -2535,6 +2589,8 @@ function renderAreas() {
 function updateEmptyState() {
   const empty = document.getElementById('areasEmpty');
   if (empty) empty.style.display = areas.length === 0 ? 'block' : 'none';
+  const bottom = document.getElementById('bottomAdd');
+  if (bottom) bottom.style.display = areas.length === 0 ? 'none' : 'block';
 }
 
 function renumberAreas() {
@@ -2547,7 +2603,7 @@ function renumberAreas() {
 function areaSummary(area) {
   const bits = [];
   if (area.sqft) bits.push(Number(String(area.sqft).replace(/[^\d.]/g, '')).toLocaleString() + ' sqft');
-  if (area.floorTypes.length) bits.push(area.floorTypes.join('/'));
+  if (area.floorTypes.length) bits.push(area.floorTypes.map(ft => floorDisplay(area, ft)).join('/'));
   const fx = fixtureTotal(area);
   if (fx) bits.push(fx + ' fixtures');
   return bits.join(' · ') || 'Tap to fill in';
@@ -2567,6 +2623,22 @@ function updateAreaHead(area) {
   const bp = card.querySelector('.badge-photo');
   bp.style.display = (area.photos || []).length ? 'inline-flex' : 'none';
   bp.textContent = '📷 ' + (area.photos || []).length;
+}
+
+function doneWithRoom(id) {
+  const area = areas.find(a => a.id === id);
+  const card = document.querySelector('[data-area-id="' + id + '"]');
+  if (!area || !card) return;
+  area.collapsed = true;
+  card.classList.add('collapsed');
+  updateAreaHead(area);
+  recalcTotals();
+  debounceSave();
+  const t = surveyTotals();
+  showSnackbar((area.name || area.type || 'Area') + ' done · ' + t.areas + ' areas · ' + t.sqft.toLocaleString() + ' sqft so far');
+  setTimeout(hideSnackbar, 2500);
+  const bottom = document.getElementById('bottomAdd');
+  if (bottom) setTimeout(() => bottom.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
 }
 
 function toggleAreaCollapse(id) {
@@ -2615,9 +2687,12 @@ function createAreaNode(area, idx) {
       '</div>' +
       '<div class="field-group"><label>Floor Types</label>' +
         '<div class="floor-type-chips">' + FLOOR_TYPES.map(ft =>
-          '<span class="floor-chip ' + (area.floorTypes.includes(ft) ? 'selected' : '') + '" onclick="toggleFloor(\'' + area.id + '\',\'' + ft + '\',this)">' + ft + '</span>'
+          '<span class="floor-chip ' + (area.floorTypes.includes(ft[0]) ? 'selected' : '') + '" onclick="toggleFloor(\'' + area.id + '\',\'' + ft[0] + '\',this)">' + ft[1] + '</span>'
         ).join('') + '</div>' +
         '<div class="floor-split"></div>' +
+        '<div class="field-group floor-other" style="margin-top:8px; display:' + (area.floorTypes.includes('Other') ? 'block' : 'none') + '">' +
+          '<label>What kind of floor?</label>' +
+          '<input type="text" class="a-floorother" value="' + escHtml(area.floorOther || '') + '" placeholder="Cork, bamboo, brick..."></div>' +
       '</div>' +
       '<div class="fixture-block">' +
         '<label>Fixtures</label>' +
@@ -2642,6 +2717,7 @@ function createAreaNode(area, idx) {
       '<div class="area-actions">' +
         '<button type="button" class="btn-sm btn-sm-teal" onclick="duplicateArea(\'' + area.id + '\')">Duplicate</button>' +
       '</div>' +
+      '<button type="button" class="btn-done-room" onclick="doneWithRoom(\'' + area.id + '\')">&#10003; Done with this room</button>' +
     '</div>';
 
   // Live-bind inputs straight to the model — no re-render, no lost keystrokes
@@ -2685,6 +2761,9 @@ function createAreaNode(area, idx) {
 
   const notes = el.querySelector('.a-notes');
   notes.addEventListener('input', () => { area.notes = notes.value; debounceSave(); });
+
+  const floorOther = el.querySelector('.a-floorother');
+  floorOther.addEventListener('input', () => { area.floorOther = floorOther.value; updateAreaHead(area); debounceSave(); });
 
   updateRateHint(el, area);
   updateFixtureVisibility(el, area);
@@ -2739,6 +2818,14 @@ function toggleFloor(id, ft, chip) {
   else { area.floorTypes.push(ft); chip.classList.add('selected'); }
   const card = document.querySelector('[data-area-id="' + id + '"]');
   updateFloorSplit(card, area);
+  const otherBox = card.querySelector('.floor-other');
+  if (otherBox) {
+    otherBox.style.display = area.floorTypes.includes('Other') ? 'block' : 'none';
+    if (ft === 'Other' && area.floorTypes.includes('Other')) {
+      const inp = otherBox.querySelector('.a-floorother');
+      if (inp) setTimeout(() => inp.focus(), 50);
+    }
+  }
   updateAreaHead(area);
   debounceSave();
 }
@@ -2747,7 +2834,7 @@ function updateFloorSplit(el, area) {
   const wrap = el.querySelector('.floor-split');
   if (area.floorTypes.length < 2) { wrap.innerHTML = ''; return; }
   wrap.innerHTML = '<span class="split-label">Split %</span>' + area.floorTypes.map(ft =>
-    '<span class="split-item">' + ft +
+    '<span class="split-item">' + (FLOOR_LABEL[ft] || ft) +
     ' <input type="text" inputmode="numeric" class="split-inp" data-ft="' + ft + '" value="' + escHtml(area.floorSplit[ft] || '') + '" placeholder="%"></span>'
   ).join('');
   wrap.querySelectorAll('.split-inp').forEach(inp => {
@@ -3117,7 +3204,7 @@ function areaLine(a) {
   if (a.sqft) bits.push(a.sqft + ' sqft');
   if (a.dims) bits.push('(' + a.dims + ')');
   if (a.floorTypes.length) {
-    let f = a.floorTypes.map(ft => ft + (a.floorSplit[ft] ? ' ' + a.floorSplit[ft] + '%' : '')).join('/');
+    let f = a.floorTypes.map(ft => floorDisplay(a, ft) + (a.floorSplit[ft] ? ' ' + a.floorSplit[ft] + '%' : '')).join('/');
     bits.push(f);
   }
   const fx = fixtureTotal(a);
@@ -3317,7 +3404,8 @@ function saveToSheets() {
 // ============================================
 // BID-READY EXCEL EXPORT
 // ============================================
-const FLOOR_MAP = { 'CPT': 'Carpet', 'VCT': 'VCT', 'CER': 'Ceramic Tile', 'CONC': 'Concrete', 'Other': '' };
+// Legacy short codes -> Bid Calculator names; current values already ARE calculator names
+const FLOOR_MAP = { 'CPT': 'Carpet', 'CER': 'Ceramic Tile', 'CONC': 'Concrete' };
 
 const CLAUDE_PROMPT_LINES = [
   'INSTRUCTIONS — INCLUDE THIS WHOLE SHEET IN YOUR PASTE INTO CLAUDE IN EXCEL:',
@@ -3359,8 +3447,9 @@ function consolidateRooms() {
       });
     }
     floors.forEach((ft, fi) => {
-      const key = type + '||' + ft;
-      if (!buckets[key]) buckets[key] = { type: type, floor: FLOOR_MAP[ft] !== undefined ? FLOOR_MAP[ft] : ft, sqft: 0, count: 0, fixtures: 0, names: [], notes: [] };
+      const floorName = ft === 'Other' ? (a.floorOther || 'Other') : (FLOOR_MAP[ft] !== undefined ? FLOOR_MAP[ft] : ft);
+      const key = type + '||' + floorName;
+      if (!buckets[key]) buckets[key] = { type: type, floor: floorName, sqft: 0, count: 0, fixtures: 0, names: [], notes: [] };
       const b = buckets[key];
       b.sqft += sqft * shares[ft];
       // count the room once, on its first floor bucket
