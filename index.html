@@ -15,7 +15,7 @@
    ============================================ */
 :root {
   --cw-red: #D22730;
-  --cw-red-dark: #a81e26;
+  --cw-red-dark: #B01F27;
   --cw-red-light: #f5d0d2;
   --cw-black: #2d2a26;
   --cw-grey: #636466;
@@ -1272,6 +1272,14 @@ select {
 .sales-notes[open] > summary::before { content: '▾ '; }
 .sales-notes > .form-card { margin: 0 12px 12px 12px; box-shadow: none; border: 1px solid var(--cw-grey-light); }
 </style>
+<link rel="stylesheet" href="https://citywidelv.github.io/cw-base.css">
+<script src="https://citywidelv.github.io/cw-ops-desk/cw-auth.js"></script>
+<script>/* Internal tool. One team unlock per device (cw-auth.js). No passcode box here: without a
+   saved passcode this page sends the browser to the hub gate and comes straight back. */
+(function(){ if(!window.CWAuth) return; var hub = /sales-hub/.test(document.referrer||"") ? "sales" : "ops";
+  var p = CWAuth.require({hub:hub}); if(!p){ document.documentElement.style.visibility="hidden"; return; }
+  window.addEventListener("load", function(){ CWAuth.validate(p,"auth").then(function(r){ if(r.ok===false) CWAuth.locked(hub,"Wrong passcode."); }); }); })();
+</script>
 </head>
 <body>
 
