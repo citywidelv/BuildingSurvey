@@ -1385,6 +1385,30 @@ select {
 .a-typerow select { font-size: 15px; padding: 10px 32px 10px 12px; }
 
 .area-card { scroll-margin-top: 150px; }
+.who-card {
+  width: 100%; text-align: left; cursor: pointer;
+  display: flex; flex-direction: column; gap: 2px;
+  background: var(--cw-white); border: 2px dashed var(--cw-red); border-radius: var(--radius-md);
+  padding: 14px 16px; margin-bottom: 14px; font-family: var(--font-stack); position: relative;
+}
+.who-card.set { border: 1px solid rgba(99,100,102,0.08); border-left: 6px solid var(--cw-teal); box-shadow: var(--shadow-sm); }
+.who-card .who-lbl { font-size: 11px; font-weight: bold; color: var(--cw-grey); text-transform: uppercase; letter-spacing: 0.4px; }
+.who-card .who-val { font-size: 20px; font-weight: bold; color: var(--cw-red); }
+.who-card.set .who-val { color: var(--cw-black); }
+.who-card .who-change { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 12px; font-weight: bold; color: var(--cw-teal-dark); }
+#whoSearch { width: 100%; padding: 12px 14px; font-size: 16px; border: 1.5px solid var(--cw-grey-light); border-radius: var(--radius-sm); font-family: var(--font-stack); margin-bottom: 8px; -webkit-appearance: none; }
+.who-list { max-height: 60vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.who-group { font-size: 11px; font-weight: bold; color: var(--cw-grey); text-transform: uppercase; letter-spacing: 0.4px; padding: 10px 4px 4px; }
+.who-btn { width: 100%; min-height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left;
+  background: var(--cw-white); border: 1px solid var(--cw-grey-light); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 6px; font-family: var(--font-stack); cursor: pointer; }
+.who-btn:active { background: var(--cw-grey-lighter); }
+.who-btn.selected { border-color: var(--cw-teal); background: #e6f6f6; }
+.who-btn .who-name { font-size: 16px; font-weight: bold; color: var(--cw-black); }
+.who-btn .who-role { font-size: 11px; color: var(--cw-grey); text-align: right; }
+.who-note { padding: 16px; text-align: center; color: var(--cw-grey); font-size: 13px; }
+.save-status.cloud-off { color: var(--cw-orange); }
+.btn-team-list { display: block; margin-top: 12px; padding: 14px; text-align: center; background: var(--cw-teal); color: white; font-weight: bold; font-size: 14px; border-radius: var(--radius-sm); text-decoration: none; }
+
 .measure-one { display: flex; align-items: center; gap: 10px; }
 .measure-one .a-sqft { flex: 1; text-align: center; font-size: 30px; font-weight: bold; min-height: 64px; padding: 8px 12px; background: #fffbea; border-color: var(--cw-gold); }
 .measure-one .m-unit { font-size: 14px; font-weight: bold; color: var(--cw-grey); text-transform: uppercase; letter-spacing: 0.4px; }
@@ -1596,6 +1620,10 @@ select {
   <section class="step-panel active" data-step="1">
     <h2 class="step-title">Start</h2>
     <p class="step-subtitle">Who and where. Everything else waits until after the walk.</p>
+
+    <button type="button" class="who-card" id="whoBtn" onclick="openWhoSheet()"></button>
+    <input type="hidden" id="surveyorField" data-field="surveyor">
+    <input type="hidden" id="surveyorEmailField" data-field="surveyorEmail">
 
     <div class="remind-card">
       <div class="remind-title">Before you walk</div>
@@ -2453,7 +2481,8 @@ select {
     <div class="modal-handle"></div>
     <div class="modal-title">Saved Surveys</div>
     <div id="savedList"></div>
-    <p style="font-size: 12px; color: var(--cw-grey); text-align: center; margin-top: 12px;">Surveys are saved on this device only.</p>
+    <a class="btn-team-list" href="surveys.html">See every survey by person &rarr;</a>
+    <p style="font-size: 12px; color: var(--cw-grey); text-align: center; margin-top: 12px;">This list is what is on this phone. The team list has everything saved to the cloud.</p>
   </div>
 </div>
 
@@ -2465,6 +2494,18 @@ select {
     <div class="modal-handle"></div>
     <div class="modal-title">What is this area?</div>
     <div class="add-grid" id="addGrid"></div>
+  </div>
+</div>
+
+<!-- ============================================
+     WHO IS SURVEYING (CW Team Directory)
+     ============================================ -->
+<div class="modal-overlay" id="whoSheet" onclick="closeWhoSheet(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Who is doing this survey?</div>
+    <input type="search" id="whoSearch" placeholder="Type a name" autocomplete="off" oninput="filterWho()">
+    <div id="whoList" class="who-list"></div>
   </div>
 </div>
 
@@ -2621,6 +2662,9 @@ function init() {
     renderAreas();
     renderRequests();
   }
+  prefillWho();
+  handleDeepLink();
+  setTimeout(flushPhotoQueue, 1500);
 
   renderStepDots();
   updateProgress();
@@ -2631,9 +2675,9 @@ function init() {
 
   // Never lose work when the screen locks or the salesperson switches apps
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') { clearTimeout(saveTimeout); saveFormData(); }
+    if (document.visibilityState === 'hidden') { clearTimeout(saveTimeout); saveFormData(); if (cloudDirty || cloudTimer) { clearTimeout(cloudTimer); cloudSaveBeacon(); } }
   });
-  window.addEventListener('pagehide', () => { clearTimeout(saveTimeout); saveFormData(); });
+  window.addEventListener('pagehide', () => { clearTimeout(saveTimeout); saveFormData(); if (cloudDirty || cloudTimer) { clearTimeout(cloudTimer); cloudSaveBeacon(); } });
 }
 
 // ============================================
@@ -2722,7 +2766,7 @@ function bindAutoSave() {
 function debounceSave() {
   clearTimeout(saveTimeout);
   setSaveStatus('saving');
-  saveTimeout = setTimeout(() => { saveFormData(); setSaveStatus('saved'); }, 600);
+  saveTimeout = setTimeout(() => { saveFormData(); setSaveStatus('saved'); scheduleCloudSave(); }, 600);
 }
 
 function setSaveStatus(state) {
@@ -2755,7 +2799,9 @@ function saveFormData() {
     requests: requests,
     step: currentStep,
     updatedAt: new Date().toISOString(),
-    companyName: formData.companyName || 'Untitled Survey'
+    companyName: formData.companyName || 'Untitled Survey',
+    surveyor: formData.surveyor || '',
+    surveyorEmail: formData.surveyorEmail || ''
   };
 
   try { localStorage.setItem(surveyId, JSON.stringify(saveObj)); }
@@ -2822,6 +2868,7 @@ function loadSurvey(id) {
   renderAreas();
   renderRequests();
   recalcTotals();
+  renderWho();
   goToStep(currentStep);
   localStorage.setItem('cw_current_survey', id);
 }
@@ -3436,6 +3483,7 @@ function bindPhotoInput() {
         const photo = await compressImage(file);
         const pid = 'ph_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
         await photoDB.put(pid, photo);
+        queuePhotoUpload(pid);
         if (photoTarget.kind === 'area') {
           const area = areas.find(a => a.id === photoTarget.id);
           if (area) {
@@ -3493,9 +3541,9 @@ function renderPhotoRow(card, area) {
     const t = document.createElement('div');
     t.className = 'photo-thumb';
     t.innerHTML = '<button type="button" class="photo-del" onclick="delPhoto(\'' + area.id + '\',\'' + pid + '\')">&times;</button>';
-    photoDB.get(pid).then(p => {
+    getPhoto(area, pid).then(p => {
       if (p) t.style.backgroundImage = 'url(' + p.data + ')';
-    }).catch(() => {});
+    });
     row.appendChild(t);
   });
 }
@@ -3573,7 +3621,7 @@ function renderReqPhotoRow(card, req) {
     const t = document.createElement('div');
     t.className = 'photo-thumb';
     t.innerHTML = '<button type="button" class="photo-del" onclick="delReqPhoto(\'' + req.id + '\',\'' + pid + '\')">&times;</button>';
-    photoDB.get(pid).then(p => { if (p) t.style.backgroundImage = 'url(' + p.data + ')'; }).catch(() => {});
+    getPhoto(req, pid).then(p => { if (p) t.style.backgroundImage = 'url(' + p.data + ')'; });
     row.appendChild(t);
   });
   const add = document.createElement('button');
@@ -3673,6 +3721,314 @@ function escHtml(str) {
 }
 
 // ============================================
+// CLOUD COPY (bs_ kinds on CW Solicitations) + WHO IS SURVEYING
+// ============================================
+// The phone is the source of truth while walking (localStorage + IndexedDB). Every
+// change is mirrored to the cloud a few seconds later so the survey opens on any
+// device from the Sales Hub list. Photos upload in the background, one at a time.
+const CLOUD_DELAY = 4000;
+let cloudTimer = null;
+let cloudBusy = false;
+let cloudDirty = false;
+let photoQueueBusy = false;
+
+function cwApi(kind, data) {
+  const url = (window.CWAuth && CWAuth.WEBHOOK) || '';
+  const pass = (window.CWAuth && CWAuth.get && CWAuth.get()) || '';
+  if (!url) return Promise.reject(new Error('No cloud endpoint'));
+  const body = JSON.stringify(Object.assign({ kind: kind, passcode: pass }, data || {}));
+  return fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: body })
+    .then(r => r.json())
+    .then(r => { if (!r || r.ok !== true) throw new Error((r && r.error) || 'Cloud error'); return r; });
+}
+
+function cloudPayload() {
+  return {
+    id: surveyId,
+    formData: formData,
+    areas: areas,
+    requests: requests,
+    step: currentStep,
+    updatedAt: new Date().toISOString(),
+    companyName: formData.companyName || 'Untitled Survey',
+    surveyor: formData.surveyor || '',
+    surveyorEmail: formData.surveyorEmail || ''
+  };
+}
+
+function worthSaving() {
+  return !!(formData.companyName || areas.length || formData.surveyor || formData.contactName);
+}
+
+function scheduleCloudSave() {
+  cloudDirty = true;
+  clearTimeout(cloudTimer);
+  cloudTimer = setTimeout(cloudSave, CLOUD_DELAY);
+}
+
+function cloudSave() {
+  clearTimeout(cloudTimer);
+  if (!worthSaving()) return Promise.resolve();
+  if (cloudBusy) { cloudDirty = true; return Promise.resolve(); }
+  cloudBusy = true; cloudDirty = false;
+  setCloudStatus('saving');
+  return cwApi('bs_save', { survey: cloudPayload() })
+    .then(() => { setCloudStatus('saved'); })
+    .catch(() => { setCloudStatus('offline'); })
+    .finally(() => {
+      cloudBusy = false;
+      if (cloudDirty) scheduleCloudSave();
+      flushPhotoQueue();
+    });
+}
+
+// Last-chance save when the screen locks or the tab closes. sendBeacon survives page unload.
+function cloudSaveBeacon() {
+  if (!worthSaving()) return;
+  try {
+    const url = (window.CWAuth && CWAuth.WEBHOOK) || '';
+    const pass = (window.CWAuth && CWAuth.get && CWAuth.get()) || '';
+    if (!url || !navigator.sendBeacon) return;
+    navigator.sendBeacon(url, JSON.stringify({ kind: 'bs_save', passcode: pass, survey: cloudPayload() }));
+  } catch (e) {}
+}
+
+function setCloudStatus(state) {
+  const el = document.getElementById('saveStatus');
+  if (!el) return;
+  el.classList.remove('saving', 'cloud-off');
+  if (state === 'saving') { el.textContent = 'Saving to cloud...'; el.classList.add('saving'); return; }
+  const t = new Date();
+  let h = t.getHours(), m = t.getMinutes();
+  const ap = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  const stamp = h + ':' + (m < 10 ? '0' : '') + m + ' ' + ap;
+  if (state === 'saved') { el.textContent = 'Saved to cloud ' + stamp + ' ✓'; return; }
+  el.textContent = 'Saved on phone ' + stamp + ' · cloud offline'; el.classList.add('cloud-off');
+}
+
+// ---- open from the team list (?open=ID) ----
+function cloudOpen(id) {
+  return cwApi('bs_get', { id: id }).then(r => {
+    const s = r.survey || {};
+    if (!s.id) throw new Error('Empty survey');
+    // Keep the newer of local and cloud when both exist.
+    let keep = s;
+    try {
+      const localRaw = localStorage.getItem(id);
+      if (localRaw) {
+        const local = JSON.parse(localRaw);
+        if (local && local.updatedAt && s.updatedAt && local.updatedAt > s.updatedAt) keep = local;
+      }
+    } catch (e) {}
+    localStorage.setItem(id, JSON.stringify(keep));
+    let index = JSON.parse(localStorage.getItem('cw_survey_index') || '[]');
+    if (!index.includes(id)) { index.push(id); localStorage.setItem('cw_survey_index', JSON.stringify(index)); }
+    return keep;
+  });
+}
+
+// ---- photos: upload queue and lazy download ----
+function photoQueue() { try { return JSON.parse(localStorage.getItem('cw_survey_photo_queue') || '[]'); } catch (e) { return []; } }
+function setPhotoQueue(q) { try { localStorage.setItem('cw_survey_photo_queue', JSON.stringify(q)); } catch (e) {} }
+
+function queuePhotoUpload(pid) {
+  const q = photoQueue();
+  if (!q.some(x => x.pid === pid)) q.push({ sid: surveyId, pid: pid });
+  setPhotoQueue(q);
+  flushPhotoQueue();
+}
+
+function ownerOfPhoto(pid) {
+  for (const a of areas) if ((a.photos || []).includes(pid)) return a;
+  for (const r of requests) if ((r.photos || []).includes(pid)) return r;
+  return null;
+}
+
+function flushPhotoQueue() {
+  if (photoQueueBusy) return;
+  const q = photoQueue();
+  if (!q.length) return;
+  const item = q[0];
+  photoQueueBusy = true;
+  photoDB.get(item.pid).then(p => {
+    if (!p) { setPhotoQueue(photoQueue().filter(x => x.pid !== item.pid)); return; }
+    return cwApi('bs_photo_put', { surveyId: item.sid, pid: item.pid, data: p.data, w: p.w, h: p.h }).then(r => {
+      if (item.sid === surveyId) {
+        const owner = ownerOfPhoto(item.pid);
+        if (owner) { owner.photoFiles = owner.photoFiles || {}; owner.photoFiles[item.pid] = r.fileId; }
+        saveFormData();
+        scheduleCloudSave();
+      } else {
+        // Belongs to a survey that is not open: record the file id in its saved copy.
+        try {
+          const raw = localStorage.getItem(item.sid);
+          if (raw) {
+            const s = JSON.parse(raw);
+            [].concat(s.areas || [], s.requests || []).forEach(o => {
+              if ((o.photos || []).includes(item.pid)) { o.photoFiles = o.photoFiles || {}; o.photoFiles[item.pid] = r.fileId; }
+            });
+            localStorage.setItem(item.sid, JSON.stringify(s));
+          }
+        } catch (e) {}
+      }
+      setPhotoQueue(photoQueue().filter(x => x.pid !== item.pid));
+    });
+  }).catch(() => {}).finally(() => {
+    photoQueueBusy = false;
+    const rest = photoQueue();
+    // Keep draining unless the head item failed (then wait for the next save to retry).
+    if (rest.length && rest[0].pid !== item.pid) setTimeout(flushPhotoQueue, 300);
+  });
+}
+
+// Local first, cloud second. Caches the cloud copy so the PDF and thumbnails are instant next time.
+function getPhoto(owner, pid) {
+  return photoDB.get(pid).then(p => {
+    if (p) return p;
+    const fileId = owner && owner.photoFiles ? owner.photoFiles[pid] : '';
+    return cwApi('bs_photo_get', { fileId: fileId || '', surveyId: surveyId, pid: pid }).then(r => {
+      const img = { data: r.data, w: 0, h: 0 };
+      return new Promise(res => {
+        const im = new Image();
+        im.onload = () => { img.w = im.width; img.h = im.height; photoDB.put(pid, img).catch(() => {}); res(img); };
+        im.onerror = () => res(img);
+        im.src = r.data;
+      });
+    });
+  }).catch(() => null);
+}
+
+// ---- who is doing the survey (CW Team Directory) ----
+const STAFF_CACHE_KEY = 'cw_staff_cache';
+const STAFF_TTL = 12 * 60 * 60 * 1000;
+
+function staffCached() {
+  try {
+    const c = JSON.parse(localStorage.getItem(STAFF_CACHE_KEY) || 'null');
+    if (c && c.staff && c.staff.length) return c;
+  } catch (e) {}
+  return null;
+}
+
+function loadStaff(force) {
+  const c = staffCached();
+  if (c && !force && Date.now() - c.ts < STAFF_TTL) return Promise.resolve(c.staff);
+  return cwApi('staff_list').then(r => {
+    const staff = (r.staff || []).filter(s => s.name);
+    try { localStorage.setItem(STAFF_CACHE_KEY, JSON.stringify({ ts: Date.now(), staff: staff })); } catch (e) {}
+    return staff;
+  }).catch(err => { if (c) return c.staff; throw err; });
+}
+
+// Sales first, alphabetical, then everybody else alphabetical.
+function sortStaff(staff) {
+  const isSales = s => /sales/i.test(s.role || '');
+  const byName = (a, b) => a.name.localeCompare(b.name);
+  return staff.filter(isSales).sort(byName).concat(staff.filter(s => !isSales(s)).sort(byName));
+}
+
+function openWhoSheet() {
+  const sheet = document.getElementById('whoSheet');
+  const list = document.getElementById('whoList');
+  const search = document.getElementById('whoSearch');
+  sheet.classList.add('show');
+  search.value = '';
+  list.innerHTML = '<div class="who-note">Loading the team directory...</div>';
+  loadStaff().then(staff => renderWhoList(sortStaff(staff), ''))
+    .catch(() => { list.innerHTML = '<div class="who-note">Could not reach the directory. Check the signal and try again.</div>'; });
+  setTimeout(() => search.focus(), 100);
+}
+
+function renderWhoList(staff, q) {
+  const list = document.getElementById('whoList');
+  const needle = (q || '').trim().toLowerCase();
+  const rows = staff.filter(s => !needle || s.name.toLowerCase().includes(needle));
+  if (!rows.length) { list.innerHTML = '<div class="who-note">No match.</div>'; return; }
+  let html = '', lastGroup = '';
+  rows.forEach(s => {
+    const group = /sales/i.test(s.role || '') ? 'Sales' : 'Everyone else';
+    if (group !== lastGroup && !needle) { html += '<div class="who-group">' + group + '</div>'; lastGroup = group; }
+    html += '<button type="button" class="who-btn' + (formData.surveyor === s.name ? ' selected' : '') + '" onclick="pickWho(' + escAttr(JSON.stringify({ name: s.name, email: s.email || '' })) + ')">' +
+      '<span class="who-name">' + escHtml(s.name) + '</span><span class="who-role">' + escHtml([s.role, s.market].filter(Boolean).join(' · ')) + '</span></button>';
+  });
+  list.innerHTML = html;
+  list._staff = staff;
+}
+
+function escAttr(s) { return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+function filterWho() {
+  const list = document.getElementById('whoList');
+  const q = document.getElementById('whoSearch').value;
+  if (list._staff) renderWhoList(list._staff, q);
+}
+
+function pickWho(p) {
+  formData.surveyor = p.name || '';
+  formData.surveyorEmail = p.email || '';
+  document.getElementById('surveyorField').value = formData.surveyor;
+  document.getElementById('surveyorEmailField').value = formData.surveyorEmail;
+  const emailField = document.getElementById('senderEmail');
+  if (emailField && !emailField.value && formData.surveyorEmail) { emailField.value = formData.surveyorEmail; formData.senderEmail = formData.surveyorEmail; }
+  try { localStorage.setItem('cw_survey_me', JSON.stringify({ name: formData.surveyor, email: formData.surveyorEmail })); } catch (e) {}
+  renderWho();
+  closeWhoSheet();
+  debounceSave();
+}
+
+function closeWhoSheet(e) {
+  if (e && e.target !== document.getElementById('whoSheet')) return;
+  document.getElementById('whoSheet').classList.remove('show');
+}
+
+function renderWho() {
+  const btn = document.getElementById('whoBtn');
+  if (!btn) return;
+  if (formData.surveyor) {
+    btn.classList.add('set');
+    btn.innerHTML = '<span class="who-lbl">Surveyed by</span><span class="who-val">' + escHtml(formData.surveyor) + '</span><span class="who-change">change</span>';
+  } else {
+    btn.classList.remove('set');
+    btn.innerHTML = '<span class="who-lbl">Who is doing this survey?</span><span class="who-val">Tap to pick your name</span>';
+  }
+}
+
+// A fresh survey starts as whoever used this phone last.
+function prefillWho() {
+  if (formData.surveyor) { renderWho(); return; }
+  try {
+    const me = JSON.parse(localStorage.getItem('cw_survey_me') || 'null');
+    if (me && me.name) {
+      formData.surveyor = me.name; formData.surveyorEmail = me.email || '';
+      document.getElementById('surveyorField').value = me.name;
+      document.getElementById('surveyorEmailField').value = me.email || '';
+    }
+  } catch (e) {}
+  renderWho();
+}
+
+// ---- deep links from the Sales Hub ----
+function handleDeepLink() {
+  const q = new URLSearchParams(location.search);
+  const openId = q.get('open');
+  const wantExport = q.get('export') === '1';
+  const wantNew = q.get('new') === '1';
+  if (!openId && !wantNew) return false;
+  history.replaceState(null, '', location.pathname);
+  if (wantNew) { resetToBlankSurvey(); prefillWho(); return true; }
+  if (!/^survey_[\w-]{1,40}$/.test(openId)) return false;
+  showSnackbar('Opening survey...');
+  cloudOpen(openId).catch(() => null).then(() => {
+    hideSnackbar();
+    if (!localStorage.getItem(openId)) { showSnackbar('Could not open that survey.'); setTimeout(hideSnackbar, 4000); return; }
+    loadAndClose(openId);
+    if (wantExport) { goToStep(TOTAL_STEPS); setTimeout(downloadExcel, 400); }
+  });
+  return true;
+}
+
+// ============================================
 // SAVED SURVEYS
 // ============================================
 function showSavedSurveys() {
@@ -3688,7 +4044,7 @@ function showSavedSurveys() {
       if (!raw) return '';
       const s = JSON.parse(raw);
       const date = new Date(s.updatedAt).toLocaleDateString();
-      const name = s.companyName || 'Untitled';
+      const name = (s.companyName || 'Untitled') + (s.surveyor ? ' · ' + s.surveyor : '');
       const isCurrent = id === surveyId;
       return '<div class="saved-item" onclick="loadAndClose(\'' + id + '\')">' +
         '<div class="saved-item-info"><h4>' + escHtml(name) + (isCurrent ? ' <span style="color:var(--cw-teal);font-size:11px;">CURRENT</span>' : '') + '</h4>' +
@@ -3744,7 +4100,9 @@ function deleteSurvey(id) {
 function startNewSurvey() {
   if (!confirm('Start a new survey? Your current survey is saved and accessible from the folder icon.')) return;
   saveFormData(); // persist the OLD survey under its own id first
+  cloudSave();
   resetToBlankSurvey();
+  prefillWho();
   showSnackbar('New survey started');
   setTimeout(hideSnackbar, 2000);
 }
@@ -3780,6 +4138,8 @@ function resetToBlankSurvey() {
   renderAreas();
   renderRequests();
   recalcTotals();
+  clearTimeout(cloudTimer); cloudDirty = false;
+  renderWho();
 
   // Go to step 1 WITHOUT goToStep() - goToStep calls saveFormData(), which
   // would immediately file an empty "Untitled Survey" in the saved list.
@@ -3864,7 +4224,8 @@ function buildReview() {
     '<div class="review-row"><span class="review-label">Type</span><span class="review-value">' + escHtml(val('businessType')) + '</span></div>' +
     '<div class="review-row"><span class="review-label">Contact</span><span class="review-value">' + escHtml(val('contactName')) + ' (' + escHtml(val('contactTitle')) + ')</span></div>' +
     '<div class="review-row"><span class="review-label">Phone / Email</span><span class="review-value">' + escHtml(val('phone')) + ' / ' + escHtml(val('email')) + '</span></div>' +
-    '<div class="review-row"><span class="review-label">Date</span><span class="review-value">' + escHtml(val('surveyDate')) + '</span></div></div>' +
+    '<div class="review-row"><span class="review-label">Date</span><span class="review-value">' + escHtml(val('surveyDate')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Surveyed By</span><span class="review-value">' + escHtml(val('surveyor')) + '</span></div></div>' +
 
     '<div class="review-section"><div class="review-section-title">Current Situation</div>' +
     '<div class="review-row"><span class="review-label">Current JS</span><span class="review-value">' + escHtml(val('currentJSComp')) + ' (' + escHtml(val('timeWithCurrent')) + ')</span></div>' +
@@ -3918,6 +4279,7 @@ function buildReview() {
 const CW_HOOK = 'https://script.google.com/macros/s/AKfycbyZz6vEqjzdq0v15FVMfnrC5-lC_urvHe9aUI8LMaWHv_muqLGximMocH0_6IwB3mZOZQ/exec';
 
 const SHEET_FIELDS = [
+  ['Surveyed By', 'surveyor'], ['Surveyor Email', 'surveyorEmail'],
   ['Company Name', 'companyName'], ['Address', 'address'], ['City', 'city'], ['State, Zip', 'stateZip'],
   ['Industry Type', 'businessType'], ['Region & Shift', 'rateTier'], ['Contact Name', 'contactName'], ['Title', 'contactTitle'],
   ['Phone', 'phone'], ['Email', 'email'], ['Survey Date', 'surveyDate'],
@@ -4007,7 +4369,7 @@ function buildSheetPayload() {
     tool: 'buildingsurvey',
     title: document.title,
     url: location.href,
-    meta: { client: formData.companyName || '', preparedBy: '' },
+    meta: { client: formData.companyName || '', preparedBy: formData.surveyor || '' },
     sections: [
       { title: 'Inputs', rows: inputs },
       { title: 'Walkthrough Areas', rows: areaRows },
@@ -4133,6 +4495,7 @@ function buildExcelWorkbook() {
 
   rows.push(['GENERAL INFO (Bid Calculator Step 1a)']);
   rows.push(['Account Name', v('companyName')]);
+  rows.push(['Surveyed By', v('surveyor')]);
   rows.push(['Industry Type', v('businessType')]);
   rows.push(['Shift (Rates for Service)', v('rateTier') || 'Nevada — Standard']);
   rows.push(['CW Provides Tools & Chemicals?', 'TRUE']);
@@ -4372,6 +4735,7 @@ async function generatePDF() {
     row('Phone', val('phone'));
     row('Email', val('email'));
     row('Survey Date', val('surveyDate'));
+    row('Surveyed By', val('surveyor'));
     y += 3;
 
     if (val('preResearch') || val('qualifyingInfo')) {
@@ -4468,7 +4832,7 @@ async function generatePDF() {
         let x = margin + 2;
         for (const pid of a.photos) {
           let p = null;
-          try { p = await photoDB.get(pid); } catch (e) {}
+          try { p = await getPhoto(a, pid); } catch (e) {}
           if (!p) continue;
           const thumbH = thumbW * (p.h / p.w);
           if (x + thumbW > margin + contentW) { x = margin + 2; y += 2; }
@@ -4497,7 +4861,7 @@ async function generatePDF() {
           let x = margin + 2;
           for (const pid of r.photos) {
             let p = null;
-            try { p = await photoDB.get(pid); } catch (e) {}
+            try { p = await getPhoto(r, pid); } catch (e) {}
             if (!p) continue;
             const thumbH = thumbW * (p.h / p.w);
             checkPage(thumbH + 4);
