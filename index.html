@@ -2445,19 +2445,9 @@ select {
 
   <!-- ============ STEP 4: Review & Send ============ -->
   <section class="step-panel" data-step="4">
-    <h2 class="step-title">Review &amp; Send</h2>
-    <p class="step-subtitle">Check the numbers, then email yourself the bid-ready Excel. Paste its Bid Input sheet into Claude in Excel inside the Bid Calculator.</p>
-
-    <div class="form-card">
-      <div class="form-card-title">Bid-Ready Excel</div>
-      <div class="field-group">
-        <label for="senderEmail">Send to (your email)</label>
-        <input type="email" id="senderEmail" data-field="senderEmail" placeholder="you@gocitywide.com">
-      </div>
-      <button class="btn btn-primary" type="button" id="btnEmailXlsx" onclick="emailExcel()" style="width:100%; margin-bottom:8px;">📧 Email Me the Excel</button>
-      <button class="btn btn-secondary" type="button" id="btnDownloadXlsx" onclick="downloadExcel()" style="width:100%;">Download .xlsx (backup)</button>
-      <p class="field-hint" style="margin-top:8px;">The file lands in your Outlook inbox. Open the Bid Calculator, open Claude, and paste the whole Bid Input sheet in. Rooms are already consolidated by type and floor.</p>
-    </div>
+    <h2 class="step-title">Save</h2>
+    <p class="step-subtitle">Check the summary, then tap Save. It goes to the hub and a fresh survey opens. Excel comes from Review past surveys on the Sales Hub.</p>
+    <input type="hidden" id="senderEmail" data-field="senderEmail">
 
 <div class="form-card" id="reviewContainer">
       <div class="form-card-title">Survey Summary</div>
@@ -2473,7 +2463,6 @@ select {
 <div class="bottom-nav">
   <div class="bottom-nav-inner">
     <button class="btn btn-secondary" id="btnBack" onclick="prevStep()">Back</button>
-    <button class="btn btn-teal" id="btnSheets" onclick="saveToSheets()" style="display:none">Save to Sheets</button>
     <button class="btn btn-add-area" id="btnAddArea" onclick="openAddSheet()" style="display:none">&#43; Add area</button>
     <button class="btn btn-primary" id="btnNext" onclick="nextStep()">Next</button>
   </div>
@@ -2526,7 +2515,7 @@ select {
 // STATE
 // ============================================
 const TOTAL_STEPS = 4;
-const STEP_NAMES = ['', 'Start', 'Walk', 'Scope', 'Send'];
+const STEP_NAMES = ['', 'Start', 'Walk', 'Scope', 'Save'];
 let currentStep = 1;
 let surveyId = null;
 let formData = {};
@@ -2712,8 +2701,44 @@ function goToStep(step) {
 }
 
 function nextStep() {
-  if (currentStep === TOTAL_STEPS) { generatePDF(); return; }
+  if (currentStep === TOTAL_STEPS) { finishSurvey(); return; }
   goToStep(currentStep + 1);
+}
+
+// Last step: one confirmed round trip to the hub, then a fresh survey.
+// The phone copy is kept until the hub answers, so a dead spot loses nothing.
+async function finishSurvey() {
+  clearTimeout(saveTimeout); saveFormData();
+  const btn = document.getElementById('btnNext');
+  if (!worthSaving()) {
+    showSnackbar('Nothing to save yet. Add the company or an area first.'); setTimeout(hideSnackbar, 3000); return;
+  }
+  btn.disabled = true; btn.textContent = 'Saving...';
+  clearTimeout(cloudTimer);
+  try {
+    const t0 = Date.now();
+    while (photoQueue().some(x => x.sid === surveyId)) {
+      btn.textContent = 'Uploading photos...';
+      flushPhotoQueue();
+      await new Promise(r => setTimeout(r, 400));
+      if (Date.now() - t0 > 90000) throw new Error('Photos did not finish uploading');
+    }
+    btn.textContent = 'Saving...';
+    while (cloudBusy) await new Promise(r => setTimeout(r, 150));
+    cloudBusy = true; cloudDirty = false; setCloudStatus('saving');
+    try { await cwApi('bs_save', { survey: cloudPayload() }); } finally { cloudBusy = false; }
+    setCloudStatus('saved');
+    try { localStorage.removeItem('cw_survey_list_cache'); } catch (e) {}
+    const name = formData.companyName || 'Survey';
+    resetToBlankSurvey();
+    prefillWho();
+    showSnackbar(name + ' saved to the hub. Ready for the next one.'); setTimeout(hideSnackbar, 4000);
+  } catch (e) {
+    setCloudStatus('offline');
+    showSnackbar('Could not reach the hub. Check your signal and tap Save again. Nothing is lost.'); setTimeout(hideSnackbar, 6000);
+  } finally {
+    btn.disabled = false; updateNav();
+  }
 }
 
 function prevStep() { goToStep(currentStep - 1); }
@@ -2728,20 +2753,17 @@ function updateProgress() {
 function updateNav() {
   const back = document.getElementById('btnBack');
   const next = document.getElementById('btnNext');
-  const sheets = document.getElementById('btnSheets');
   const addBtn = document.getElementById('btnAddArea');
 
   back.style.display = currentStep === 1 ? 'none' : 'flex';
   addBtn.style.display = currentStep === 2 ? 'flex' : 'none';
 
   if (currentStep === TOTAL_STEPS) {
-    next.textContent = 'PDF Report';
+    next.textContent = 'Save this survey';
     next.className = 'btn btn-primary';
-    sheets.style.display = 'flex';
   } else {
     next.textContent = 'Next: ' + STEP_NAMES[currentStep + 1];
     next.className = 'btn btn-primary';
-    sheets.style.display = 'none';
   }
 }
 
@@ -4232,15 +4254,15 @@ function buildReview() {
   c.innerHTML =
     '<div class="review-section"><div class="review-section-title">Company</div>' +
     '<div class="review-row"><span class="review-label">Name</span><span class="review-value">' + escHtml(val('companyName')) + '</span></div>' +
-    '<div class="review-row"><span class="review-label">Address</span><span class="review-value">' + escHtml(val('address')) + ', ' + escHtml(val('city')) + ' ' + escHtml(val('stateZip')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Address</span><span class="review-value">' + escHtml([val('address'), [val('city'), val('stateZip')].filter(Boolean).join(' ')].filter(Boolean).join(', ')) + '</span></div>' +
     '<div class="review-row"><span class="review-label">Type</span><span class="review-value">' + escHtml(val('businessType')) + '</span></div>' +
-    '<div class="review-row"><span class="review-label">Contact</span><span class="review-value">' + escHtml(val('contactName')) + ' (' + escHtml(val('contactTitle')) + ')</span></div>' +
-    '<div class="review-row"><span class="review-label">Phone / Email</span><span class="review-value">' + escHtml(val('phone')) + ' / ' + escHtml(val('email')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Contact</span><span class="review-value">' + escHtml(val('contactName') + (val('contactTitle') ? ' (' + val('contactTitle') + ')' : '')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Phone / Email</span><span class="review-value">' + escHtml([val('phone'), val('email')].filter(Boolean).join(' / ')) + '</span></div>' +
     '<div class="review-row"><span class="review-label">Date</span><span class="review-value">' + escHtml(val('surveyDate')) + '</span></div>' +
     '<div class="review-row"><span class="review-label">Surveyed By</span><span class="review-value">' + escHtml(val('surveyor')) + '</span></div></div>' +
 
     '<div class="review-section"><div class="review-section-title">Current Situation</div>' +
-    '<div class="review-row"><span class="review-label">Current JS</span><span class="review-value">' + escHtml(val('currentJSComp')) + ' (' + escHtml(val('timeWithCurrent')) + ')</span></div>' +
+    '<div class="review-row"><span class="review-label">Current JS</span><span class="review-value">' + escHtml(val('currentJSComp') + (val('timeWithCurrent') ? ' (' + val('timeWithCurrent') + ')' : '')) + '</span></div>' +
     '<div class="review-row"><span class="review-label">Previous JS</span><span class="review-value">' + escHtml(val('previousJSComp')) + '</span></div>' +
     '<div class="review-row"><span class="review-label">Companies (5yr)</span><span class="review-value">' + escHtml(val('numCompPast5')) + '</span></div></div>' +
 
