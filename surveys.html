@@ -100,7 +100,7 @@ h1 { font-size: 22px; margin-bottom: 4px; }
   'use strict';
   var CACHE_KEY = 'cw_survey_list_cache';
   var STAFF_KEY = 'cw_staff_cache';
-  var surveys = [], staff = [];
+  var surveys = [], staff = [], loadSeq = 0;
   var listEl = document.getElementById('list'), statusEl = document.getElementById('status'), qEl = document.getElementById('q');
 
   function api(kind, data) {
@@ -184,13 +184,16 @@ h1 { font-size: 22px; margin-bottom: 4px; }
     if (c && c.surveys && !force) { surveys = c.surveys; render(); statusEl.textContent = 'Showing the last list. Refreshing...'; }
     var staffP = (sc && sc.staff && Date.now() - (sc.ts || 0) < 12 * 3600 * 1000) ? Promise.resolve(sc.staff)
       : api('staff_list').then(function (r) { staff = r.staff || []; writeCache(STAFF_KEY, { ts: Date.now(), staff: staff }); return staff; }).catch(function () { return staff; });
+    var seq = ++loadSeq;
     return Promise.all([api('bs_list'), staffP]).then(function (res) {
+      if (seq !== loadSeq) return; // a delete or newer refresh happened while this was in flight
       surveys = res[0].surveys || [];
       writeCache(CACHE_KEY, { ts: Date.now(), surveys: surveys });
       statusEl.className = 'status';
       statusEl.textContent = surveys.length + ' survey' + (surveys.length === 1 ? '' : 's') + ' · updated ' + new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
       render();
     }).catch(function (e) {
+      if (seq !== loadSeq) return;
       statusEl.className = 'status err';
       statusEl.textContent = surveys.length ? 'Could not refresh. Showing the last list.' : 'Could not reach the cloud. ' + (e && e.message ? e.message : '');
       if (!surveys.length) listEl.innerHTML = '<div class="empty">Nothing to show until the connection comes back.</div>';
@@ -213,6 +216,7 @@ h1 { font-size: 22px; margin-bottom: 4px; }
     if (!confirm("Are you sure you want to delete? You can't recover.")) return;
     btn.disabled = true; btn.textContent = 'Deleting...';
     api('bs_delete', { id: id }).then(function () {
+      loadSeq++; // throw away any list refresh that was already in flight
       removeLocal(id);
       surveys = surveys.filter(function (s) { return s.id !== id; });
       writeCache(CACHE_KEY, { ts: Date.now(), surveys: surveys });
