@@ -52,6 +52,9 @@ h1 { font-size: 22px; margin-bottom: 4px; }
 .card a.open { background: var(--cw-teal); color: white; }
 .card a.open:active { background: var(--cw-teal-dark); }
 .card a.xlsx { background: var(--cw-white); color: var(--cw-teal-dark); border: 1.5px solid var(--cw-teal); }
+.card button.del { min-width: 96px; min-height: 42px; padding: 0 12px; border-radius: var(--radius-sm); font-size: 13px; font-weight: bold; font-family: var(--font-stack); background: var(--cw-white); color: var(--cw-red); border: 1.5px solid var(--cw-red-light); cursor: pointer; }
+.card button.del:active { background: var(--cw-red-light); }
+.card button.del[disabled] { opacity: 0.5; }
 .empty { text-align: center; color: var(--cw-grey); padding: 30px 12px; font-size: 14px; }
 .skel { height: 68px; border-radius: var(--radius-md); background: linear-gradient(90deg, #ededee 25%, #f7f7f7 50%, #ededee 75%); background-size: 200% 100%; animation: sh 1.2s infinite; margin-bottom: 8px; }
 @keyframes sh { from { background-position: 200% 0; } to { background-position: -200% 0; } }
@@ -167,7 +170,7 @@ h1 { font-size: 22px; margin-bottom: 4px; }
           '<div class="co">' + esc(s.company || 'Untitled Survey') + '</div>' +
           (s.address ? '<div class="addr">' + esc(s.address) + (s.industry ? ' · ' + esc(s.industry) : '') + '</div>' : (s.industry ? '<div class="addr">' + esc(s.industry) + '</div>' : '')) +
           '<div class="meta">' + meta.join(' · ') + '</div></div>' +
-          '<div class="acts"><a class="act open" href="./?open=' + id + '">Open</a><a class="act xlsx" href="./?open=' + id + '&export=1">Export to Excel</a></div></div>';
+          '<div class="acts"><a class="act open" href="./?open=' + id + '">Open</a><a class="act xlsx" href="./?open=' + id + '&export=1">Export to Excel</a><button type="button" class="del" data-id="' + esc(s.id) + '">Delete</button></div></div>';
       });
       html += '</div>';
     });
@@ -194,6 +197,32 @@ h1 { font-size: 22px; margin-bottom: 4px; }
       if (e && /passcode/i.test(String(e.message)) && window.CWAuth) CWAuth.locked('sales', e.message);
     });
   }
+
+  function removeLocal(id) {
+    // Take the phone's own copy too, or the next auto-save would put the survey back in the cloud.
+    try {
+      localStorage.removeItem(id);
+      var idx = JSON.parse(localStorage.getItem('cw_survey_index') || '[]').filter(function (i) { return i !== id; });
+      localStorage.setItem('cw_survey_index', JSON.stringify(idx));
+      if (localStorage.getItem('cw_current_survey') === id) localStorage.removeItem('cw_current_survey');
+    } catch (e) {}
+  }
+  listEl.addEventListener('click', function (ev) {
+    var btn = ev.target.closest('button.del'); if (!btn) return;
+    var id = btn.getAttribute('data-id');
+    if (!confirm("Are you sure you want to delete? You can't recover.")) return;
+    btn.disabled = true; btn.textContent = 'Deleting...';
+    api('bs_delete', { id: id }).then(function () {
+      removeLocal(id);
+      surveys = surveys.filter(function (s) { return s.id !== id; });
+      writeCache(CACHE_KEY, { ts: Date.now(), surveys: surveys });
+      statusEl.className = 'status'; statusEl.textContent = 'Deleted. ' + surveys.length + ' survey' + (surveys.length === 1 ? '' : 's') + ' left.';
+      render();
+    }).catch(function (e) {
+      btn.disabled = false; btn.textContent = 'Delete';
+      statusEl.className = 'status err'; statusEl.textContent = 'Could not delete. ' + (e && e.message ? e.message : '');
+    });
+  });
 
   qEl.addEventListener('input', render);
   document.getElementById('refresh').addEventListener('click', function () { statusEl.textContent = 'Refreshing...'; load(true); });

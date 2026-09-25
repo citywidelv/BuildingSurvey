@@ -115,6 +115,14 @@ body {
   display: flex;
   gap: 8px;
 }
+.btn-return {
+  display: flex; align-items: center; justify-content: center;
+  max-width: 640px; margin: 10px auto 0; min-height: 40px;
+  background: var(--cw-grey-lighter); color: var(--cw-black);
+  border: 1px solid var(--cw-grey-light); border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: bold; text-decoration: none;
+}
+.btn-return:active { background: var(--cw-grey-light); }
 
 .btn-icon {
   width: 36px;
@@ -1588,6 +1596,7 @@ select {
       <button class="btn-icon" onclick="startNewSurvey()" title="New Survey">&#43;</button>
     </div>
   </div>
+  <a class="btn-return" id="returnHub" href="https://citywidelv.github.io/sales-hub/">&larr; Return to the Sales Hub</a>
 </header>
 
 <!-- ============================================
@@ -4073,7 +4082,10 @@ function loadAndClose(id) {
 }
 
 function deleteSurvey(id) {
-  if (!confirm('Delete this survey?')) return;
+  if (!confirm("Are you sure you want to delete? You can't recover.")) return;
+  clearTimeout(cloudTimer); cloudDirty = false;
+  cwApi('bs_delete', { id: id }).catch(() => {});
+  try { localStorage.removeItem('cw_survey_list_cache'); } catch (e) {}
   const raw = localStorage.getItem(id);
   if (raw) {
     try {
