@@ -7,8 +7,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#D22730">
 <title>City Wide Building Survey</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 /* ============================================
    CITY WIDE BRAND TOKENS
@@ -1271,6 +1269,272 @@ select {
 .sales-notes > summary::before { content: '▸ '; color: var(--cw-red); }
 .sales-notes[open] > summary::before { content: '▾ '; }
 .sales-notes > .form-card { margin: 0 12px 12px 12px; box-shadow: none; border: 1px solid var(--cw-grey-light); }
+
+/* ============================================
+   WALKTHROUGH 3.0: PHONE-FIRST ROOM CARDS
+   ============================================ */
+.step-dots { gap: 6px; }
+.step-dot {
+  width: auto;
+  min-width: 0;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 14px;
+  font-size: 11px;
+  letter-spacing: 0.3px;
+}
+
+.btn-icon { width: 44px; height: 44px; font-size: 18px; }
+
+.add-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.add-grid-top { margin-bottom: 14px; }
+.add-btn {
+  min-height: 52px;
+  padding: 8px 6px;
+  border: 1.5px solid var(--cw-teal);
+  border-radius: var(--radius-md);
+  background: var(--cw-white);
+  color: var(--cw-teal-dark);
+  font-family: var(--font-stack);
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: transform 0.1s, background 0.1s;
+  -webkit-user-select: none; user-select: none;
+}
+.add-btn:active { transform: scale(0.96); background: var(--cw-teal); color: white; }
+.add-btn.add-nc { border-color: var(--cw-grey); color: var(--cw-grey); }
+.add-btn.add-nc:active { background: var(--cw-grey); color: white; }
+.add-btn.add-custom { border-style: dashed; }
+#addSheet .add-grid { margin-top: 4px; }
+#addSheet .add-btn { min-height: 60px; font-size: 14px; }
+
+.btn-next-area {
+  width: 100%;
+  min-height: 56px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--cw-teal);
+  color: white;
+  font-family: var(--font-stack);
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+.btn-next-area:active { background: var(--cw-teal-dark); transform: scale(0.98); }
+.bottom-add { margin: 4px 0 18px; }
+
+.density-chips { flex-wrap: wrap; }
+.density-chip { white-space: nowrap; min-height: 40px; display: inline-flex; align-items: center; }
+.btn-add-area { background: var(--cw-teal); color: white; flex: 1.1; }
+.bottom-nav-inner .btn { padding-left: 8px; padding-right: 8px; white-space: nowrap; }
+#btnBack { flex: 0.6; }
+#btnNext { flex: 1.2; }
+.btn-add-area:hover { background: var(--cw-teal-dark); }
+
+.totals-bar { padding: 8px 8px; gap: 2px; }
+.totals-bar .tot b { font-size: 15px; }
+.totals-bar .tot span { font-size: 8px; letter-spacing: 0.2px; }
+
+/* card head */
+.area-head { padding: 10px 10px 10px 12px; gap: 8px; }
+.area-title-name { font-size: 16px; }
+.area-title-sub { font-size: 12px; }
+.badge-clean { background: var(--cw-gold); color: var(--cw-black); }
+.badge-nc { background: var(--cw-grey); color: white; }
+.head-btn {
+  width: 40px; height: 40px; min-width: 40px;
+  border: 1px solid var(--cw-grey-light);
+  border-radius: var(--radius-sm);
+  background: var(--cw-white);
+  color: var(--cw-grey);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.head-btn:active { transform: scale(0.92); }
+.head-btn.head-dup { color: var(--cw-teal-dark); border-color: rgba(10,166,169,0.4); }
+.head-btn.head-del { color: var(--cw-red); }
+.area-card.collapsed .head-btn.head-del { display: none; }
+.btn-remove-room { display: none; }
+
+/* card body blocks */
+.area-body { padding: 10px 12px 12px; }
+.blk { margin-bottom: 14px; }
+.blk:last-child { margin-bottom: 0; }
+.blk-title {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--cw-black);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 6px;
+  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+}
+.blk-title .blk-hint { font-size: 10px; font-weight: normal; color: var(--cw-grey); text-transform: none; letter-spacing: 0; }
+.blk-lead { font-size: 13px; color: var(--cw-grey); margin: -6px 0 12px; }
+
+.a-typerow { margin-bottom: 12px; }
+.a-typerow select { font-size: 15px; padding: 10px 32px 10px 12px; }
+
+.area-card { scroll-margin-top: 150px; }
+.measure-one { display: flex; align-items: center; gap: 10px; }
+.measure-one .a-sqft { flex: 1; text-align: center; font-size: 30px; font-weight: bold; min-height: 64px; padding: 8px 12px; background: #fffbea; border-color: var(--cw-gold); }
+.measure-one .m-unit { font-size: 14px; font-weight: bold; color: var(--cw-grey); text-transform: uppercase; letter-spacing: 0.4px; }
+.btn-nc-photo { width: 100%; min-height: 48px; margin-top: 10px; border: 1.5px solid var(--cw-black); border-radius: var(--radius-sm); background: var(--cw-white); color: var(--cw-black); font-family: var(--font-stack); font-size: 14px; font-weight: bold; cursor: pointer; }
+.btn-nc-photo:active { background: var(--cw-black); color: white; }
+.remind-card { background: var(--cw-white); border: 1px solid rgba(99,100,102,0.08); border-left: 6px solid var(--cw-red); border-radius: var(--radius-md); padding: 16px 16px 14px; margin-bottom: 16px; box-shadow: var(--shadow-sm); }
+.remind-title { font-size: 15px; font-weight: bold; color: var(--cw-red); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; }
+.remind-list { list-style: none; margin: 0; padding: 0; }
+.remind-list li { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.4; color: var(--cw-black); padding: 8px 0; border-top: 1px solid var(--cw-grey-light); }
+.remind-list li:first-child { border-top: none; padding-top: 0; }
+.remind-list .ri { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--cw-red); color: white; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.remind-list b { color: var(--cw-red); }
+.measure-row {
+  display: grid;
+  grid-template-columns: 1fr 22px 1fr 22px 1.3fr;
+  align-items: center;
+  gap: 4px;
+}
+.measure-row input {
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  padding: 10px 6px;
+  min-height: 56px;
+}
+.measure-row .m-op { text-align: center; font-size: 18px; color: var(--cw-grey); font-weight: bold; }
+.measure-row .a-sqft { background: #fffbea; border-color: var(--cw-gold); }
+.measure-row .a-sqft.auto { color: var(--cw-grey); }
+.measure-labels {
+  display: grid;
+  grid-template-columns: 1fr 22px 1fr 22px 1.3fr;
+  gap: 4px;
+  margin-top: 3px;
+}
+.measure-labels span { text-align: center; font-size: 10px; color: var(--cw-grey); text-transform: uppercase; letter-spacing: 0.3px; }
+
+.stepper-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.stepper-grid .stepper { padding: 6px 4px 8px; gap: 4px; min-width: 0; }
+.stepper-grid .stepper-label { font-size: 11px; text-transform: none; letter-spacing: 0; color: var(--cw-black); white-space: nowrap; }
+.stepper-grid .stepper-ctrl { gap: 6px; }
+.stepper-grid .stepper-ctrl button { width: 46px; height: 46px; font-size: 22px; }
+.stepper-grid .stepper-val { min-width: 30px; font-size: 20px; }
+.stepper.has-val { background: #e6f6f6; }
+.stepper.has-val .stepper-val { color: var(--cw-teal-dark); }
+
+.clean-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.clean-chip {
+  min-height: 46px;
+  padding: 6px 4px;
+  border: 1.5px solid var(--cw-grey-light);
+  border-radius: var(--radius-sm);
+  background: var(--cw-white);
+  color: var(--cw-grey);
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  -webkit-user-select: none; user-select: none;
+  transition: all 0.12s;
+}
+.clean-chip:active { transform: scale(0.96); }
+.clean-chip.selected { border-color: var(--cw-teal); background: var(--cw-teal); color: white; }
+.clean-chip.selected.is-deep { border-color: var(--cw-orange); background: var(--cw-orange); }
+.clean-chip.selected.is-nc { border-color: var(--cw-grey); background: var(--cw-grey); }
+.clean-chip.is-default:not(.selected) { border-style: dashed; }
+
+.nc-block {
+  background: var(--cw-grey-lighter);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+}
+.nc-block .nc-lead { font-size: 12px; color: var(--cw-grey); margin-bottom: 8px; }
+
+.size-chips { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+.size-chips .size-lbl { font-size: 11px; font-weight: bold; color: var(--cw-grey); text-transform: uppercase; letter-spacing: 0.3px; padding-right: 2px; white-space: nowrap; }
+.size-chip {
+  flex: 1; min-height: 40px;
+  border: 1.5px solid var(--cw-grey-light); border-radius: var(--radius-sm);
+  background: var(--cw-white); color: var(--cw-grey);
+  font-size: 12px; font-weight: bold; text-align: center;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; -webkit-user-select: none; user-select: none;
+}
+.size-chip.selected { border-color: var(--cw-black); background: var(--cw-black); color: white; }
+
+.floor-type-chips { gap: 6px; }
+.floor-chip { min-height: 40px; display: inline-flex; align-items: center; padding: 6px 12px; }
+.floor-more { border-style: dashed; color: var(--cw-grey); }
+.floor-type-chips .floor-hidden { display: none; }
+.floor-type-chips.show-all .floor-hidden { display: inline-flex; }
+.floor-type-chips.show-all .floor-more { display: none; }
+
+.special-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.sp-chip {
+  flex: 1 1 30%;
+  min-height: 44px;
+  padding: 6px 8px;
+  border: 1.5px solid var(--cw-grey-light);
+  border-radius: var(--radius-sm);
+  background: var(--cw-white);
+  color: var(--cw-grey);
+  font-size: 12px; font-weight: bold; text-align: center;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  cursor: pointer; -webkit-user-select: none; user-select: none;
+  transition: all 0.12s;
+}
+.sp-chip:active { transform: scale(0.96); }
+.sp-chip.selected { border-color: var(--cw-black); background: var(--cw-black); color: white; }
+.sp-chip.sp-hot.selected { border-color: var(--cw-red); background: var(--cw-red); }
+.sp-chip.sp-flex.selected { border-color: var(--cw-teal); background: var(--cw-teal); }
+.sp-reveal { margin-top: 10px; }
+.sp-reveal[hidden] { display: none; }
+
+.walk-chips { display: flex; gap: 5px; }
+.walk-chip {
+  flex: 1; min-height: 42px;
+  border: 1.5px solid var(--cw-grey-light); border-radius: var(--radius-sm);
+  background: var(--cw-white); color: var(--cw-grey);
+  font-size: 12px; font-weight: bold; text-align: center;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; -webkit-user-select: none; user-select: none;
+}
+.walk-chip.selected { border-color: var(--cw-black); background: var(--cw-black); color: white; }
+
+.area-actions2 { display: flex; gap: 8px; margin-top: 4px; }
+.area-actions2 .btn-dup {
+  flex: 1; min-height: 52px;
+  border: 1.5px solid var(--cw-teal); border-radius: var(--radius-sm);
+  background: var(--cw-white); color: var(--cw-teal-dark);
+  font-family: var(--font-stack); font-size: 14px; font-weight: bold; cursor: pointer;
+}
+.area-actions2 .btn-dup:active { background: var(--cw-teal); color: white; }
+.area-actions2 .btn-done-room { flex: 1.4; margin: 0; min-height: 52px; font-size: 15px; }
+
+.walk-card { margin-top: 6px; }
+.field-hint b { color: var(--cw-black); }
+
+@media (max-width: 360px) {
+  .add-grid { grid-template-columns: repeat(2, 1fr); }
+  .clean-grid { grid-template-columns: repeat(2, 1fr); }
+}
 </style>
 <link rel="stylesheet" href="https://citywidelv.github.io/cw-base.css">
 <script src="https://citywidelv.github.io/cw-ops-desk/cw-auth.js"></script>
@@ -1330,8 +1594,18 @@ select {
 
   <!-- ============ STEP 1: Company Info ============ -->
   <section class="step-panel active" data-step="1">
-    <h2 class="step-title">Building Setup</h2>
-    <p class="step-subtitle">Everything the bid needs, on one page. Fill what you can, skip what you can't. Sales notes are at the bottom if you want them.</p>
+    <h2 class="step-title">Start</h2>
+    <p class="step-subtitle">Who and where. Everything else waits until after the walk.</p>
+
+    <div class="remind-card">
+      <div class="remind-title">Before you walk</div>
+      <ul class="remind-list">
+        <li><span class="ri">1</span><span><b>Measure every cleanable area.</b> Laser it, type the sq ft. No sq ft, no room in the bid.</span></li>
+        <li><span class="ri">2</span><span><b>Note anything special, room by room.</b> Deep clean, spot clean, floors only, clean room. Tap it on the card while you are standing in it.</span></li>
+        <li><span class="ri">3</span><span><b>Document travel time.</b> Walks between cleanable areas, between buildings, and a far dumpster all cost minutes. The tool asks. Answer it.</span></li>
+        <li><span class="ri">4</span><span><b>Cans in areas we do not clean.</b> If the crew empties them, count them and size them. Normal (small or medium), large, or XL barrel. Barrels are a huge time element. Take a photo of them so the count is there when you get back to the office.</span></li>
+      </ul>
+    </div>
 
 <div class="form-card">
       <div class="form-card-title">Business Details</div>
@@ -1633,6 +1907,82 @@ select {
         <input type="date" id="surveyDate" data-field="surveyDate">
       </div>
     </div>
+  </section>
+
+  <!-- ============ STEP 2: Walkthrough ============ -->
+  <section class="step-panel" data-step="2">
+    <h2 class="step-title">Walk</h2>
+    <p class="step-subtitle">Add an area, measure it, count the fixtures, tap Done. Duplicate when the next room is the same.</p>
+
+    <div class="totals-bar" id="totalsBar"></div>
+
+    <div class="add-grid add-grid-top" id="quickChips"></div>
+    <div class="empty-areas" id="areasEmpty">Tap the type of the first area you are standing in.</div>
+    <div id="areasContainer"></div>
+
+    <div class="bottom-add" id="bottomAdd" style="display:none">
+      <div class="bottom-add-label">Add the next area</div>
+      <div class="add-grid" id="quickChipsBottom"></div>
+    </div>
+
+    <div class="form-card walk-card" id="walksCard">
+      <div class="form-card-title">Walks &amp; Trash</div>
+      <p class="blk-lead">Before you leave. This is the time the estimate usually misses.</p>
+
+      <div class="field-group">
+        <label>Walk to the dumpster from the farthest trash point (one way)</label>
+        <div class="density-chips">
+          <span class="density-chip" data-cf="dumpsterWalk" data-cv="Under 1 min" onclick="selectOpt(this)">Under 1 min</span>
+          <span class="density-chip" data-cf="dumpsterWalk" data-cv="2 min" onclick="selectOpt(this)">2 min</span>
+          <span class="density-chip" data-cf="dumpsterWalk" data-cv="5 min" onclick="selectOpt(this)">5 min</span>
+          <span class="density-chip" data-cf="dumpsterWalk" data-cv="10 min" onclick="selectOpt(this)">10 min</span>
+          <span class="density-chip" data-cf="dumpsterWalk" data-cv="15+ min" onclick="selectOpt(this)">15+ min</span>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Anything that slows the trash run?</label>
+        <div class="density-chips">
+          <span class="density-chip" data-cf="dumpsterRoute" data-cv="Easy" onclick="selectOpt(this)">Easy</span>
+          <span class="density-chip" data-cf="dumpsterRoute" data-cv="Long walk" onclick="selectOpt(this)">Long walk</span>
+          <span class="density-chip" data-cf="dumpsterRoute" data-cv="Locked gate / badge" onclick="selectOpt(this)">Locked gate / badge</span>
+          <span class="density-chip" data-cf="dumpsterRoute" data-cv="Stairs, no cart" onclick="selectOpt(this)">Stairs, no cart</span>
+          <span class="density-chip" data-cf="dumpsterRoute" data-cv="Compactor" onclick="selectOpt(this)">Compactor</span>
+        </div>
+      </div>
+      <div class="field-group">
+        <label for="dumpsterNotes">Trash run notes</label>
+        <input type="text" id="dumpsterNotes" data-field="dumpsterNotes" placeholder="Across the parking lot, behind the fence, use the loading dock door...">
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label for="floorsCount">Floors served</label>
+          <input type="number" id="floorsCount" data-field="floorsCount" inputmode="numeric" min="1" max="60" placeholder="1">
+        </div>
+        <div class="field-group">
+          <label>Elevator for the crew?</label>
+          <div class="density-chips">
+            <span class="density-chip" data-cf="elevator" data-cv="Yes" onclick="selectOpt(this)">Yes</span>
+            <span class="density-chip" data-cf="elevator" data-cv="No" onclick="selectOpt(this)">No</span>
+            <span class="density-chip" data-cf="elevator" data-cv="Freight only" onclick="selectOpt(this)">Freight only</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Areas you walk through but do not clean</label>
+        <p class="field-hint" style="margin-top:0;margin-bottom:8px">Add each one as a <b>Not Cleaned</b> area above so the walk time and any extra trash cans get counted.</p>
+        <button type="button" class="btn-add" onclick="quickAdd('Not Cleaned','')">+ Add a Not Cleaned area</button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============ STEP 3: Scope & Services ============ -->
+  <section class="step-panel" data-step="3">
+    <h2 class="step-title">Scope &amp; Services</h2>
+    <p class="step-subtitle">Fill this in after the walk, or in the car. Sales notes are at the bottom.</p>
+
 <div class="form-card">
       <div class="form-card-title">Scope Details</div>
       <div class="field-row-3">
@@ -2056,25 +2406,8 @@ select {
     </details>
   </section>
 
-  <!-- ============ STEP 2: Walkthrough ============ -->
-  <section class="step-panel" data-step="2">
-    <h2 class="step-title">Building Walkthrough</h2>
-    <p class="step-subtitle">Tap a chip to add each area as you walk. Tap an area&#39;s header to open or close it. Flag problems as hot spots and snap photos.</p>
-
-
-    <div class="totals-bar" id="totalsBar"></div>
-    <div class="quick-chips" id="quickChips"></div>
-    <div class="empty-areas" id="areasEmpty">No areas yet. Tap a chip above to add your first area.</div>
-    <div id="areasContainer"></div>
-    <div class="bottom-add" id="bottomAdd" style="display:none">
-      <div class="bottom-add-label">Add the next area</div>
-      <div class="quick-chips" id="quickChipsBottom"></div>
-      <button class="btn-add" onclick="addArea('','')">+ Add Custom Area</button>
-    </div>
-  </section>
-
-  <!-- ============ STEP 3: Review & Send ============ -->
-  <section class="step-panel" data-step="3">
+  <!-- ============ STEP 4: Review & Send ============ -->
+  <section class="step-panel" data-step="4">
     <h2 class="step-title">Review &amp; Send</h2>
     <p class="step-subtitle">Check the numbers, then email yourself the bid-ready Excel. Paste its Bid Input sheet into Claude in Excel inside the Bid Calculator.</p>
 
@@ -2104,6 +2437,7 @@ select {
   <div class="bottom-nav-inner">
     <button class="btn btn-secondary" id="btnBack" onclick="prevStep()">Back</button>
     <button class="btn btn-teal" id="btnSheets" onclick="saveToSheets()" style="display:none">Save to Sheets</button>
+    <button class="btn btn-add-area" id="btnAddArea" onclick="openAddSheet()" style="display:none">&#43; Add area</button>
     <button class="btn btn-primary" id="btnNext" onclick="nextStep()">Next</button>
   </div>
 </div>
@@ -2124,13 +2458,25 @@ select {
 </div>
 
 <!-- ============================================
+     ADD AREA SHEET
+     ============================================ -->
+<div class="modal-overlay" id="addSheet" onclick="closeAddSheet(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title">What is this area?</div>
+    <div class="add-grid" id="addGrid"></div>
+  </div>
+</div>
+
+<!-- ============================================
      JAVASCRIPT
      ============================================ -->
 <script>
 // ============================================
 // STATE
 // ============================================
-const TOTAL_STEPS = 3;
+const TOTAL_STEPS = 4;
+const STEP_NAMES = ['', 'Start', 'Walk', 'Scope', 'Send'];
 let currentStep = 1;
 let surveyId = null;
 let formData = {};
@@ -2176,15 +2522,17 @@ const AREA_TYPES = [
 const QUICK_ADD = [
   ['Office', 'General Office'],
   ['Restroom', 'Restroom'],
-  ['Lobby', 'Entry / Lobby / Reception'],
+  ['Hallway', 'Hallway / Corridor'],
   ['Break Room', 'Break Room / Lunch'],
   ['Conference', 'Conference Room'],
-  ['Hallway', 'Hallway / Corridor'],
+  ['Lobby', 'Entry / Lobby / Reception'],
+  ['Open Office', 'Cubicles / Open Office'],
   ['Kitchen', 'Kitchen (Full Clean)'],
   ['Exam Room', 'Exam Room'],
   ['Warehouse', 'Warehouse / Plant'],
   ['Storage', 'Storage'],
   ['Stairwell', 'Stairwell'],
+  ['Not Cleaned', ''],
   ['Custom', '']
 ];
 
@@ -2304,8 +2652,8 @@ function goToStep(step) {
   updateNav();
   renderStepDots();
 
-  if (step === 1) updateAutoTotalsLine();
-  if (step === TOTAL_STEPS) buildReview();
+  if (step === 3) updateAutoTotalsLine();
+  if (step === TOTAL_STEPS) { buildReview(); ensureLib('xlsx').catch(() => {}); ensureLib('jspdf').catch(() => {}); }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -2321,22 +2669,24 @@ function updateProgress() {
   const pct = Math.round((currentStep / TOTAL_STEPS) * 100);
   document.getElementById('progressFill').style.width = pct + '%';
   document.getElementById('progressPct').textContent = pct + '%';
-  document.getElementById('progressStepLabel').textContent = 'Step ' + currentStep + ' of ' + TOTAL_STEPS;
+  document.getElementById('progressStepLabel').textContent = 'Step ' + currentStep + ' of ' + TOTAL_STEPS + ' · ' + STEP_NAMES[currentStep];
 }
 
 function updateNav() {
   const back = document.getElementById('btnBack');
   const next = document.getElementById('btnNext');
   const sheets = document.getElementById('btnSheets');
+  const addBtn = document.getElementById('btnAddArea');
 
   back.style.display = currentStep === 1 ? 'none' : 'flex';
+  addBtn.style.display = currentStep === 2 ? 'flex' : 'none';
 
   if (currentStep === TOTAL_STEPS) {
     next.textContent = 'PDF Report';
     next.className = 'btn btn-primary';
     sheets.style.display = 'flex';
   } else {
-    next.textContent = 'Next';
+    next.textContent = 'Next: ' + STEP_NAMES[currentStep + 1];
     next.className = 'btn btn-primary';
     sheets.style.display = 'none';
   }
@@ -2350,7 +2700,7 @@ function renderStepDots() {
     dot.className = 'step-dot';
     if (i === currentStep) dot.classList.add('active');
     else if (i < currentStep) dot.classList.add('complete');
-    dot.textContent = i;
+    dot.textContent = STEP_NAMES[i];
     dot.onclick = () => goToStep(i);
     container.appendChild(dot);
   }
@@ -2448,9 +2798,9 @@ function loadSurvey(id) {
   const densityMap = { 'Dense': 'Heavy Use', 'Average': 'Normal', 'Light': 'Light Use' };
   if (densityMap[formData.density]) formData.density = densityMap[formData.density];
   areas = data.areas || migrateRooms(data.rooms);
-  areas.forEach(normalizeAreaFloors);
+  areas.forEach(normalizeArea);
   requests = data.requests || [];
-  currentStep = data.step || 1;
+  currentStep = Math.min(data.step || 1, TOTAL_STEPS);
 
   Object.keys(formData).forEach(key => {
     const el = document.querySelector('[data-field="' + key + '"]');
@@ -2481,50 +2831,118 @@ function showSaveToast() { setSaveStatus('saved'); }
 // ============================================
 // WALKTHROUGH: AREAS
 // ============================================
+// Clean level values are written to the Bid Calculator "Clean Mode" column as-is.
+const CLEAN_LEVELS = [
+  ['Normal Clean', 'Normal', ''],
+  ['Spot Clean', 'Spot Clean', ''],
+  ['Deep Clean', 'Deep Clean', 'is-deep'],
+  ['Floors Only', 'Floors Only', ''],
+  ['Clean Room', 'Clean Room', ''],
+  ['Not Cleaned', 'Not Cleaned', 'is-nc']
+];
+const DEFAULT_CLEAN = 'Normal Clean';
+const NOT_CLEANED = 'Not Cleaned';
+const WALK_OPTS = [['', 'None'], ['1', '1 min'], ['2', '2'], ['3', '3'], ['5', '5'], ['10', '10+']];
+const TRASH_SIZES = ['Normal (S/M)', 'Large', 'XL barrel'];
+const FLOOR_PRIMARY = ['Carpet', 'VCT', 'LVT', 'Ceramic Tile', 'Concrete', 'Polished Concrete'];
+
+function isCleaned(a) { return (a.cleanLevel || DEFAULT_CLEAN) !== NOT_CLEANED; }
+function cleanBadge(lvl) { return (lvl === NOT_CLEANED ? 'NOT CLEANED' : lvl.replace(/ Clean$/, '')).toUpperCase(); }
+
 function newArea(type, name) {
   return {
     id: 'area_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
     name: name || '', type: type || '',
-    dims: '', sqft: '', sqftAuto: false,
+    len: '', wid: '', dims: '', sqft: '', sqftAuto: false,
     floorTypes: [], floorSplit: {}, floorOther: '',
-    toilets: 0, urinals: 0, sinks: 0,
+    toilets: 0, urinals: 0, sinks: 0, trash: 0, trashSize: '',
+    cleanLevel: DEFAULT_CLEAN,
+    walkNext: '', walkThru: 0,
     flex: false, hotspot: false, hotspotNote: '',
-    notes: '', photos: [], collapsed: false
+    notes: '', photos: [], collapsed: false, copyOf: ''
   };
 }
 
+// Older surveys have none of the 3.0 fields. Fill them in so every renderer can trust the shape.
+function normalizeArea(a) {
+  if (!a) return a;
+  normalizeAreaFloors(a);
+  if (!a.cleanLevel) a.cleanLevel = DEFAULT_CLEAN;
+  if (a.trash === undefined) a.trash = 0;
+  if (a.trashSize === undefined) a.trashSize = '';
+  if (a.walkNext === undefined) a.walkNext = '';
+  if (a.walkThru === undefined) a.walkThru = 0;
+  if (a.copyOf === undefined) a.copyOf = '';
+  if (a.len === undefined) a.len = '';
+  if (a.wid === undefined) a.wid = '';
+  if (!a.len && !a.wid && a.dims) {
+    const m = String(a.dims).match(/(\d+(?:\.\d+)?)\s*[xX×]\s*(\d+(?:\.\d+)?)/);
+    if (m) { a.len = m[1]; a.wid = m[2]; }
+  }
+  if (!a.photos) a.photos = [];
+  return a;
+}
+
 function autoName(label) {
-  const count = areas.filter(a => (a.name || '').indexOf(label) === 0).length;
-  return count === 0 ? label : label + ' ' + (count + 1);
+  const re = new RegExp('^' + label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?: (\\d+))?$');
+  let max = 0, seen = false;
+  areas.forEach(a => {
+    const m = (a.name || '').match(re);
+    if (m) { seen = true; max = Math.max(max, Number(m[1]) || 1); }
+  });
+  return seen ? label + ' ' + (max + 1) : label;
+}
+
+function addGridHtml() {
+  return QUICK_ADD.map(q => {
+    let cls = 'add-btn';
+    if (q[0] === 'Not Cleaned') cls += ' add-nc';
+    if (q[0] === 'Custom') cls += ' add-custom';
+    return '<button type="button" class="' + cls + '" onclick="quickAdd(\'' + q[0] + '\',\'' + q[1] + '\')">' + q[0] + '</button>';
+  }).join('');
 }
 
 function renderQuickAdd() {
-  const html = QUICK_ADD.map(q =>
-    '<button type="button" class="quick-chip" onclick="quickAdd(\'' + q[0] + '\',\'' + q[1] + '\')">+ ' + q[0] + '</button>'
-  ).join('');
-  ['quickChips', 'quickChipsBottom'].forEach(cid => {
+  const html = addGridHtml();
+  ['quickChips', 'quickChipsBottom', 'addGrid'].forEach(cid => {
     const wrap = document.getElementById(cid);
     if (wrap) wrap.innerHTML = html;
   });
 }
 
+function openAddSheet() { document.getElementById('addSheet').classList.add('show'); }
+function closeAddSheet(e) {
+  if (e && e.target !== document.getElementById('addSheet')) return;
+  document.getElementById('addSheet').classList.remove('show');
+}
+
 function quickAdd(label, type) {
+  document.getElementById('addSheet').classList.remove('show');
+  if (label === 'Not Cleaned') { addArea('', autoName('Not Cleaned'), NOT_CLEANED); return; }
   addArea(type, label === 'Custom' ? '' : autoName(label));
 }
 
-function addArea(type, name) {
+function addArea(type, name, level) {
   areas.forEach(a => a.collapsed = true);
   document.querySelectorAll('.area-card').forEach(c => c.classList.add('collapsed'));
   const area = newArea(type, name);
+  if (level) area.cleanLevel = level;
   areas.push(area);
   const node = createAreaNode(area, areas.length - 1);
   document.getElementById('areasContainer').appendChild(node);
   updateEmptyState();
   recalcTotals();
   debounceSave();
-  setTimeout(() => node.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+  setTimeout(() => {
+    node.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const sq = node.querySelector('.a-sqft');
+    if (sq && isCleaned(area)) sq.focus();
+  }, 120);
+  return area;
 }
 
+// Duplicate = "the next room is the same as this one". The copy lands right below,
+// already done, auto-named, and says what it was copied from until it is edited.
 function duplicateArea(id) {
   const idx = areas.findIndex(a => a.id === id);
   if (idx < 0) return;
@@ -2532,8 +2950,13 @@ function duplicateArea(id) {
   const copy = JSON.parse(JSON.stringify(src));
   copy.id = 'area_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
   copy.photos = [];
-  copy.collapsed = false;
-  copy.name = autoName((src.name || 'Area').replace(/\s+\d+$/, ''));
+  copy.collapsed = true;
+  copy.hotspot = false; copy.hotspotNote = '';
+  copy.notes = '';
+  copy.walkNext = '';
+  const base = (src.name || src.type || 'Area').replace(/\s+\d+$/, '');
+  copy.name = autoName(base);
+  copy.copyOf = src.name || src.type || 'previous area';
   areas.forEach(a => a.collapsed = true);
   areas.splice(idx + 1, 0, copy);
   renderAreas();
@@ -2541,6 +2964,8 @@ function duplicateArea(id) {
   debounceSave();
   const node = document.querySelector('[data-area-id="' + copy.id + '"]');
   if (node) setTimeout(() => node.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+  showSnackbar('Added ' + copy.name + ', same as ' + copy.copyOf + '. Tap it to change anything.');
+  setTimeout(hideSnackbar, 3500);
 }
 
 function removeArea(id) {
@@ -2599,6 +3024,8 @@ function updateEmptyState() {
   if (empty) empty.style.display = areas.length === 0 ? 'block' : 'none';
   const bottom = document.getElementById('bottomAdd');
   if (bottom) bottom.style.display = areas.length === 0 ? 'none' : 'block';
+  const top = document.getElementById('quickChips');
+  if (top) top.style.display = areas.length === 0 ? 'grid' : 'none';
 }
 
 function renumberAreas() {
@@ -2608,12 +3035,24 @@ function renumberAreas() {
   });
 }
 
+function sqftNum(a) { return Number(String(a.sqft || '').replace(/[^\d.]/g, '')) || 0; }
+
 function areaSummary(area) {
   const bits = [];
-  if (area.sqft) bits.push(Number(String(area.sqft).replace(/[^\d.]/g, '')).toLocaleString() + ' sqft');
+  if (!isCleaned(area)) {
+    bits.push('walk through only');
+    if (Number(area.walkThru)) bits.push(area.walkThru + ' min');
+    if (Number(area.trash)) bits.push(area.trash + ' ' + (area.trashSize ? area.trashSize.toLowerCase() + ' ' : '') + 'trash');
+    if (area.copyOf) bits.unshift('same as ' + area.copyOf);
+    return bits.join(' · ');
+  }
+  if (sqftNum(area)) bits.push(sqftNum(area).toLocaleString() + ' sf');
   if (area.floorTypes.length) bits.push(area.floorTypes.map(ft => floorDisplay(area, ft)).join('/'));
   const fx = fixtureTotal(area);
-  if (fx) bits.push(fx + ' fixtures');
+  if (fx) bits.push(fx + ' fixt');
+  if (Number(area.trash)) bits.push(area.trash + ' trash');
+  if (area.walkNext) bits.push('walk ' + area.walkNext + 'm');
+  if (area.copyOf) bits.unshift('same as ' + area.copyOf);
   return bits.join(' · ') || 'Tap to fill in';
 }
 
@@ -2628,6 +3067,10 @@ function updateAreaHead(area) {
   card.querySelector('.area-title-sub').textContent = areaSummary(area);
   card.querySelector('.badge-hot').style.display = area.hotspot ? 'inline-flex' : 'none';
   card.querySelector('.badge-flex').style.display = area.flex ? 'inline-flex' : 'none';
+  const bc = card.querySelector('.badge-clean');
+  const lvl = area.cleanLevel || DEFAULT_CLEAN;
+  if (lvl === DEFAULT_CLEAN) { bc.style.display = 'none'; }
+  else { bc.style.display = 'inline-flex'; bc.textContent = cleanBadge(lvl); bc.classList.toggle('badge-nc', lvl === NOT_CLEANED); }
   const bp = card.querySelector('.badge-photo');
   bp.style.display = (area.photos || []).length ? 'inline-flex' : 'none';
   bp.textContent = '📷 ' + (area.photos || []).length;
@@ -2643,7 +3086,7 @@ function doneWithRoom(id) {
   recalcTotals();
   debounceSave();
   const t = surveyTotals();
-  showSnackbar((area.name || area.type || 'Area') + ' done · ' + t.areas + ' areas · ' + t.sqft.toLocaleString() + ' sqft so far');
+  showSnackbar((area.name || area.type || 'Area') + ' done · ' + t.areas + ' areas · ' + t.sqft.toLocaleString() + ' sf so far');
   setTimeout(hideSnackbar, 2500);
   const bottom = document.getElementById('bottomAdd');
   if (bottom) setTimeout(() => bottom.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
@@ -2655,15 +3098,36 @@ function toggleAreaCollapse(id) {
   if (!area || !card) return;
   area.collapsed = !area.collapsed;
   card.classList.toggle('collapsed', area.collapsed);
+  if (!area.collapsed) setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
 }
+
+function touched(area) { if (area.copyOf) { area.copyOf = ''; } }
 
 function createAreaNode(area, idx) {
   const el = document.createElement('div');
   el.className = 'area-card' + (area.collapsed ? ' collapsed' : '');
   el.dataset.areaId = area.id;
+  const lvl = area.cleanLevel || DEFAULT_CLEAN;
+  const isRR = RR_TYPES.includes(area.type);
 
-  const typeOptions = '<option value="">Select type...</option>' + AREA_TYPES.map(t =>
+  const typeOptions = '<option value="">Type of area...</option>' + AREA_TYPES.map(t =>
     '<option value="' + t[0] + '"' + (area.type === t[0] ? ' selected' : '') + '>' + t[0] + '</option>'
+  ).join('');
+
+  const showAllFloors = area.floorTypes.some(ft => !FLOOR_PRIMARY.includes(ft));
+  const floorChips = FLOOR_TYPES.map(ft =>
+    '<span class="floor-chip ' + (area.floorTypes.includes(ft[0]) ? 'selected' : '') + (FLOOR_PRIMARY.includes(ft[0]) ? '' : ' floor-hidden') +
+    '" onclick="toggleFloor(\'' + area.id + '\',\'' + ft[0] + '\',this)">' + ft[1] + '</span>'
+  ).join('') + '<span class="floor-chip floor-more" onclick="this.parentElement.classList.add(\'show-all\')">More…</span>';
+
+  const steppers = isRR
+    ? stepperHtml(area.id, 'toilets', 'Toilets', area.toilets) + stepperHtml(area.id, 'urinals', 'Urinals', area.urinals) +
+      stepperHtml(area.id, 'sinks', 'Sinks', area.sinks) + stepperHtml(area.id, 'trash', 'Trash cans', area.trash)
+    : stepperHtml(area.id, 'trash', 'Trash cans', area.trash) + stepperHtml(area.id, 'sinks', 'Sinks', area.sinks) +
+      stepperHtml(area.id, 'toilets', 'Toilets', area.toilets) + stepperHtml(area.id, 'urinals', 'Urinals', area.urinals);
+
+  const sizeChips = '<span class="size-lbl">Can size</span>' + TRASH_SIZES.map(sz =>
+    '<span class="size-chip ' + (area.trashSize === sz ? 'selected' : '') + '" onclick="setTrashSize(\'' + area.id + '\',\'' + sz + '\')">' + sz + '</span>'
   ).join('');
 
   el.innerHTML =
@@ -2673,92 +3137,124 @@ function createAreaNode(area, idx) {
         '<div class="area-title-name">' + escHtml(area.name || area.type || 'New Area') + '</div>' +
         '<div class="area-title-sub">' + escHtml(areaSummary(area)) + '</div>' +
       '</div>' +
+      '<span class="area-badge badge-clean' + (lvl === NOT_CLEANED ? ' badge-nc' : '') + '" style="display:' + (lvl === DEFAULT_CLEAN ? 'none' : 'inline-flex') + '">' + escHtml(cleanBadge(lvl)) + '</span>' +
       '<span class="area-badge badge-hot" style="display:' + (area.hotspot ? 'inline-flex' : 'none') + '">⚠</span>' +
       '<span class="area-badge badge-flex" style="display:' + (area.flex ? 'inline-flex' : 'none') + '">FLEX</span>' +
       '<span class="area-badge badge-photo" style="display:' + ((area.photos || []).length ? 'inline-flex' : 'none') + '">📷 ' + (area.photos || []).length + '</span>' +
+      '<button type="button" class="head-btn head-dup" onclick="event.stopPropagation();duplicateArea(\'' + area.id + '\')" title="Same again">⧉</button>' +
+      '<button type="button" class="head-btn head-del" onclick="event.stopPropagation();removeArea(\'' + area.id + '\')" title="Remove">&times;</button>' +
       '<span class="area-chev">▾</span>' +
-      '<button type="button" class="btn-remove-room" onclick="event.stopPropagation();removeArea(\'' + area.id + '\')" title="Remove">&times;</button>' +
     '</div>' +
     '<div class="area-body">' +
-      '<div class="field-row">' +
-        '<div class="field-group"><label>Area Name</label>' +
-          '<input type="text" class="a-name" value="' + escHtml(area.name) + '" placeholder="Lobby, Suite 200..."></div>' +
-        '<div class="field-group"><label>Area Type</label>' +
-          '<select class="a-type">' + typeOptions + '</select>' +
-          '<div class="rate-hint"></div></div>' +
+      '<div class="a-typerow"><select class="a-type">' + typeOptions + '</select><div class="rate-hint"></div></div>' +
+
+      '<div class="blk blk-measure">' +
+        '<div class="blk-title">Measure <span class="blk-hint">cleanable sq ft from the laser</span></div>' +
+        '<div class="measure-one">' +
+          '<input type="text" class="a-sqft" inputmode="numeric" value="' + escHtml(area.sqft) + '" placeholder="0">' +
+          '<span class="m-unit">sq ft</span>' +
+        '</div>' +
       '</div>' +
-      '<div class="field-row">' +
-        '<div class="field-group"><label>Dimensions (L x W)</label>' +
-          '<input type="text" class="a-dims" inputmode="numeric" value="' + escHtml(area.dims) + '" placeholder="20x30"></div>' +
-        '<div class="field-group"><label>SqFt</label>' +
-          '<input type="text" class="a-sqft" inputmode="numeric" value="' + escHtml(area.sqft) + '" placeholder="600"></div>' +
+
+      '<div class="blk blk-fixtures" style="display:' + (isCleaned(area) ? 'block' : 'none') + '">' +
+        '<div class="blk-title">Fixtures &amp; trash</div>' +
+        '<div class="stepper-grid">' + steppers + '</div>' +
+        '<div class="size-chips trash-size" style="display:' + (Number(area.trash) ? 'flex' : 'none') + '">' + sizeChips + '</div>' +
       '</div>' +
-      '<div class="field-group"><label>Floor Types</label>' +
-        '<div class="floor-type-chips">' + FLOOR_TYPES.map(ft =>
-          '<span class="floor-chip ' + (area.floorTypes.includes(ft[0]) ? 'selected' : '') + '" onclick="toggleFloor(\'' + area.id + '\',\'' + ft[0] + '\',this)">' + ft[1] + '</span>'
+
+      '<div class="blk blk-clean">' +
+        '<div class="blk-title">How is it cleaned?</div>' +
+        '<div class="clean-grid">' + CLEAN_LEVELS.map(c =>
+          '<span class="clean-chip ' + c[2] + (c[0] === DEFAULT_CLEAN ? ' is-default' : '') + (lvl === c[0] ? ' selected' : '') +
+          '" data-lvl="' + c[0] + '" onclick="setCleanLevel(\'' + area.id + '\',\'' + c[0] + '\')">' + c[1] + '</span>'
         ).join('') + '</div>' +
+      '</div>' +
+
+      '<div class="blk blk-nc nc-block" style="display:' + (isCleaned(area) ? 'none' : 'block') + '">' +
+        '<div class="nc-lead">Not in scope. The crew still walks through it, and any cans out here still get emptied. Count them, size them, photo them.</div>' +
+        '<div class="stepper-grid">' +
+          stepperHtml(area.id, 'walkThru', 'Walk-through min', area.walkThru) +
+          stepperHtml(area.id, 'trash', 'Extra trash cans', area.trash) +
+        '</div>' +
+        '<div class="size-chips trash-size" style="display:' + (Number(area.trash) ? 'flex' : 'none') + '">' + sizeChips + '</div>' +
+        '<button type="button" class="btn-nc-photo" onclick="pickPhoto(\'area\',\'' + area.id + '\')">📷 Photo of the cans</button>' +
+      '</div>' +
+
+      '<div class="blk blk-floor" style="display:' + (isCleaned(area) ? 'block' : 'none') + '">' +
+        '<div class="blk-title">Floor</div>' +
+        '<div class="floor-type-chips' + (showAllFloors ? ' show-all' : '') + '">' + floorChips + '</div>' +
         '<div class="floor-split"></div>' +
         '<div class="field-group floor-other" style="margin-top:8px; display:' + (area.floorTypes.includes('Other') ? 'block' : 'none') + '">' +
           '<label>What kind of floor?</label>' +
           '<input type="text" class="a-floorother" value="' + escHtml(area.floorOther || '') + '" placeholder="Cork, bamboo, brick..."></div>' +
       '</div>' +
-      '<div class="fixture-block">' +
-        '<label>Fixtures</label>' +
-        '<div class="stepper-row">' +
-          stepperHtml(area.id, 'toilets', 'Toilets', area.toilets) +
-          stepperHtml(area.id, 'urinals', 'Urinals', area.urinals) +
-          stepperHtml(area.id, 'sinks', 'Sinks', area.sinks) +
+
+      '<div class="blk blk-special">' +
+        '<div class="blk-title">Anything special?</div>' +
+        '<div class="special-row">' +
+          '<span class="sp-chip sp-hot ' + (area.hotspot ? 'selected' : '') + '" onclick="toggleFlag(\'' + area.id + '\',\'hotspot\',this)">⚠ Hot spot</span>' +
+          '<span class="sp-chip sp-flex ' + (area.flex ? 'selected' : '') + '" onclick="toggleFlag(\'' + area.id + '\',\'flex\',this)">Flex clean</span>' +
+          '<span class="sp-chip sp-photo" onclick="pickPhoto(\'area\',\'' + area.id + '\')">📷 Photo</span>' +
+          '<span class="sp-chip sp-note ' + (area.notes ? 'selected' : '') + '" onclick="revealSpecial(this,\'.rv-note\',\'.a-notes\')">✎ Note</span>' +
+          '<span class="sp-chip sp-name" onclick="revealSpecial(this,\'.rv-name\',\'.a-name\')">Name it</span>' +
         '</div>' +
+        '<div class="sp-reveal rv-hot"' + (area.hotspot ? '' : ' hidden') + '>' +
+          '<div class="field-group hs-note"><label>What is the problem here?</label>' +
+          '<textarea class="a-hsnote" rows="2" placeholder="Client complaint, damage, odor, what they pointed at...">' + escHtml(area.hotspotNote) + '</textarea></div>' +
+        '</div>' +
+        '<div class="sp-reveal rv-note"' + (area.notes ? '' : ' hidden') + '>' +
+          '<div class="field-group"><label>Note</label>' +
+          '<textarea class="a-notes" rows="2" placeholder="Special instructions, condition, what they asked for here...">' + escHtml(area.notes) + '</textarea></div>' +
+        '</div>' +
+        '<div class="sp-reveal rv-name" hidden>' +
+          '<div class="field-group"><label>Area name (optional)</label>' +
+          '<input type="text" class="a-name" value="' + escHtml(area.name) + '" placeholder="Suite 200, CEO office, north wing..."></div>' +
+        '</div>' +
+        '<div class="photo-row" style="margin-top:' + ((area.photos || []).length ? '10px' : '0') + '"></div>' +
       '</div>' +
-      '<div class="toggle-row">' +
-        '<span class="toggle-chip t-flex ' + (area.flex ? 'selected' : '') + '" onclick="toggleFlag(\'' + area.id + '\',\'flex\',this)">Flex Clean</span>' +
-        '<span class="toggle-chip t-hot ' + (area.hotspot ? 'selected' : '') + '" onclick="toggleFlag(\'' + area.id + '\',\'hotspot\',this)">⚠ Hot Spot</span>' +
+
+      '<div class="blk blk-walk">' +
+        '<div class="blk-title">Walk from here to the next area <span class="blk-hint">minutes</span></div>' +
+        '<div class="walk-chips">' + WALK_OPTS.map(w =>
+          '<span class="walk-chip ' + (String(area.walkNext || '') === w[0] ? 'selected' : '') + '" data-w="' + w[0] + '" onclick="setWalkNext(\'' + area.id + '\',\'' + w[0] + '\')">' + w[1] + '</span>'
+        ).join('') + '</div>' +
       '</div>' +
-      '<div class="field-group hs-note" style="display:' + (area.hotspot ? 'block' : 'none') + '">' +
-        '<label>Hot Spot / Problem Detail</label>' +
-        '<textarea class="a-hsnote" rows="2" placeholder="What is the issue here? Client complaint, damage, odor...">' + escHtml(area.hotspotNote) + '</textarea>' +
+
+      '<div class="area-actions2">' +
+        '<button type="button" class="btn-dup" onclick="duplicateArea(\'' + area.id + '\')">⧉ Same again</button>' +
+        '<button type="button" class="btn-done-room" onclick="doneWithRoom(\'' + area.id + '\')">&#10003; Done</button>' +
       '</div>' +
-      '<div class="field-group"><label>Notes</label>' +
-        '<textarea class="a-notes" rows="2" placeholder="Special instructions, condition, requests for this area...">' + escHtml(area.notes) + '</textarea></div>' +
-      '<div class="field-group"><label>Photos</label>' +
-        '<div class="photo-row"></div></div>' +
-      '<div class="area-actions">' +
-        '<button type="button" class="btn-sm btn-sm-teal" onclick="duplicateArea(\'' + area.id + '\')">Duplicate</button>' +
-      '</div>' +
-      '<button type="button" class="btn-done-room" onclick="doneWithRoom(\'' + area.id + '\')">&#10003; Done with this room</button>' +
     '</div>';
 
-  // Live-bind inputs straight to the model — no re-render, no lost keystrokes
+  // Live-bind inputs straight to the model. No re-render, no lost keystrokes.
   const nameInp = el.querySelector('.a-name');
-  nameInp.addEventListener('input', () => { area.name = nameInp.value; updateAreaHead(area); debounceSave(); });
+  nameInp.addEventListener('input', () => { area.name = nameInp.value; touched(area); updateAreaHead(area); debounceSave(); });
 
   const typeSel = el.querySelector('.a-type');
   typeSel.addEventListener('change', () => {
+    // An auto name ("Office 3") follows the type; a name the rep typed stays put.
+    const base = (area.name || '').replace(/ \d+$/, '');
+    const wasAuto = !area.name || base === area.type || base === 'Not Cleaned' || QUICK_ADD.some(q => q[0] === base);
     area.type = typeSel.value;
+    touched(area);
+    if (wasAuto) {
+      const q = QUICK_ADD.find(q => q[1] === area.type);
+      const label = q ? q[0] : area.type;
+      if (label) { area.name = autoName(label); nameInp.value = area.name; }
+    }
     updateRateHint(el, area);
-    updateFixtureVisibility(el, area);
+    reorderSteppers(el, area);
     updateAreaHead(area);
     recalcTotals();
     debounceSave();
   });
 
-  const dimsInp = el.querySelector('.a-dims');
   const sqftInp = el.querySelector('.a-sqft');
-  dimsInp.addEventListener('input', () => {
-    area.dims = dimsInp.value;
-    const m = dimsInp.value.match(/(\d+(?:\.\d+)?)\s*[xX×]\s*(\d+(?:\.\d+)?)/);
-    if (m && (!area.sqft || area.sqftAuto)) {
-      area.sqft = String(Math.round(parseFloat(m[1]) * parseFloat(m[2])));
-      area.sqftAuto = true;
-      sqftInp.value = area.sqft;
-      updateAreaHead(area);
-      recalcTotals();
-    }
-    debounceSave();
-  });
+  sqftInp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sqftInp.blur(); } });
   sqftInp.addEventListener('input', () => {
-    area.sqft = sqftInp.value;
+    area.sqft = sqftInp.value.replace(/[^\d.]/g, '');
     area.sqftAuto = false;
+    touched(area);
     updateAreaHead(area);
     recalcTotals();
     debounceSave();
@@ -2768,21 +3264,32 @@ function createAreaNode(area, idx) {
   hsNote.addEventListener('input', () => { area.hotspotNote = hsNote.value; debounceSave(); });
 
   const notes = el.querySelector('.a-notes');
-  notes.addEventListener('input', () => { area.notes = notes.value; debounceSave(); });
+  notes.addEventListener('input', () => { area.notes = notes.value; el.querySelector('.sp-note').classList.toggle('selected', !!notes.value.trim()); debounceSave(); });
 
   const floorOther = el.querySelector('.a-floorother');
   floorOther.addEventListener('input', () => { area.floorOther = floorOther.value; updateAreaHead(area); debounceSave(); });
 
   updateRateHint(el, area);
-  updateFixtureVisibility(el, area);
   updateFloorSplit(el, area);
   renderPhotoRow(el, area);
 
   return el;
 }
 
+function revealSpecial(chip, revealSel, focusSel) {
+  const card = chip.closest('.area-card');
+  const box = card.querySelector(revealSel);
+  const open = box.hasAttribute('hidden');
+  if (open) { box.removeAttribute('hidden'); const f = card.querySelector(focusSel); if (f) setTimeout(() => f.focus(), 50); }
+  else {
+    const f = card.querySelector(focusSel);
+    if (f && f.value && f.value.trim()) { return; } // has content, keep it open
+    box.setAttribute('hidden', '');
+  }
+}
+
 function stepperHtml(id, field, label, val) {
-  return '<div class="stepper"><span class="stepper-label">' + label + '</span>' +
+  return '<div class="stepper' + (Number(val) ? ' has-val' : '') + '" data-f="' + field + '"><span class="stepper-label">' + label + '</span>' +
     '<div class="stepper-ctrl">' +
     '<button type="button" onclick="stepFixture(\'' + id + '\',\'' + field + '\',-1,this)">&minus;</button>' +
     '<span class="stepper-val">' + (val || 0) + '</span>' +
@@ -2794,7 +3301,60 @@ function stepFixture(id, field, delta, btn) {
   const area = areas.find(a => a.id === id);
   if (!area) return;
   area[field] = Math.max(0, (Number(area[field]) || 0) + delta);
-  btn.parentElement.querySelector('.stepper-val').textContent = area[field];
+  touched(area);
+  const card = document.querySelector('[data-area-id="' + id + '"]');
+  // the same field can be drawn in two places (trash in the cleaned and not-cleaned blocks)
+  card.querySelectorAll('.stepper[data-f="' + field + '"]').forEach(s => {
+    s.querySelector('.stepper-val').textContent = area[field];
+    s.classList.toggle('has-val', area[field] > 0);
+  });
+  if (field === 'trash') card.querySelectorAll('.trash-size').forEach(r => r.style.display = area.trash > 0 ? 'flex' : 'none');
+  updateAreaHead(area);
+  recalcTotals();
+  debounceSave();
+}
+
+function setTrashSize(id, sz) {
+  const area = areas.find(a => a.id === id);
+  if (!area) return;
+  area.trashSize = area.trashSize === sz ? '' : sz;
+  const card = document.querySelector('[data-area-id="' + id + '"]');
+  card.querySelectorAll('.size-chip').forEach(c => c.classList.toggle('selected', c.textContent === area.trashSize));
+  updateAreaHead(area);
+  debounceSave();
+}
+
+function setCleanLevel(id, lvl) {
+  const area = areas.find(a => a.id === id);
+  if (!area) return;
+  area.cleanLevel = lvl;
+  touched(area);
+  const card = document.querySelector('[data-area-id="' + id + '"]');
+  syncCleanChips(card, area);
+  updateCleanMode(card, area);
+  updateAreaHead(area);
+  recalcTotals();
+  debounceSave();
+}
+
+function syncCleanChips(card, area) {
+  card.querySelectorAll('.clean-chip').forEach(c => c.classList.toggle('selected', c.dataset.lvl === area.cleanLevel));
+}
+
+// Not Cleaned swaps the fixtures and floor blocks for the walk-through block.
+function updateCleanMode(card, area) {
+  const cleaned = isCleaned(area);
+  card.querySelector('.blk-fixtures').style.display = cleaned ? 'block' : 'none';
+  card.querySelector('.blk-floor').style.display = cleaned ? 'block' : 'none';
+  card.querySelector('.blk-nc').style.display = cleaned ? 'none' : 'block';
+}
+
+function setWalkNext(id, w) {
+  const area = areas.find(a => a.id === id);
+  if (!area) return;
+  area.walkNext = w;
+  const card = document.querySelector('[data-area-id="' + id + '"]');
+  card.querySelectorAll('.walk-chip').forEach(c => c.classList.toggle('selected', c.dataset.w === w));
   updateAreaHead(area);
   recalcTotals();
   debounceSave();
@@ -2806,21 +3366,17 @@ function updateRateHint(el, area) {
   hint.textContent = (t && t[1]) ? 'Bid module rate: ' + t[1] : '';
 }
 
-function updateFixtureVisibility(el, area) {
-  const block = el.querySelector('.fixture-block');
-  const isRR = RR_TYPES.includes(area.type);
-  const isSink = SINK_TYPES.includes(area.type);
-  block.style.display = (isRR || isSink || fixtureTotal(area) > 0) ? 'block' : 'none';
-  block.querySelectorAll('.stepper').forEach((s, i) => {
-    // hide toilets/urinals for sink-only areas
-    if (isSink && !isRR && i < 2 && !(i === 0 ? area.toilets : area.urinals)) s.style.display = 'none';
-    else s.style.display = 'flex';
-  });
+// Restrooms lead with toilets; everything else leads with trash cans.
+function reorderSteppers(el, area) {
+  const grid = el.querySelector('.blk-fixtures .stepper-grid');
+  const order = RR_TYPES.includes(area.type) ? ['toilets', 'urinals', 'sinks', 'trash'] : ['trash', 'sinks', 'toilets', 'urinals'];
+  order.forEach(f => { const s = grid.querySelector('.stepper[data-f="' + f + '"]'); if (s) grid.appendChild(s); });
 }
 
 function toggleFloor(id, ft, chip) {
   const area = areas.find(a => a.id === id);
   if (!area) return;
+  touched(area);
   const i = area.floorTypes.indexOf(ft);
   if (i >= 0) { area.floorTypes.splice(i, 1); delete area.floorSplit[ft]; chip.classList.remove('selected'); }
   else { area.floorTypes.push(ft); chip.classList.add('selected'); }
@@ -2857,7 +3413,9 @@ function toggleFlag(id, flag, chip) {
   chip.classList.toggle('selected', area[flag]);
   if (flag === 'hotspot') {
     const card = document.querySelector('[data-area-id="' + id + '"]');
-    card.querySelector('.hs-note').style.display = area.hotspot ? 'block' : 'none';
+    const box = card.querySelector('.rv-hot');
+    if (area.hotspot) { box.removeAttribute('hidden'); setTimeout(() => card.querySelector('.a-hsnote').focus(), 50); }
+    else box.setAttribute('hidden', '');
   }
   updateAreaHead(area);
   recalcTotals();
@@ -2930,6 +3488,7 @@ function compressImage(file) {
 function renderPhotoRow(card, area) {
   const row = card.querySelector('.photo-row');
   row.innerHTML = '';
+  row.style.marginTop = (area.photos || []).length ? '10px' : '0';
   (area.photos || []).forEach(pid => {
     const t = document.createElement('div');
     t.className = 'photo-thumb';
@@ -2939,12 +3498,6 @@ function renderPhotoRow(card, area) {
     }).catch(() => {});
     row.appendChild(t);
   });
-  const add = document.createElement('button');
-  add.type = 'button';
-  add.className = 'photo-add';
-  add.innerHTML = '📷';
-  add.onclick = () => pickPhoto('area', area.id);
-  row.appendChild(add);
 }
 
 function delPhoto(areaId, pid) {
@@ -3045,14 +3598,23 @@ function delReqPhoto(reqId, pid) {
 // TOTALS
 // ============================================
 function surveyTotals() {
-  let sqft = 0, fixtures = 0, restrooms = 0, hotspots = 0;
+  let sqft = 0, fixtures = 0, restrooms = 0, hotspots = 0, trash = 0, walkBetween = 0, walkThru = 0, notCleaned = 0, cleaned = 0;
   areas.forEach(a => {
-    sqft += Number(String(a.sqft || '').replace(/[^\d.]/g, '')) || 0;
-    fixtures += fixtureTotal(a);
-    if (RR_TYPES.includes(a.type)) restrooms++;
+    if (isCleaned(a)) {
+      cleaned++;
+      sqft += sqftNum(a);
+      fixtures += fixtureTotal(a);
+      if (RR_TYPES.includes(a.type)) restrooms++;
+    } else {
+      notCleaned++;
+      walkThru += Number(a.walkThru) || 0;
+    }
+    trash += Number(a.trash) || 0;
+    walkBetween += Number(a.walkNext) || 0;
     if (a.hotspot) hotspots++;
   });
-  return { areas: areas.length, sqft: Math.round(sqft), fixtures: fixtures, restrooms: restrooms, hotspots: hotspots };
+  return { areas: areas.length, cleaned: cleaned, notCleaned: notCleaned, sqft: Math.round(sqft), fixtures: fixtures, restrooms: restrooms,
+           hotspots: hotspots, trash: trash, walkBetween: walkBetween, walkThru: walkThru, walk: walkBetween + walkThru };
 }
 
 function recalcTotals() {
@@ -3061,10 +3623,11 @@ function recalcTotals() {
   if (bar) {
     bar.innerHTML =
       '<div class="tot"><b>' + t.areas + '</b><span>Areas</span></div>' +
-      '<div class="tot"><b>' + t.sqft.toLocaleString() + '</b><span>SqFt</span></div>' +
-      '<div class="tot"><b>' + t.restrooms + '</b><span>Restrooms</span></div>' +
+      '<div class="tot"><b>' + t.sqft.toLocaleString() + '</b><span>Sq ft</span></div>' +
       '<div class="tot"><b>' + t.fixtures + '</b><span>Fixtures</span></div>' +
-      '<div class="tot' + (t.hotspots ? ' hot' : '') + '"><b>' + t.hotspots + '</b><span>Hot Spots</span></div>';
+      '<div class="tot"><b>' + t.trash + '</b><span>Trash</span></div>' +
+      '<div class="tot"><b>' + t.walk + '</b><span>Walk min</span></div>' +
+      '<div class="tot' + (t.hotspots ? ' hot' : '') + '"><b>' + t.hotspots + '</b><span>Hot</span></div>';
   }
   updateAutoTotalsLine();
 }
@@ -3252,6 +3815,13 @@ function checkedList(labels) {
 
 function areaLine(a) {
   const bits = [];
+  if (!isCleaned(a)) {
+    bits.push('NOT CLEANED, walk-through');
+    if (Number(a.walkThru)) bits.push(a.walkThru + ' min through');
+    if (Number(a.trash)) bits.push(a.trash + ' extra trash' + (a.trashSize ? ' (' + a.trashSize + ')' : ''));
+    if (a.walkNext) bits.push('walk to next ' + a.walkNext + ' min');
+    return bits.join(' · ');
+  }
   if (a.type) bits.push(a.type);
   if (a.sqft) bits.push(a.sqft + ' sqft');
   if (a.dims) bits.push('(' + a.dims + ')');
@@ -3261,7 +3831,10 @@ function areaLine(a) {
   }
   const fx = fixtureTotal(a);
   if (fx) bits.push(a.toilets + 'T/' + a.urinals + 'U/' + a.sinks + 'S (' + fx + ' fix)');
+  if (Number(a.trash)) bits.push(a.trash + ' trash' + (a.trashSize ? ' (' + a.trashSize + ')' : ''));
+  if ((a.cleanLevel || DEFAULT_CLEAN) !== DEFAULT_CLEAN) bits.push(a.cleanLevel.toUpperCase());
   if (a.flex) bits.push('FLEX');
+  if (a.walkNext) bits.push('walk to next ' + a.walkNext + ' min');
   return bits.join(' · ');
 }
 
@@ -3318,7 +3891,9 @@ function buildReview() {
     '<div class="review-row"><span class="review-label">Access</span><span class="review-value">' + escHtml(val('accessMethod')) + '</span></div>' +
     (val('accessNotes') ? '<div class="review-note">' + escHtml(val('accessNotes')) + '</div>' : '') +
     '<div class="review-row"><span class="review-label">Dumpster</span><span class="review-value">' + escHtml(val('dumpsterLocation')) + '</span></div>' +
-    '<div class="review-row"><span class="review-label">Jan. Closet / Water</span><span class="review-value">' + escHtml(val('janitorCloset')) + '</span></div></div>' +
+    '<div class="review-row"><span class="review-label">Jan. Closet / Water</span><span class="review-value">' + escHtml(val('janitorCloset')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Dumpster Walk</span><span class="review-value">' + escHtml([formData.dumpsterWalk, formData.dumpsterRoute, val('dumpsterNotes')].filter(Boolean).join(' · ')) + '</span></div>' +
+    '<div class="review-row"><span class="review-label">Floors / Elevator</span><span class="review-value">' + escHtml(val('floorsCount')) + ' / ' + escHtml(formData.elevator || '') + '</span></div></div>' +
 
     '<div class="review-section"><div class="review-section-title">Decision Making</div>' +
     '<div class="review-row"><span class="review-label">Timeline</span><span class="review-value">' + escHtml(val('timelineToSwitch')) + '</span></div>' +
@@ -3326,7 +3901,7 @@ function buildReview() {
     '<div class="review-row"><span class="review-label">Other DMs</span><span class="review-value">' + escHtml(val('otherDecisionMakers')) + '</span></div>' +
     '<div class="review-row"><span class="review-label">Proposal Date</span><span class="review-value">' + escHtml(val('proposalDate')) + '</span></div></div>' +
 
-    '<div class="review-section"><div class="review-section-title">Walkthrough (' + areas.length + ' areas · ' + t.sqft.toLocaleString() + ' sqft · ' + t.hotspots + ' hot spots)</div>' +
+    '<div class="review-section"><div class="review-section-title">Walkthrough (' + areas.length + ' areas · ' + t.sqft.toLocaleString() + ' sqft · ' + t.trash + ' trash · ' + t.walk + ' walk min · ' + t.hotspots + ' hot spots)</div>' +
     (roomsHtml || '<p style="font-size:13px;color:var(--cw-grey);">No areas added.</p>') + '</div>' +
 
     '<div class="review-section"><div class="review-section-title">Special Requests</div>' + reqHtml + '</div>' +
@@ -3358,6 +3933,8 @@ const SHEET_FIELDS = [
   ['Day Porter Interest', 'porterInterest'], ['Porter Coverage', 'porterCoverage'],
   ['Access Method', 'accessMethod'], ['Access / Security Notes', 'accessNotes'],
   ['Dumpster Location', 'dumpsterLocation'], ['Janitor Closet / Water', 'janitorCloset'],
+  ['Dumpster Walk (one way)', 'dumpsterWalk'], ['Trash Run Route', 'dumpsterRoute'], ['Trash Run Notes', 'dumpsterNotes'],
+  ['Floors Served', 'floorsCount'], ['Elevator', 'elevator'],
   ['Total Cleanable SqFt', 'totalSqft'], ['Total Restrooms', 'totalRR'], ['Total Fixtures', 'totalFixtures'],
   ['Timeline to Switch', 'timelineToSwitch'], ['Start Restrictions', 'startRestrictions'],
   ['Other Decision Makers', 'otherDecisionMakers'], ['Decision Process', 'decisionProcess'], ['Proposal Date', 'proposalDate'],
@@ -3419,6 +3996,10 @@ function buildSheetPayload() {
     ['Walkthrough SqFt', t.sqft.toLocaleString()],
     ['Walkthrough Restrooms', String(t.restrooms)],
     ['Walkthrough Fixtures', String(t.fixtures)],
+    ['Trash Cans Counted', String(t.trash)],
+    ['Areas Not Cleaned (walk-through)', String(t.notCleaned)],
+    ['Walk Time Between Areas (min)', String(t.walkBetween)],
+    ['Walk-Through Time in Not Cleaned Areas (min)', String(t.walkThru)],
     ['Hot Spots Flagged', String(t.hotspots)]
   ];
 
@@ -3454,6 +4035,28 @@ function saveToSheets() {
 }
 
 // ============================================
+// EXPORT LIBRARIES (loaded on demand, never on page load)
+// ============================================
+const LIBS = {
+  xlsx: 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+  jspdf: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
+};
+const libPromises = {};
+function ensureLib(name) {
+  if (name === 'xlsx' && window.XLSX) return Promise.resolve();
+  if (name === 'jspdf' && window.jspdf) return Promise.resolve();
+  if (libPromises[name]) return libPromises[name];
+  libPromises[name] = new Promise((res, rej) => {
+    const sc = document.createElement('script');
+    sc.src = LIBS[name];
+    sc.onload = () => res();
+    sc.onerror = () => { delete libPromises[name]; rej(new Error('No signal. Could not load the ' + (name === 'xlsx' ? 'Excel' : 'PDF') + ' library. Try again.')); };
+    document.head.appendChild(sc);
+  });
+  return libPromises[name];
+}
+
+// ============================================
 // BID-READY EXCEL EXPORT
 // ============================================
 // Legacy short codes -> Bid Calculator names; current values already ARE calculator names
@@ -3465,8 +4068,9 @@ const CLAUDE_PROMPT_LINES = [
   '1. Analyze the formulas inside this workbook first (Bid Calculator sheet, the Calc table, RoomKey, Rates for Service, Pricing Control) so you understand how it computes. Only put values in input cells; never type over a formula cell.',
   '2. Work within the matrix of dropdowns. Every value you enter in a data-validation cell must be an exact allowed value from that cell\'s dropdown list. Do not overwrite or remove any data validation. If a Room Type below is not an exact match for the selected Industry Type, pick the closest valid Room Type from the dropdown.',
   '3. The rooms below are already consolidated by room type + floor type (one row per type per floor, with Room Count and total Square Feet). Keep them consolidated — do not expand back into one row per room. If any further rows share the same Room Type and Floor Type, merge them too.',
-  '4. Fill in: Account Name (C3), Industry Type (C5), Shift (C6) from the General Info block; then the Calc table rows from the Rooms table; leave defaulted columns (Fixture Mins, Clean Mode, Room Count formulas) alone unless a value is given.',
+  '4. Fill in: Account Name (C3), Industry Type (C5), Shift (C6) from the General Info block; then the Calc table rows from the Rooms table. Each room row carries a Clean Mode: set it to the exact matching value in that column\'s dropdown. Leave other defaulted columns (Fixture Mins, Room Count formulas) alone unless a value is given.',
   '5. Put the Prospect Budget in its input cell if one is given. Add Additional Tasks (Step 3) for the services listed under Requested Services, using the task dropdown.',
+  '6. The WALK TIME block lists travel the crew does that is not room cleaning: walk-through of areas not in scope, walking between areas, and the trash run to the dumpster. Add it as an Additional Task or time adder if the workbook has one; otherwise carry it as a note for the estimator. Trash cans in NOT CLEANED areas are still emptied.',
   ''
 ];
 
@@ -3481,8 +4085,9 @@ function cleanSqft(v) { return Number(String(v || '').replace(/[^\d.]/g, '')) ||
 // Areas with floor splits contribute proportional sqft to each floor bucket.
 function consolidateRooms() {
   const buckets = {};
-  areas.forEach(a => {
+  areas.filter(isCleaned).forEach(a => {
     const type = a.type || a.name || 'Other';
+    const mode = a.cleanLevel || DEFAULT_CLEAN;
     const sqft = cleanSqft(a.sqft);
     const fixtures = fixtureTotal(a);
     let floors = (a.floorTypes || []).filter(Boolean);
@@ -3500,14 +4105,15 @@ function consolidateRooms() {
     }
     floors.forEach((ft, fi) => {
       const floorName = ft === 'Other' ? (a.floorOther || 'Other') : (FLOOR_MAP[ft] !== undefined ? FLOOR_MAP[ft] : ft);
-      const key = type + '||' + floorName;
-      if (!buckets[key]) buckets[key] = { type: type, floor: floorName, sqft: 0, count: 0, fixtures: 0, names: [], notes: [] };
+      const key = type + '||' + floorName + '||' + mode;
+      if (!buckets[key]) buckets[key] = { type: type, floor: floorName, mode: mode, sqft: 0, count: 0, fixtures: 0, trash: 0, names: [], notes: [] };
       const b = buckets[key];
       b.sqft += sqft * shares[ft];
       // count the room once, on its first floor bucket
       if (fi === 0) {
         b.count += 1;
         b.fixtures += fixtures;
+        b.trash += Number(a.trash) || 0;
         if (a.name && a.name !== type) b.names.push(a.name);
         if (a.hotspot) b.notes.push('HOT SPOT' + (a.hotspotNote ? ': ' + a.hotspotNote : '') + (a.name ? ' (' + a.name + ')' : ''));
         if (a.notes) b.notes.push(a.notes);
@@ -3540,8 +4146,8 @@ function buildExcelWorkbook() {
   rows.push(['Occupants', v('occupants')]);
   rows.push([]);
 
-  rows.push(['ROOMS — consolidated by type + floor. Paste into the Calc table (Step 2).']);
-  rows.push(['Room Type', 'Room Name', 'Square Feet', 'Floor Type', 'Room Count', 'Fixtures', 'Days per Week', 'Density', 'Notes']);
+  rows.push(['ROOMS — consolidated by type + floor + clean mode. Paste into the Calc table (Step 2).']);
+  rows.push(['Room Type', 'Room Name', 'Square Feet', 'Floor Type', 'Room Count', 'Fixtures', 'Trash Cans', 'Clean Mode', 'Days per Week', 'Density', 'Notes']);
   const consolidated = consolidateRooms();
   consolidated.forEach(b => {
     rows.push([
@@ -3551,12 +4157,31 @@ function buildExcelWorkbook() {
       b.floor,
       b.count || '',
       b.fixtures || '',
+      b.trash || '',
+      b.mode,
       v('daysPerWeek'),
       mapDensity(formData.density),
       b.notes.join(' | ')
     ]);
   });
-  rows.push(['TOTAL', '', Math.round(consolidated.reduce((s, b) => s + b.sqft, 0)), '', consolidated.reduce((s, b) => s + b.count, 0), consolidated.reduce((s, b) => s + (b.fixtures || 0), 0)]);
+  rows.push(['TOTAL', '', Math.round(consolidated.reduce((s, b) => s + b.sqft, 0)), '', consolidated.reduce((s, b) => s + b.count, 0), consolidated.reduce((s, b) => s + (b.fixtures || 0), 0), consolidated.reduce((s, b) => s + (b.trash || 0), 0)]);
+  rows.push([]);
+
+  const nc = areas.filter(a => !isCleaned(a));
+  if (nc.length) {
+    rows.push(['NOT CLEANED — walk-through only. Not in the Calc table. Trash here is still emptied.']);
+    rows.push(['Area', 'Walk-Through Minutes', 'Extra Trash Cans', 'Can Size', 'Walk to Next (min)', 'Notes']);
+    nc.forEach(a => rows.push([a.name || 'Not Cleaned', Number(a.walkThru) || 0, Number(a.trash) || 0, a.trashSize || '', a.walkNext || '', [a.hotspot ? 'HOT SPOT: ' + a.hotspotNote : '', a.notes].filter(Boolean).join(' | ')]));
+    rows.push([]);
+  }
+
+  rows.push(['WALK TIME — travel that is not room cleaning']);
+  rows.push(['Walk between areas (sum of per-area walks, min)', t.walkBetween]);
+  rows.push(['Walk-through of Not Cleaned areas (min)', t.walkThru]);
+  rows.push(['Dumpster walk, one way, from farthest trash point', v('dumpsterWalk')]);
+  rows.push(['Trash run route', [v('dumpsterRoute'), v('dumpsterNotes')].filter(Boolean).join(' | ')]);
+  rows.push(['Floors served / Elevator', [v('floorsCount'), v('elevator')].filter(Boolean).join(' / ')]);
+  rows.push(['Trash cans counted (all areas)', t.trash]);
   rows.push([]);
 
   const fcList = checkedList({ fc_stripWax: 'Strip & Wax', fc_topScrub: 'Top Scrub & Wax', fc_machineScrub: 'Machine Scrub Ceramic', fc_buff: 'Hi-Speed Buff' });
@@ -3571,7 +4196,7 @@ function buildExcelWorkbook() {
 
   const wb = XLSX.utils.book_new();
   const ws1 = XLSX.utils.aoa_to_sheet(rows);
-  ws1['!cols'] = [{ wch: 34 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 11 }, { wch: 9 }, { wch: 14 }, { wch: 14 }, { wch: 50 }];
+  ws1['!cols'] = [{ wch: 34 }, { wch: 30 }, { wch: 12 }, { wch: 14 }, { wch: 11 }, { wch: 9 }, { wch: 10 }, { wch: 14 }, { wch: 14 }, { wch: 14 }, { wch: 50 }];
   XLSX.utils.book_append_sheet(wb, ws1, 'Bid Input');
 
   // Sheet 2: full survey detail (same content as the Sheets push)
@@ -3595,9 +4220,13 @@ function excelFileName() {
 }
 
 function downloadExcel() {
-  try {
+  const btn = document.getElementById('btnDownloadXlsx');
+  const orig = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Building...';
+  ensureLib('xlsx').then(() => {
     XLSX.writeFile(buildExcelWorkbook(), excelFileName());
-  } catch (e) { alert('Could not build the Excel file: ' + e.message); }
+  }).catch(e => alert('Could not build the Excel file: ' + e.message))
+    .finally(() => { btn.disabled = false; btn.textContent = orig; });
 }
 
 function emailExcel() {
@@ -3612,6 +4241,14 @@ function emailExcel() {
   const btn = document.getElementById('btnEmailXlsx');
   btn.disabled = true;
   btn.textContent = 'Sending...';
+  ensureLib('xlsx').then(() => emailExcelNow(email, btn)).catch(e => {
+    btn.textContent = '📧 Email Me the Excel';
+    btn.disabled = false;
+    alert(e.message);
+  });
+}
+
+function emailExcelNow(email, btn) {
   try {
     const b64 = XLSX.write(buildExcelWorkbook(), { bookType: 'xlsx', type: 'base64' });
     const payload = JSON.stringify({
@@ -3644,6 +4281,7 @@ async function generatePDF() {
   btn.disabled = true;
 
   try {
+    await ensureLib('jspdf');
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ unit: 'mm', format: 'letter' });
 
@@ -3776,7 +4414,10 @@ async function generatePDF() {
     row('Access Method', val('accessMethod'));
     row('Dumpster Location', val('dumpsterLocation'));
     row('Jan. Closet / Water', val('janitorCloset'));
+    row('Dumpster Walk', [formData.dumpsterWalk, formData.dumpsterRoute].filter(Boolean).join(', '));
+    row('Floors / Elevator', [val('floorsCount'), formData.elevator].filter(Boolean).join(' / '));
     noteBlock(val('accessNotes'));
+    noteBlock(val('dumpsterNotes'));
     y += 2;
 
     sectionTitle('Decision Making');
@@ -3805,14 +4446,14 @@ async function generatePDF() {
     }
 
     // Walkthrough with photos
-    sectionTitle('Building Walkthrough (' + areas.length + ' areas · ' + t.sqft.toLocaleString() + ' sqft)');
+    sectionTitle('Building Walkthrough (' + areas.length + ' areas · ' + t.sqft.toLocaleString() + ' sqft · ' + t.trash + ' trash cans · ' + t.walk + ' walk min)');
     for (let i = 0; i < areas.length; i++) {
       const a = areas[i];
       checkPage(12);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(9);
       doc.setTextColor(...CW_RED);
-      doc.text((i + 1) + '. ' + (a.name || 'Area ' + (i + 1)) + (a.hotspot ? '  [HOT SPOT]' : ''), margin + 2, y + 4);
+      doc.text((i + 1) + '. ' + (a.name || 'Area ' + (i + 1)) + (a.hotspot ? '  [HOT SPOT]' : '') + (!isCleaned(a) ? '  [NOT CLEANED]' : ''), margin + 2, y + 4);
       doc.setTextColor(...CW_BLACK);
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(8);
