@@ -4617,13 +4617,18 @@ function excelFileName() {
 }
 
 function downloadExcel() {
+  // The end-of-survey Excel button was removed Sep 25 2026; export now runs from the
+  // Review past surveys list (?open=<id>&export=1), so the button may not exist.
   const btn = document.getElementById('btnDownloadXlsx');
-  const orig = btn.textContent;
-  btn.disabled = true; btn.textContent = 'Building...';
+  const orig = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'Building...'; }
+  showSnackbar('Building the Excel file...');
   ensureLib('xlsx').then(() => {
     XLSX.writeFile(buildExcelWorkbook(), excelFileName());
-  }).catch(e => alert('Could not build the Excel file: ' + e.message))
-    .finally(() => { btn.disabled = false; btn.textContent = orig; });
+    showSnackbar('Excel saved to your Downloads folder');
+    setTimeout(hideSnackbar, 4000);
+  }).catch(e => { hideSnackbar(); alert('Could not build the Excel file: ' + e.message); })
+    .finally(() => { if (btn) { btn.disabled = false; btn.textContent = orig; } });
 }
 
 function emailExcel() {
