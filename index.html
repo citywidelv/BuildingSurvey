@@ -1390,6 +1390,12 @@ select {
 .blk-lead { font-size: 13px; color: var(--cw-grey); margin: -6px 0 12px; }
 
 .a-typerow { margin-bottom: 12px; }
+.blk-name .a-name { font-size: 18px; font-weight: bold; min-height: 56px; padding: 10px 14px; border: 2px solid var(--cw-black); background: var(--cw-white); }
+.blk-name .a-name.needs-name { border-color: var(--cw-red); background: #fff5f5; }
+.blk-name .a-name::placeholder { font-weight: normal; font-size: 15px; color: #9a9a9c; }
+.blk-name .a-name:focus { border-color: var(--cw-red); background: var(--cw-white); }
+.area-badge.badge-noname { background: var(--cw-red); color: white; }
+.review-noname { font-size: 10px; font-weight: bold; color: var(--cw-red); text-transform: uppercase; letter-spacing: 0.4px; }
 .a-typerow select { font-size: 15px; padding: 10px 32px 10px 12px; }
 
 .area-card { scroll-margin-top: 150px; }
@@ -2930,7 +2936,7 @@ function cleanBadge(lvl) { return (lvl === NOT_CLEANED ? 'NOT CLEANED' : lvl.rep
 function newArea(type, name) {
   return {
     id: 'area_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-    name: name || '', type: type || '',
+    name: name || '', nameAuto: false, type: type || '',
     len: '', wid: '', dims: '', sqft: '', sqftAuto: false,
     floorTypes: [], floorSplit: {}, floorOther: '',
     toilets: 0, urinals: 0, sinks: 0, trash: 0, trashSize: '',
@@ -2951,6 +2957,11 @@ function normalizeArea(a) {
   if (a.walkNext === undefined) a.walkNext = '';
   if (a.walkThru === undefined) a.walkThru = 0;
   if (a.copyOf === undefined) a.copyOf = '';
+  if (a.nameAuto === undefined) {
+    // Older surveys: a name that is just the type ("Office 3") was never typed by the rep.
+    const base = (a.name || '').replace(/ \d+$/, '');
+    a.nameAuto = !!a.name && (base === a.type || base === 'Not Cleaned' || QUICK_ADD.some(q => q[0] === base));
+  }
   if (a.len === undefined) a.len = '';
   if (a.wid === undefined) a.wid = '';
   if (!a.len && !a.wid && a.dims) {
@@ -2996,14 +3007,15 @@ function closeAddSheet(e) {
 
 function quickAdd(label, type) {
   document.getElementById('addSheet').classList.remove('show');
-  if (label === 'Not Cleaned') { addArea('', autoName('Not Cleaned'), NOT_CLEANED); return; }
-  addArea(type, label === 'Custom' ? '' : autoName(label));
+  if (label === 'Not Cleaned') { addArea('', autoName('Not Cleaned'), NOT_CLEANED, true); return; }
+  addArea(type, label === 'Custom' ? '' : autoName(label), null, label !== 'Custom');
 }
 
-function addArea(type, name, level) {
+function addArea(type, name, level, nameAuto) {
   areas.forEach(a => a.collapsed = true);
   document.querySelectorAll('.area-card').forEach(c => c.classList.add('collapsed'));
   const area = newArea(type, name);
+  area.nameAuto = !!(name && nameAuto);
   if (level) area.cleanLevel = level;
   areas.push(area);
   const node = createAreaNode(area, areas.length - 1);
@@ -3013,8 +3025,10 @@ function addArea(type, name, level) {
   debounceSave();
   setTimeout(() => {
     node.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // The name is the first thing to capture. Enter in the name box jumps to the sq ft.
+    const nm = node.querySelector('.a-name');
     const sq = node.querySelector('.a-sqft');
-    if (sq && isCleaned(area)) sq.focus();
+    if (nm) nm.focus(); else if (sq && isCleaned(area)) sq.focus();
   }, 120);
   return area;
 }
@@ -3034,6 +3048,7 @@ function duplicateArea(id) {
   copy.walkNext = '';
   const base = (src.name || src.type || 'Area').replace(/\s+\d+$/, '');
   copy.name = autoName(base);
+  copy.nameAuto = true;
   copy.copyOf = src.name || src.type || 'previous area';
   areas.forEach(a => a.collapsed = true);
   areas.splice(idx + 1, 0, copy);
@@ -3143,6 +3158,7 @@ function updateAreaHead(area) {
   if (!card) return;
   card.querySelector('.area-title-name').textContent = area.name || area.type || 'New Area';
   card.querySelector('.area-title-sub').textContent = areaSummary(area);
+  const bn = card.querySelector('.badge-noname'); if (bn) bn.style.display = (area.nameAuto || !area.name) ? 'inline-flex' : 'none';
   card.querySelector('.badge-hot').style.display = area.hotspot ? 'inline-flex' : 'none';
   card.querySelector('.badge-flex').style.display = area.flex ? 'inline-flex' : 'none';
   const bc = card.querySelector('.badge-clean');
@@ -3164,8 +3180,8 @@ function doneWithRoom(id) {
   recalcTotals();
   debounceSave();
   const t = surveyTotals();
-  showSnackbar((area.name || area.type || 'Area') + ' done · ' + t.areas + ' areas · ' + t.sqft.toLocaleString() + ' sf so far');
-  setTimeout(hideSnackbar, 2500);
+  if (area.nameAuto || !area.name) { showSnackbar('No name on this room yet. Tap it to add one.'); setTimeout(hideSnackbar, 3000); }
+  else { showSnackbar((area.name || area.type || 'Area') + ' done · ' + t.areas + ' areas · ' + t.sqft.toLocaleString() + ' sf so far'); setTimeout(hideSnackbar, 2500); }
   const bottom = document.getElementById('bottomAdd');
   if (bottom) setTimeout(() => bottom.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
 }
@@ -3215,6 +3231,7 @@ function createAreaNode(area, idx) {
         '<div class="area-title-name">' + escHtml(area.name || area.type || 'New Area') + '</div>' +
         '<div class="area-title-sub">' + escHtml(areaSummary(area)) + '</div>' +
       '</div>' +
+      '<span class="area-badge badge-noname" style="display:' + (area.nameAuto || !area.name ? 'inline-flex' : 'none') + '">NAME?</span>' +
       '<span class="area-badge badge-clean' + (lvl === NOT_CLEANED ? ' badge-nc' : '') + '" style="display:' + (lvl === DEFAULT_CLEAN ? 'none' : 'inline-flex') + '">' + escHtml(cleanBadge(lvl)) + '</span>' +
       '<span class="area-badge badge-hot" style="display:' + (area.hotspot ? 'inline-flex' : 'none') + '">⚠</span>' +
       '<span class="area-badge badge-flex" style="display:' + (area.flex ? 'inline-flex' : 'none') + '">FLEX</span>' +
@@ -3225,6 +3242,11 @@ function createAreaNode(area, idx) {
     '</div>' +
     '<div class="area-body">' +
       '<div class="a-typerow"><select class="a-type">' + typeOptions + '</select><div class="rate-hint"></div></div>' +
+
+      '<div class="blk blk-name">' +
+        '<div class="blk-title">Name this ' + (isCleaned(area) ? 'room' : 'area') + ' <span class="blk-hint">what the customer calls it</span></div>' +
+        '<input type="text" class="a-name' + (area.nameAuto || !area.name ? ' needs-name' : '') + '" value="' + escHtml(area.nameAuto ? '' : area.name) + '" placeholder="Suite 200, CEO office, north wing..." autocomplete="off" autocapitalize="words">' +
+      '</div>' +
 
       '<div class="blk blk-measure">' +
         '<div class="blk-title">Measure <span class="blk-hint">cleanable sq ft from the laser</span></div>' +
@@ -3274,7 +3296,6 @@ function createAreaNode(area, idx) {
           '<span class="sp-chip sp-flex ' + (area.flex ? 'selected' : '') + '" onclick="toggleFlag(\'' + area.id + '\',\'flex\',this)">Flex clean</span>' +
           '<span class="sp-chip sp-photo" onclick="pickPhoto(\'area\',\'' + area.id + '\')">📷 Photo</span>' +
           '<span class="sp-chip sp-note ' + (area.notes ? 'selected' : '') + '" onclick="revealSpecial(this,\'.rv-note\',\'.a-notes\')">✎ Note</span>' +
-          '<span class="sp-chip sp-name" onclick="revealSpecial(this,\'.rv-name\',\'.a-name\')">Name it</span>' +
         '</div>' +
         '<div class="sp-reveal rv-hot"' + (area.hotspot ? '' : ' hidden') + '>' +
           '<div class="field-group hs-note"><label>What is the problem here?</label>' +
@@ -3283,10 +3304,6 @@ function createAreaNode(area, idx) {
         '<div class="sp-reveal rv-note"' + (area.notes ? '' : ' hidden') + '>' +
           '<div class="field-group"><label>Note</label>' +
           '<textarea class="a-notes" rows="2" placeholder="Special instructions, condition, what they asked for here...">' + escHtml(area.notes) + '</textarea></div>' +
-        '</div>' +
-        '<div class="sp-reveal rv-name" hidden>' +
-          '<div class="field-group"><label>Area name (optional)</label>' +
-          '<input type="text" class="a-name" value="' + escHtml(area.name) + '" placeholder="Suite 200, CEO office, north wing..."></div>' +
         '</div>' +
         '<div class="photo-row" style="margin-top:' + ((area.photos || []).length ? '10px' : '0') + '"></div>' +
       '</div>' +
@@ -3306,19 +3323,24 @@ function createAreaNode(area, idx) {
 
   // Live-bind inputs straight to the model. No re-render, no lost keystrokes.
   const nameInp = el.querySelector('.a-name');
-  nameInp.addEventListener('input', () => { area.name = nameInp.value; touched(area); updateAreaHead(area); debounceSave(); });
+  nameInp.addEventListener('input', () => {
+    area.name = nameInp.value; area.nameAuto = false;
+    nameInp.classList.toggle('needs-name', !nameInp.value.trim());
+    touched(area); updateAreaHead(area); debounceSave();
+  });
+  nameInp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); const sq = el.querySelector('.a-sqft'); if (sq && isCleaned(area)) sq.focus(); else nameInp.blur(); } });
 
   const typeSel = el.querySelector('.a-type');
   typeSel.addEventListener('change', () => {
     // An auto name ("Office 3") follows the type; a name the rep typed stays put.
     const base = (area.name || '').replace(/ \d+$/, '');
-    const wasAuto = !area.name || base === area.type || base === 'Not Cleaned' || QUICK_ADD.some(q => q[0] === base);
+    const wasAuto = area.nameAuto || !area.name || base === area.type || base === 'Not Cleaned' || QUICK_ADD.some(q => q[0] === base);
     area.type = typeSel.value;
     touched(area);
     if (wasAuto) {
       const q = QUICK_ADD.find(q => q[1] === area.type);
       const label = q ? q[0] : area.type;
-      if (label) { area.name = autoName(label); nameInp.value = area.name; }
+      if (label) { area.name = autoName(label); area.nameAuto = true; nameInp.value = ''; nameInp.classList.add('needs-name'); }
     }
     updateRateHint(el, area);
     reorderSteppers(el, area);
@@ -4242,7 +4264,7 @@ function buildReview() {
   const activeSvc = checkedList(SVC_LABELS) || 'None';
 
   let roomsHtml = areas.map((r, i) =>
-    '<div class="review-row"><span class="review-label">' + escHtml(r.name || 'Area ' + (i + 1)) + (r.hotspot ? ' ⚠' : '') + '</span>' +
+    '<div class="review-row"><span class="review-label">' + escHtml(r.name || 'Area ' + (i + 1)) + (r.nameAuto || !r.name ? ' <span class="review-noname">no name</span>' : '') + (r.hotspot ? ' ⚠' : '') + '</span>' +
     '<span class="review-value">' + escHtml(areaLine(r)) + '</span></div>' +
     (r.hotspot && r.hotspotNote ? '<div class="review-note hot-note">⚠ ' + escHtml(r.hotspotNote) + '</div>' : '')
   ).join('');
@@ -4510,8 +4532,8 @@ function consolidateRooms() {
         b.count += 1;
         b.fixtures += fixtures;
         b.trash += Number(a.trash) || 0;
-        if (a.name && a.name !== type) b.names.push(a.name);
-        if (a.hotspot) b.notes.push('HOT SPOT' + (a.hotspotNote ? ': ' + a.hotspotNote : '') + (a.name ? ' (' + a.name + ')' : ''));
+        if (a.name && !a.nameAuto && a.name !== type) b.names.push(a.name);
+        if (a.hotspot) b.notes.push('HOT SPOT' + (a.hotspotNote ? ': ' + a.hotspotNote : '') + (a.name && !a.nameAuto ? ' (' + a.name + ')' : ''));
         if (a.notes) b.notes.push(a.notes);
       }
     });
@@ -4549,7 +4571,7 @@ function buildExcelWorkbook() {
   consolidated.forEach(b => {
     rows.push([
       b.type,
-      b.count > 1 ? b.count + 'x ' + b.type : (b.names[0] || b.type),
+      b.count > 1 ? (b.names.length === b.count ? b.names.join(', ') : b.count + 'x ' + b.type + (b.names.length ? ' (' + b.names.join(', ') + ')' : '')) : (b.names[0] || ''),
       Math.round(b.sqft),
       b.floor,
       b.count || '',
