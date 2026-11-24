@@ -2,1576 +2,376 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#D22730">
 <title>City Wide Building Survey</title>
 <style>
-/* ============================================
-   CITY WIDE BRAND TOKENS
-   ============================================ */
-:root {
-  --cw-red: #D22730;
-  --cw-red-dark: #B01F27;
-  --cw-red-light: #f5d0d2;
-  --cw-black: #2d2a26;
-  --cw-grey: #636466;
-  --cw-grey-light: #e8e8e9;
-  --cw-grey-lighter: #f5f5f6;
-  --cw-teal: #0AA6A9;
-  --cw-teal-dark: #088c8e;
-  --cw-gold: #E5B423;
-  --cw-orange: #F68C28;
-  --cw-white: #ffffff;
-  --shadow-sm: 0 1px 3px rgba(45,42,38,0.08);
-  --shadow-md: 0 4px 12px rgba(45,42,38,0.1);
-  --shadow-lg: 0 8px 24px rgba(45,42,38,0.14);
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --font-stack: Verdana, Geneva, Tahoma, sans-serif;
-}
-
-/* ============================================
-   RESET & BASE
-   ============================================ */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html {
-  font-size: 16px;
-  -webkit-text-size-adjust: 100%;
-  scroll-behavior: smooth;
-}
-
-body {
-  font-family: var(--font-stack);
-  color: var(--cw-black);
-  background: var(--cw-grey-lighter);
-  min-height: 100dvh;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* ============================================
-   APP SHELL
-   ============================================ */
-.app-header {
-  background: var(--cw-white);
-  border-bottom: 3px solid var(--cw-red);
-  padding: 12px 16px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: var(--shadow-sm);
-}
-
-.header-inner {
-  max-width: 640px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.logo-area {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  min-width: 0;
-}
-
-.logo-img {
-  height: 26px;
-  width: auto;
-  display: block;
-}
-
-.logo-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 3px;
-}
-
-.logo-label {
-  font-size: 9px;
-  font-weight: bold;
-  color: var(--cw-grey);
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-}
-
-.save-status {
-  font-size: 9px;
-  font-weight: bold;
-  color: var(--cw-teal-dark);
-  white-space: nowrap;
-}
-.save-status.saving { color: var(--cw-grey); }
-
-.header-actions {
-  display: flex;
-  gap: 8px;
-}
-.btn-return {
-  display: flex; align-items: center; justify-content: center;
-  max-width: 640px; margin: 10px auto 0; min-height: 40px;
-  background: var(--cw-grey-lighter); color: var(--cw-black);
-  border: 1px solid var(--cw-grey-light); border-radius: var(--radius-sm);
-  font-size: 13px; font-weight: bold; text-decoration: none;
-}
-.btn-return:active { background: var(--cw-grey-light); }
-
-.btn-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--cw-grey-light);
-  background: var(--cw-white);
-  color: var(--cw-grey);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 16px;
-  transition: all 0.2s;
-}
-
-.btn-icon:hover { border-color: var(--cw-red); color: var(--cw-red); }
-.btn-icon:active { transform: scale(0.95); }
-
-/* ============================================
-   PROGRESS BAR
-   ============================================ */
-.progress-wrap {
-  background: var(--cw-white);
-  padding: 12px 16px 14px;
-  border-bottom: 1px solid var(--cw-grey-light);
-}
-
-.progress-inner {
-  max-width: 640px;
-  margin: 0 auto;
-}
-
-.progress-label {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 6px;
-}
-
-.progress-step {
-  font-size: 11px;
-  font-weight: bold;
-  color: var(--cw-red);
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-}
-
-.progress-pct {
-  font-size: 11px;
-  color: var(--cw-grey);
-}
-
-.progress-track {
-  height: 6px;
-  background: var(--cw-grey-light);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--cw-red), var(--cw-red-dark));
-  border-radius: 3px;
-  transition: width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-/* ============================================
-   STEP DOTS (horizontal scroll on mobile)
-   ============================================ */
-.step-dots {
-  display: flex;
-  gap: 4px;
-  margin-top: 10px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding-bottom: 2px;
-}
-.step-dots::-webkit-scrollbar { display: none; }
-
-.step-dot {
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
-  border-radius: 50%;
-  border: 2px solid var(--cw-grey-light);
-  background: var(--cw-white);
-  font-size: 9px;
-  font-weight: bold;
-  color: var(--cw-grey);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.step-dot.active {
-  border-color: var(--cw-red);
-  background: var(--cw-red);
-  color: var(--cw-white);
-}
-
-.step-dot.complete {
-  border-color: var(--cw-teal);
-  background: var(--cw-teal);
-  color: var(--cw-white);
-}
-
-.step-dot:hover:not(.active) {
-  border-color: var(--cw-red);
-  color: var(--cw-red);
-}
-
-/* ============================================
-   MAIN CONTENT
-   ============================================ */
-.main-content {
-  max-width: 640px;
-  margin: 0 auto;
-  padding: 16px 16px 120px;
-}
-
-/* ============================================
-   STEP PANELS
-   ============================================ */
-.step-panel {
-  display: none;
-  animation: fadeSlideIn 0.3s ease;
-}
-
-.step-panel.active { display: block; }
-
-@keyframes fadeSlideIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.step-title {
-  font-size: 22px;
-  font-weight: bold;
-  color: var(--cw-black);
-  margin-bottom: 4px;
-}
-
-.step-subtitle {
-  font-size: 13px;
-  color: var(--cw-grey);
-  margin-bottom: 20px;
-  line-height: 1.4;
-}
-
-/* ============================================
-   FORM CARDS
-   ============================================ */
-.form-card {
-  background: var(--cw-white);
-  border-radius: var(--radius-md);
-  padding: 20px;
-  margin-bottom: 16px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid rgba(99,100,102,0.08);
-}
-
-.form-card-title {
-  font-size: 13px;
-  font-weight: bold;
-  color: var(--cw-red);
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  margin-bottom: 14px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--cw-grey-light);
-}
-
-/* ============================================
-   FORM FIELDS
-   ============================================ */
-.field-group {
-  margin-bottom: 14px;
-}
-
-.field-group:last-child { margin-bottom: 0; }
-
-.field-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-@media (max-width: 420px) {
-  .field-row { grid-template-columns: 1fr; }
-}
-
-.field-row-3 {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 12px;
-}
-
-@media (max-width: 420px) {
-  .field-row-3 { grid-template-columns: 1fr; }
-}
-
-label {
-  display: block;
-  font-size: 12px;
-  font-weight: bold;
-  color: var(--cw-grey);
-  margin-bottom: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-input[type="text"],
-input[type="email"],
-input[type="tel"],
-input[type="date"],
-input[type="number"],
-select,
-textarea {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1.5px solid var(--cw-grey-light);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-stack);
-  font-size: 16px;
-  color: var(--cw-black);
-  background: var(--cw-white);
-  transition: border-color 0.2s, box-shadow 0.2s;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  border-color: var(--cw-red);
-  box-shadow: 0 0 0 3px var(--cw-red-light);
-}
-
-textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-select {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23636466' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 32px;
-}
-
-/* ============================================
-   CHECKBOX GROUP
-   ============================================ */
-.checkbox-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-@media (max-width: 380px) {
-  .checkbox-grid { grid-template-columns: 1fr; }
-}
-
-.checkbox-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border: 1.5px solid var(--cw-grey-light);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.15s;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.checkbox-item:active { transform: scale(0.98); }
-
-.checkbox-item.checked {
-  border-color: var(--cw-red);
-  background: var(--cw-red-light);
-}
-
-.checkbox-item input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  accent-color: var(--cw-red);
-  flex-shrink: 0;
-}
-
-.checkbox-item span {
-  font-size: 13px;
-  color: var(--cw-black);
-}
-
-/* ============================================
-   SATISFACTION SCALE
-   ============================================ */
-.scale-row {
-  display: flex;
-  gap: 6px;
-  justify-content: center;
-  margin-top: 6px;
-}
-
-.scale-btn {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-sm);
-  border: 2px solid var(--cw-grey-light);
-  background: var(--cw-white);
-  font-size: 18px;
-  font-weight: bold;
-  color: var(--cw-grey);
-  cursor: pointer;
-  transition: all 0.15s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.scale-btn:active { transform: scale(0.92); }
-
-.scale-btn.selected {
-  border-color: var(--cw-red);
-  background: var(--cw-red);
-  color: var(--cw-white);
-}
-
-.scale-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 10px;
-  color: var(--cw-grey);
-  margin-top: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-/* ============================================
-   DYNAMIC ROOM ROWS
-   ============================================ */
-.room-entry {
-  background: var(--cw-grey-lighter);
-  border: 1px solid var(--cw-grey-light);
-  border-radius: var(--radius-md);
-  padding: 14px;
-  margin-bottom: 12px;
-  position: relative;
-}
-
-.room-entry-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.room-number {
-  font-size: 12px;
-  font-weight: bold;
-  color: var(--cw-teal);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.btn-remove-room {
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 50%;
-  background: var(--cw-red-light);
-  color: var(--cw-red);
-  font-size: 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.15s;
-}
-
-.btn-remove-room:hover { background: var(--cw-red); color: white; }
-
-.floor-type-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.floor-chip {
-  padding: 5px 10px;
-  border: 1.5px solid var(--cw-grey-light);
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: bold;
-  color: var(--cw-grey);
-  cursor: pointer;
-  transition: all 0.15s;
-  user-select: none;
-  -webkit-user-select: none;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.floor-chip:active { transform: scale(0.95); }
-.floor-chip.selected {
-  border-color: var(--cw-teal);
-  background: var(--cw-teal);
-  color: white;
-}
-
-.btn-done-room {
-  display: block;
-  width: 100%;
-  padding: 13px;
-  margin-top: 10px;
-  background: var(--cw-teal);
-  color: white;
-  border: none;
-  border-radius: var(--radius-md);
-  font-family: var(--font-stack);
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.btn-done-room:active { background: var(--cw-teal-dark); transform: scale(0.98); }
-
-.bottom-add { margin-top: 16px; }
-.bottom-add-label {
-  font-size: 12px;
-  font-weight: bold;
-  color: var(--cw-grey);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-}
-
-/* ============================================
-   SPECIAL AREAS CHECKLIST
-   ============================================ */
-.checklist-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-}
-
-.checklist-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 8px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: background 0.15s;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.checklist-item:active { background: var(--cw-grey-lighter); }
-
-.checklist-item input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--cw-teal);
-  flex-shrink: 0;
-}
-
-.checklist-item span {
-  font-size: 12px;
-  color: var(--cw-black);
-}
-
-/* ============================================
-   BOTTOM NAV
-   ============================================ */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: var(--cw-white);
-  border-top: 1px solid var(--cw-grey-light);
-  padding: 12px 16px;
-  padding-bottom: max(12px, env(safe-area-inset-bottom));
-  box-shadow: 0 -4px 12px rgba(45,42,38,0.08);
-  z-index: 100;
-}
-
-.bottom-nav-inner {
-  max-width: 640px;
-  margin: 0 auto;
-  display: flex;
-  gap: 10px;
-}
-
-.btn {
-  flex: 1;
-  padding: 14px 16px;
-  border: none;
-  border-radius: var(--radius-sm);
-  font-family: var(--font-stack);
-  font-size: 14px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.15s;
-  text-align: center;
-  min-height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.btn:active { transform: scale(0.98); }
-
-.btn-primary {
-  background: var(--cw-red);
-  color: var(--cw-white);
-}
-.btn-primary:hover { background: var(--cw-red-dark); }
-
-.btn-secondary {
-  background: var(--cw-grey-light);
-  color: var(--cw-black);
-}
-.btn-secondary:hover { background: #d8d8da; }
-
-.btn-teal {
-  background: var(--cw-teal);
-  color: var(--cw-white);
-}
-.btn-teal:hover { background: var(--cw-teal-dark); }
-
-.btn-add {
-  width: 100%;
-  padding: 12px;
-  border: 2px dashed var(--cw-grey-light);
-  border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--cw-teal);
-  font-family: var(--font-stack);
-  font-size: 13px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.btn-add:hover { border-color: var(--cw-teal); background: rgba(10,166,169,0.04); }
-
-/* ============================================
-   SAVE INDICATOR
-   ============================================ */
-.save-toast {
-  position: fixed;
-  top: 70px;
-  right: 16px;
-  background: var(--cw-black);
-  color: var(--cw-white);
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  font-size: 11px;
-  font-weight: bold;
-  opacity: 0;
-  transform: translateY(-8px);
-  transition: all 0.3s;
-  z-index: 200;
-  pointer-events: none;
-}
-
-.save-toast.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ============================================
-   REVIEW STEP
-   ============================================ */
-.review-section {
-  margin-bottom: 12px;
-}
-
-.review-section-title {
-  font-size: 12px;
-  font-weight: bold;
-  color: var(--cw-red);
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  margin-bottom: 8px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--cw-grey-light);
-}
-
-.review-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 4px 0;
-  font-size: 13px;
-  border-bottom: 1px solid rgba(99,100,102,0.06);
-}
-
-.review-row:last-child { border-bottom: none; }
-
-.review-label {
-  color: var(--cw-grey);
-  flex-shrink: 0;
-  margin-right: 8px;
-}
-
-.review-value {
-  color: var(--cw-black);
-  font-weight: bold;
-  text-align: right;
-  word-break: break-word;
-}
-
-.review-note {
-  font-size: 13px;
-  color: var(--cw-black);
-  background: var(--cw-grey-lighter);
-  padding: 8px 10px;
-  border-radius: var(--radius-sm);
-  margin-top: 4px;
-  line-height: 1.4;
-  white-space: pre-wrap;
-}
-
-/* ============================================
-   SAVED SURVEYS MODAL
-   ============================================ */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(45,42,38,0.5);
-  z-index: 300;
-  align-items: flex-end;
-  justify-content: center;
-  animation: fadeIn 0.2s;
-}
-
-.modal-overlay.show { display: flex; }
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-.modal-sheet {
-  background: var(--cw-white);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  width: 100%;
-  max-width: 640px;
-  max-height: 70vh;
-  overflow-y: auto;
-  padding: 20px;
-  animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-
-.modal-handle {
-  width: 36px;
-  height: 4px;
-  background: var(--cw-grey-light);
-  border-radius: 2px;
-  margin: 0 auto 16px;
-}
-
-.modal-title {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 14px;
-}
-
-.saved-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  border: 1px solid var(--cw-grey-light);
-  border-radius: var(--radius-sm);
-  margin-bottom: 8px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.saved-item:hover { border-color: var(--cw-red); }
-
-.saved-item-info h4 {
-  font-size: 14px;
-  color: var(--cw-black);
-  margin-bottom: 2px;
-}
-
-.saved-item-info p {
-  font-size: 11px;
-  color: var(--cw-grey);
-}
-
-.saved-item-actions {
-  display: flex;
-  gap: 6px;
-}
-
-.btn-sm {
-  padding: 6px 10px;
-  font-size: 11px;
-  font-weight: bold;
-  border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.btn-sm-red { background: var(--cw-red-light); color: var(--cw-red); }
-.btn-sm-red:hover { background: var(--cw-red); color: white; }
-
-/* ============================================
-   DENSITY SUMMARY
-   ============================================ */
-.density-chips {
-  display: flex;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.density-chip {
-  padding: 6px 14px;
-  border: 2px solid var(--cw-grey-light);
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: bold;
-  color: var(--cw-grey);
-  cursor: pointer;
-  transition: all 0.15s;
-  user-select: none;
-}
-
-.density-chip.selected {
-  border-color: var(--cw-gold);
-  background: var(--cw-gold);
-  color: var(--cw-black);
-}
-
-/* ============================================
-   RESPONSIVE
-   ============================================ */
-@media (min-width: 641px) {
-  .main-content { padding: 24px 24px 120px; }
-  .form-card { padding: 24px; }
-  .step-title { font-size: 26px; }
-}
-
-/* Print styles for PDF */
-@media print {
-  .app-header, .progress-wrap, .bottom-nav, .btn-add, .btn-remove-room { display: none !important; }
-  .step-panel { display: block !important; }
-  .main-content { padding: 0; }
-}
-
-/* ============================================
-   WALKTHROUGH 2.0: AREA CARDS
-   ============================================ */
-.quick-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-
-.quick-chip {
-  padding: 10px 14px;
-  border: 1.5px solid var(--cw-teal);
-  border-radius: 20px;
-  background: var(--cw-white);
-  color: var(--cw-teal);
-  font-family: var(--font-stack);
-  font-size: 13px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.15s;
-  min-height: 40px;
-}
-.quick-chip:active { transform: scale(0.95); background: var(--cw-teal); color: white; }
-
-.totals-bar {
-  display: flex;
-  justify-content: space-between;
-  background: var(--cw-black);
-  border-radius: var(--radius-md);
-  padding: 10px 14px;
-  margin-bottom: 14px;
-  position: sticky;
-  top: 64px;
-  z-index: 50;
-  box-shadow: var(--shadow-md);
-}
-.totals-bar .tot { text-align: center; flex: 1; }
-.totals-bar .tot b { display: block; color: var(--cw-white); font-size: 16px; line-height: 1.1; }
-.totals-bar .tot span { font-size: 9px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.4px; }
-.totals-bar .tot.hot b { color: var(--cw-gold); }
-
-.area-card {
-  background: var(--cw-white);
-  border: 1px solid var(--cw-grey-light);
-  border-radius: var(--radius-md);
-  margin-bottom: 10px;
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-}
-
-.area-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  cursor: pointer;
-  user-select: none;
-  -webkit-user-select: none;
-  min-height: 56px;
-}
-.area-head:active { background: var(--cw-grey-lighter); }
-
-.area-num {
-  width: 26px;
-  height: 26px;
-  min-width: 26px;
-  border-radius: 50%;
-  background: var(--cw-teal);
-  color: white;
-  font-size: 12px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.area-titles { flex: 1; min-width: 0; }
-.area-title-name {
-  font-size: 15px;
-  font-weight: bold;
-  color: var(--cw-black);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.area-title-sub {
-  font-size: 11px;
-  color: var(--cw-grey);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.area-badge {
-  font-size: 10px;
-  font-weight: bold;
-  padding: 3px 6px;
-  border-radius: 10px;
-  align-items: center;
-  flex-shrink: 0;
-}
-.badge-hot { background: var(--cw-red-light); color: var(--cw-red); }
-.badge-flex { background: rgba(10,166,169,0.12); color: var(--cw-teal-dark); }
-.badge-photo { background: var(--cw-grey-lighter); color: var(--cw-grey); }
-
-.area-chev {
-  color: var(--cw-grey);
-  font-size: 14px;
-  transition: transform 0.2s;
-  flex-shrink: 0;
-}
-.area-card.collapsed .area-chev { transform: rotate(-90deg); }
-
-.area-body {
-  padding: 0 14px 14px;
-  border-top: 1px solid var(--cw-grey-light);
-  padding-top: 12px;
-}
-.area-card.collapsed .area-body { display: none; }
-
-.rate-hint {
-  font-size: 10px;
-  color: var(--cw-teal-dark);
-  margin-top: 3px;
-  min-height: 12px;
-}
-
-.fixture-block { margin-bottom: 14px; }
-.stepper-row {
-  display: flex;
-  gap: 8px;
-  margin-top: 4px;
-}
-.stepper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  background: var(--cw-grey-lighter);
-  border-radius: var(--radius-sm);
-  padding: 8px 4px;
-}
-.stepper-label {
-  font-size: 10px;
-  font-weight: bold;
-  color: var(--cw-grey);
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-.stepper-ctrl {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.stepper-ctrl button {
-  width: 40px;
-  height: 40px;
-  border: 1.5px solid var(--cw-grey-light);
-  border-radius: var(--radius-sm);
-  background: var(--cw-white);
-  color: var(--cw-black);
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.1s;
-}
-.stepper-ctrl button:active { transform: scale(0.92); border-color: var(--cw-teal); }
-.stepper-val {
-  min-width: 24px;
-  text-align: center;
-  font-size: 16px;
-  font-weight: bold;
-  color: var(--cw-black);
-}
-
-.toggle-row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-.toggle-chip {
-  flex: 1;
-  text-align: center;
-  padding: 10px 12px;
-  border: 1.5px solid var(--cw-grey-light);
-  border-radius: var(--radius-sm);
-  font-size: 12px;
-  font-weight: bold;
-  color: var(--cw-grey);
-  cursor: pointer;
-  transition: all 0.15s;
-  user-select: none;
-  -webkit-user-select: none;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.toggle-chip:active { transform: scale(0.97); }
-.toggle-chip.t-flex.selected { border-color: var(--cw-teal); background: var(--cw-teal); color: white; }
-.toggle-chip.t-hot.selected { border-color: var(--cw-red); background: var(--cw-red); color: white; }
-
-.hs-note textarea { border-color: var(--cw-red-light); background: #fdf6f6; }
-
-.floor-split {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-top: 8px;
-}
-.split-label {
-  font-size: 10px;
-  font-weight: bold;
-  color: var(--cw-grey);
-  text-transform: uppercase;
-}
-.split-item {
-  font-size: 11px;
-  font-weight: bold;
-  color: var(--cw-black);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.split-inp {
-  width: 52px !important;
-  padding: 6px 8px !important;
-  text-align: center;
-}
-
-.photo-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 4px;
-}
-.photo-thumb {
-  width: 64px;
-  height: 64px;
-  border-radius: var(--radius-sm);
-  background-color: var(--cw-grey-lighter);
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  border: 1px solid var(--cw-grey-light);
-}
-.photo-del {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  width: 20px;
-  height: 20px;
-  border: none;
-  border-radius: 50%;
-  background: var(--cw-red);
-  color: white;
-  font-size: 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-.photo-add {
-  width: 64px;
-  height: 64px;
-  border: 2px dashed var(--cw-grey-light);
-  border-radius: var(--radius-sm);
-  background: transparent;
-  font-size: 20px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.photo-add:active { border-color: var(--cw-teal); transform: scale(0.95); }
-
-.area-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-.btn-sm-teal { background: rgba(10,166,169,0.12); color: var(--cw-teal-dark); }
-.btn-sm-teal:hover { background: var(--cw-teal); color: white; }
-
-.req-card {
-  background: var(--cw-grey-lighter);
-  border: 1px solid var(--cw-grey-light);
-  border-radius: var(--radius-md);
-  padding: 14px;
-  margin-bottom: 12px;
-}
-
-.auto-totals {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  background: rgba(10,166,169,0.08);
-  border: 1px solid rgba(10,166,169,0.25);
-  border-radius: var(--radius-sm);
-  padding: 8px 10px;
-  margin-top: 10px;
-  font-size: 12px;
-  color: var(--cw-teal-dark);
-  font-weight: bold;
-}
-.auto-totals button {
-  border: none;
-  background: var(--cw-teal);
-  color: white;
-  font-family: var(--font-stack);
-  font-size: 11px;
-  font-weight: bold;
-  padding: 8px 12px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.snackbar {
-  position: fixed;
-  bottom: 90px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: var(--cw-black);
-  color: white;
-  padding: 12px 18px;
-  border-radius: var(--radius-md);
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.25s;
-  z-index: 250;
-  box-shadow: var(--shadow-lg);
-  max-width: calc(100% - 32px);
-  white-space: nowrap;
-}
-.snackbar.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
-.snackbar button {
-  border: none;
-  background: transparent;
-  color: var(--cw-gold);
-  font-family: var(--font-stack);
-  font-size: 13px;
-  font-weight: bold;
-  cursor: pointer;
-  padding: 4px;
-}
-
-.hot-note { background: var(--cw-red-light) !important; }
-
-.empty-areas {
-  text-align: center;
-  color: var(--cw-grey);
-  font-size: 13px;
-  padding: 24px 16px;
-  border: 2px dashed var(--cw-grey-light);
-  border-radius: var(--radius-md);
-  margin-bottom: 12px;
-}
-
-/* ============================================
-   SETUP PAGE EXTRAS (sales notes + hints)
-   ============================================ */
-.field-hint { font-size: 12px; color: var(--cw-grey); margin-top: 6px; }
-.sales-notes {
-  background: var(--cw-white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  margin-top: 20px;
-  padding: 0 0 4px 0;
-}
-.sales-notes > summary {
-  cursor: pointer;
-  list-style: none;
-  padding: 16px 18px;
-  font-weight: 700;
-  font-size: 14px;
-  color: var(--cw-grey);
-  user-select: none;
-}
-.sales-notes > summary::before { content: '▸ '; color: var(--cw-red); }
-.sales-notes[open] > summary::before { content: '▾ '; }
-.sales-notes > .form-card { margin: 0 12px 12px 12px; box-shadow: none; border: 1px solid var(--cw-grey-light); }
-
-/* ============================================
-   WALKTHROUGH 3.0: PHONE-FIRST ROOM CARDS
-   ============================================ */
-.step-dots { gap: 6px; }
-.step-dot {
-  width: auto;
-  min-width: 0;
-  height: 28px;
-  padding: 0 12px;
-  border-radius: 14px;
-  font-size: 11px;
-  letter-spacing: 0.3px;
-}
-
-.btn-icon { width: 44px; height: 44px; font-size: 18px; }
-
-.add-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-.add-grid-top { margin-bottom: 14px; }
-.add-btn {
-  min-height: 52px;
-  padding: 8px 6px;
-  border: 1.5px solid var(--cw-teal);
-  border-radius: var(--radius-md);
-  background: var(--cw-white);
-  color: var(--cw-teal-dark);
-  font-family: var(--font-stack);
-  font-size: 13px;
-  font-weight: bold;
-  line-height: 1.2;
-  cursor: pointer;
-  transition: transform 0.1s, background 0.1s;
-  -webkit-user-select: none; user-select: none;
-}
-.add-btn:active { transform: scale(0.96); background: var(--cw-teal); color: white; }
-.add-btn.add-nc { border-color: var(--cw-grey); color: var(--cw-grey); }
-.add-btn.add-nc:active { background: var(--cw-grey); color: white; }
-.add-btn.add-custom { border-style: dashed; }
-#addSheet .add-grid { margin-top: 4px; }
-#addSheet .add-btn { min-height: 60px; font-size: 14px; }
-
-.btn-next-area {
-  width: 100%;
-  min-height: 56px;
-  border: none;
-  border-radius: var(--radius-md);
-  background: var(--cw-teal);
-  color: white;
-  font-family: var(--font-stack);
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-}
-.btn-next-area:active { background: var(--cw-teal-dark); transform: scale(0.98); }
-.bottom-add { margin: 4px 0 18px; }
-
-.density-chips { flex-wrap: wrap; }
-.density-chip { white-space: nowrap; min-height: 40px; display: inline-flex; align-items: center; }
-.btn-add-area { background: var(--cw-teal); color: white; flex: 1.1; }
-.bottom-nav-inner .btn { padding-left: 8px; padding-right: 8px; white-space: nowrap; }
-#btnBack { flex: 0.6; }
-#btnNext { flex: 1.2; }
-.btn-add-area:hover { background: var(--cw-teal-dark); }
-
-.totals-bar { padding: 8px 8px; gap: 2px; }
-.totals-bar .tot b { font-size: 15px; }
-.totals-bar .tot span { font-size: 8px; letter-spacing: 0.2px; }
-
-/* card head */
-.area-head { padding: 10px 10px 10px 12px; gap: 8px; }
-.area-title-name { font-size: 16px; }
-.area-title-sub { font-size: 12px; }
-.badge-clean { background: var(--cw-gold); color: var(--cw-black); }
-.badge-nc { background: var(--cw-grey); color: white; }
-.head-btn {
-  width: 40px; height: 40px; min-width: 40px;
-  border: 1px solid var(--cw-grey-light);
-  border-radius: var(--radius-sm);
-  background: var(--cw-white);
-  color: var(--cw-grey);
-  font-size: 18px;
-  line-height: 1;
-  cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-}
-.head-btn:active { transform: scale(0.92); }
-.head-btn.head-dup { color: var(--cw-teal-dark); border-color: rgba(10,166,169,0.4); }
-.head-btn.head-del { color: var(--cw-red); }
-.area-card.collapsed .head-btn.head-del { display: none; }
-.btn-remove-room { display: none; }
-
-/* card body blocks */
-.area-body { padding: 10px 12px 12px; }
-.blk { margin-bottom: 14px; }
-.blk:last-child { margin-bottom: 0; }
-.blk-title {
-  font-size: 12px;
-  font-weight: bold;
-  color: var(--cw-black);
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  margin-bottom: 6px;
-  display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
-}
-.blk-title .blk-hint { font-size: 10px; font-weight: normal; color: var(--cw-grey); text-transform: none; letter-spacing: 0; }
-.blk-lead { font-size: 13px; color: var(--cw-grey); margin: -6px 0 12px; }
-
-.a-typerow { margin-bottom: 12px; }
-.blk-name .a-name { font-size: 18px; font-weight: bold; min-height: 56px; padding: 10px 14px; border: 2px solid var(--cw-black); background: var(--cw-white); }
-.blk-name .a-name.needs-name { border-color: var(--cw-red); background: #fff5f5; }
-.blk-name .a-name::placeholder { font-weight: normal; font-size: 15px; color: #9a9a9c; }
-.blk-name .a-name:focus { border-color: var(--cw-red); background: var(--cw-white); }
-.area-badge.badge-noname { background: var(--cw-red); color: white; }
-.review-noname { font-size: 10px; font-weight: bold; color: var(--cw-red); text-transform: uppercase; letter-spacing: 0.4px; }
-.a-typerow select { font-size: 15px; padding: 10px 32px 10px 12px; }
-
-.area-card { scroll-margin-top: 150px; }
-.who-card {
-  width: 100%; text-align: left; cursor: pointer;
-  display: flex; flex-direction: column; gap: 2px;
-  background: var(--cw-white); border: 2px dashed var(--cw-red); border-radius: var(--radius-md);
-  padding: 14px 16px; margin-bottom: 14px; font-family: var(--font-stack); position: relative;
-}
-.who-card.set { border: 1px solid rgba(99,100,102,0.08); border-left: 6px solid var(--cw-teal); box-shadow: var(--shadow-sm); }
-.who-card .who-lbl { font-size: 11px; font-weight: bold; color: var(--cw-grey); text-transform: uppercase; letter-spacing: 0.4px; }
-.who-card .who-val { font-size: 20px; font-weight: bold; color: var(--cw-red); }
-.who-card.set .who-val { color: var(--cw-black); }
-.who-card .who-change { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 12px; font-weight: bold; color: var(--cw-teal-dark); }
-#whoSearch { width: 100%; padding: 12px 14px; font-size: 16px; border: 1.5px solid var(--cw-grey-light); border-radius: var(--radius-sm); font-family: var(--font-stack); margin-bottom: 8px; -webkit-appearance: none; }
-.who-list { max-height: 60vh; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-.who-group { font-size: 11px; font-weight: bold; color: var(--cw-grey); text-transform: uppercase; letter-spacing: 0.4px; padding: 10px 4px 4px; }
-.who-btn { width: 100%; min-height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left;
-  background: var(--cw-white); border: 1px solid var(--cw-grey-light); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 6px; font-family: var(--font-stack); cursor: pointer; }
-.who-btn:active { background: var(--cw-grey-lighter); }
-.who-btn.selected { border-color: var(--cw-teal); background: #e6f6f6; }
-.who-btn .who-name { font-size: 16px; font-weight: bold; color: var(--cw-black); }
-.who-btn .who-role { font-size: 11px; color: var(--cw-grey); text-align: right; }
-.who-note { padding: 16px; text-align: center; color: var(--cw-grey); font-size: 13px; }
-.save-status.cloud-off { color: var(--cw-orange); }
-.btn-team-list { display: block; margin-top: 12px; padding: 14px; text-align: center; background: var(--cw-teal); color: white; font-weight: bold; font-size: 14px; border-radius: var(--radius-sm); text-decoration: none; }
-
-.measure-one { display: flex; align-items: center; gap: 10px; }
-.measure-one .a-sqft { flex: 1; text-align: center; font-size: 30px; font-weight: bold; min-height: 64px; padding: 8px 12px; background: #fffbea; border-color: var(--cw-gold); }
-.measure-one .m-unit { font-size: 14px; font-weight: bold; color: var(--cw-grey); text-transform: uppercase; letter-spacing: 0.4px; }
-.btn-nc-photo { width: 100%; min-height: 48px; margin-top: 10px; border: 1.5px solid var(--cw-black); border-radius: var(--radius-sm); background: var(--cw-white); color: var(--cw-black); font-family: var(--font-stack); font-size: 14px; font-weight: bold; cursor: pointer; }
-.btn-nc-photo:active { background: var(--cw-black); color: white; }
-.remind-card { background: var(--cw-white); border: 1px solid rgba(99,100,102,0.08); border-left: 6px solid var(--cw-red); border-radius: var(--radius-md); padding: 16px 16px 14px; margin-bottom: 16px; box-shadow: var(--shadow-sm); }
-.remind-title { font-size: 15px; font-weight: bold; color: var(--cw-red); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; }
-.remind-list { list-style: none; margin: 0; padding: 0; }
-.remind-list li { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; line-height: 1.4; color: var(--cw-black); padding: 8px 0; border-top: 1px solid var(--cw-grey-light); }
-.remind-list li:first-child { border-top: none; padding-top: 0; }
-.remind-list .ri { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--cw-red); color: white; font-size: 14px; display: flex; align-items: center; justify-content: center; }
-.remind-list b { color: var(--cw-red); }
-.measure-row {
-  display: grid;
-  grid-template-columns: 1fr 22px 1fr 22px 1.3fr;
-  align-items: center;
-  gap: 4px;
-}
-.measure-row input {
-  text-align: center;
-  font-size: 22px;
-  font-weight: bold;
-  padding: 10px 6px;
-  min-height: 56px;
-}
-.measure-row .m-op { text-align: center; font-size: 18px; color: var(--cw-grey); font-weight: bold; }
-.measure-row .a-sqft { background: #fffbea; border-color: var(--cw-gold); }
-.measure-row .a-sqft.auto { color: var(--cw-grey); }
-.measure-labels {
-  display: grid;
-  grid-template-columns: 1fr 22px 1fr 22px 1.3fr;
-  gap: 4px;
-  margin-top: 3px;
-}
-.measure-labels span { text-align: center; font-size: 10px; color: var(--cw-grey); text-transform: uppercase; letter-spacing: 0.3px; }
-
-.stepper-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-.stepper-grid .stepper { padding: 6px 4px 8px; gap: 4px; min-width: 0; }
-.stepper-grid .stepper-label { font-size: 11px; text-transform: none; letter-spacing: 0; color: var(--cw-black); white-space: nowrap; }
-.stepper-grid .stepper-ctrl { gap: 6px; }
-.stepper-grid .stepper-ctrl button { width: 46px; height: 46px; font-size: 22px; }
-.stepper-grid .stepper-val { min-width: 30px; font-size: 20px; }
-.stepper.has-val { background: #e6f6f6; }
-.stepper.has-val .stepper-val { color: var(--cw-teal-dark); }
-
-.clean-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-}
-.clean-chip {
-  min-height: 46px;
-  padding: 6px 4px;
-  border: 1.5px solid var(--cw-grey-light);
-  border-radius: var(--radius-sm);
-  background: var(--cw-white);
-  color: var(--cw-grey);
-  font-size: 12px;
-  font-weight: bold;
-  text-align: center;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  -webkit-user-select: none; user-select: none;
-  transition: all 0.12s;
-}
-.clean-chip:active { transform: scale(0.96); }
-.clean-chip.selected { border-color: var(--cw-teal); background: var(--cw-teal); color: white; }
-.clean-chip.selected.is-deep { border-color: var(--cw-orange); background: var(--cw-orange); }
-.clean-chip.selected.is-nc { border-color: var(--cw-grey); background: var(--cw-grey); }
-.clean-chip.is-default:not(.selected) { border-style: dashed; }
-
-.nc-block {
-  background: var(--cw-grey-lighter);
-  border-radius: var(--radius-sm);
-  padding: 10px;
-}
-.nc-block .nc-lead { font-size: 12px; color: var(--cw-grey); margin-bottom: 8px; }
-
-.size-chips { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
-.size-chips .size-lbl { font-size: 11px; font-weight: bold; color: var(--cw-grey); text-transform: uppercase; letter-spacing: 0.3px; padding-right: 2px; white-space: nowrap; }
-.size-chip {
-  flex: 1; min-height: 40px;
-  border: 1.5px solid var(--cw-grey-light); border-radius: var(--radius-sm);
-  background: var(--cw-white); color: var(--cw-grey);
-  font-size: 12px; font-weight: bold; text-align: center;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; -webkit-user-select: none; user-select: none;
-}
-.size-chip.selected { border-color: var(--cw-black); background: var(--cw-black); color: white; }
-
-.floor-type-chips { gap: 6px; }
-.floor-chip { min-height: 40px; display: inline-flex; align-items: center; padding: 6px 12px; }
-.floor-more { border-style: dashed; color: var(--cw-grey); }
-.floor-type-chips .floor-hidden { display: none; }
-.floor-type-chips.show-all .floor-hidden { display: inline-flex; }
-.floor-type-chips.show-all .floor-more { display: none; }
-
-.special-row { display: flex; flex-wrap: wrap; gap: 6px; }
-.sp-chip {
-  flex: 1 1 30%;
-  min-height: 44px;
-  padding: 6px 8px;
-  border: 1.5px solid var(--cw-grey-light);
-  border-radius: var(--radius-sm);
-  background: var(--cw-white);
-  color: var(--cw-grey);
-  font-size: 12px; font-weight: bold; text-align: center;
-  display: flex; align-items: center; justify-content: center; gap: 4px;
-  cursor: pointer; -webkit-user-select: none; user-select: none;
-  transition: all 0.12s;
-}
-.sp-chip:active { transform: scale(0.96); }
-.sp-chip.selected { border-color: var(--cw-black); background: var(--cw-black); color: white; }
-.sp-chip.sp-hot.selected { border-color: var(--cw-red); background: var(--cw-red); }
-.sp-chip.sp-flex.selected { border-color: var(--cw-teal); background: var(--cw-teal); }
-.sp-reveal { margin-top: 10px; }
-.sp-reveal[hidden] { display: none; }
-
-.walk-chips { display: flex; gap: 5px; }
-.walk-chip {
-  flex: 1; min-height: 42px;
-  border: 1.5px solid var(--cw-grey-light); border-radius: var(--radius-sm);
-  background: var(--cw-white); color: var(--cw-grey);
-  font-size: 12px; font-weight: bold; text-align: center;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; -webkit-user-select: none; user-select: none;
-}
-.walk-chip.selected { border-color: var(--cw-black); background: var(--cw-black); color: white; }
-
-.area-actions2 { display: flex; gap: 8px; margin-top: 4px; }
-.area-actions2 .btn-dup {
-  flex: 1; min-height: 52px;
-  border: 1.5px solid var(--cw-teal); border-radius: var(--radius-sm);
-  background: var(--cw-white); color: var(--cw-teal-dark);
-  font-family: var(--font-stack); font-size: 14px; font-weight: bold; cursor: pointer;
-}
-.area-actions2 .btn-dup:active { background: var(--cw-teal); color: white; }
-.area-actions2 .btn-done-room { flex: 1.4; margin: 0; min-height: 52px; font-size: 15px; }
-
-.walk-card { margin-top: 6px; }
-.field-hint b { color: var(--cw-black); }
-
-@media (max-width: 360px) {
-  .add-grid { grid-template-columns: repeat(2, 1fr); }
-  .clean-grid { grid-template-columns: repeat(2, 1fr); }
+/* City Wide Building Survey. Style layer rebuilt Nov 2026 (Impeccable pass).
+   Rules shared with the hubs: six type sizes (12 13 15 17 21 28) plus 16 on form inputs,
+   every control 44px or taller, spacing on a 4px grid, radius 6 controls / 11 cards / 18 pills,
+   white dominant, black and grey structure, red only for the main action and for what needs attention. */
+:root{
+  --red:#D22730;--red-d:#B01F27;--red-t:#FBE9EA;
+  --black:#2D2A26;--grey:#636466;--white:#FFFFFF;
+  --bg:#F5F5F5;--line:#E5E5E5;--ctl:#8B8C8E;
+  --f:Verdana,'Liberation Sans','DejaVu Sans',Geneva,Tahoma,sans-serif;
+  --strip-h:48px;
+  --sat:env(safe-area-inset-top,0px);--sal:env(safe-area-inset-left,0px);--sar:env(safe-area-inset-right,0px);--sab:env(safe-area-inset-bottom,0px);
+  /* names the script and older markup still reference */
+  --cw-red:var(--red);--cw-red-dark:var(--red-d);--cw-red-light:var(--red-t);
+  --cw-black:var(--black);--cw-grey:var(--grey);--cw-white:var(--white);
+  --cw-grey-light:var(--line);--cw-grey-lighter:var(--bg);
+  --cw-teal:var(--black);--cw-teal-dark:var(--black);--cw-gold:var(--black);--cw-orange:var(--black);
+  --font-stack:var(--f);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-text-size-adjust:100%;text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--f);font-size:15px;line-height:1.5;color:var(--black);background:var(--bg);min-height:100dvh;-webkit-font-smoothing:antialiased;caret-color:var(--red)}
+::selection{background:var(--black);color:var(--white)}
+button,input,select,textarea{font-family:inherit}
+button{color:inherit}
+a{color:inherit;text-underline-offset:3px}
+[hidden]{display:none !important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.ic{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.ic-s{width:16px;height:16px}
+
+/* ---------- top of page (scrolls away) ---------- */
+.top{background:var(--white);border-bottom:1px solid var(--line);padding-top:var(--sat)}
+.top-in{max-width:680px;margin:0 auto;padding:8px max(16px,var(--sar)) 12px max(16px,var(--sal));display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px 12px}
+.back{justify-self:start;display:inline-flex;align-items:center;gap:6px;min-height:44px;padding-right:8px;font-size:13px;font-weight:bold;text-decoration:none;color:var(--black)}
+.top-actions{display:flex;gap:8px}
+.tbtn{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 12px;border:1px solid var(--ctl);border-radius:6px;background:var(--white);color:var(--black);font-size:13px;font-weight:bold;cursor:pointer;white-space:nowrap}
+.brand{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 16px}
+.logo-img{height:24px;width:auto;display:block}
+h1{font-size:17px;font-weight:bold;line-height:1.3}
+@media (max-width:349px){.tbtn span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.tbtn{padding:0 12px}}
+@media (min-width:720px){
+  .top-in{grid-template-columns:1fr auto auto;padding:12px 16px}
+  .brand{grid-column:1;grid-row:1;justify-content:flex-start}
+  .back{grid-column:2;grid-row:1;padding:0 8px}
+  .top-actions{grid-column:3;grid-row:1}
+}
+
+/* ---------- sticky strip: steps and save status ---------- */
+.strip{position:sticky;top:0;z-index:100;background:var(--white);border-bottom:1px solid var(--line)}
+.strip-in{max-width:680px;margin:0 auto;padding:0 max(16px,var(--sar)) 0 max(16px,var(--sal));height:var(--strip-h);display:flex;align-items:stretch;gap:8px}
+.step-dots{flex:1;min-width:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.step-dot{position:relative;border:0;background:none;padding:0 2px;font-size:13px;color:var(--grey);cursor:pointer;white-space:nowrap}
+.step-dot.complete{color:var(--black)}
+.step-dot.active{color:var(--black);font-weight:bold}
+.step-dot.active::after{content:"";position:absolute;left:6px;right:6px;bottom:0;height:3px;background:var(--black);border-radius:2px 2px 0 0}
+.save-status{flex:none;width:112px;display:flex;align-items:center;gap:6px;font-size:12px;line-height:1.35;color:var(--grey);white-space:nowrap}
+.save-status .ss-1{display:block;color:var(--black)}
+.save-status .ss-2{display:flex;align-items:center;gap:4px}
+.save-status.cloud-off .ss-2{color:var(--black);font-weight:bold}
+@media (max-width:339px){:root{--strip-h:72px}.strip-in{flex-wrap:wrap;gap:0}.step-dots{flex:0 0 100%;height:48px}.save-status{width:100%;height:24px}.save-status>span{display:flex;gap:8px}}
+
+/* ---------- page ---------- */
+.main-content{max-width:680px;margin:0 auto;padding:20px max(16px,var(--sar)) calc(120px + var(--sab)) max(16px,var(--sal))}
+.step-panel{display:none}
+.step-panel.active{display:block;animation:stepIn .18s ease-out}
+@keyframes stepIn{from{opacity:0}to{opacity:1}}
+.step-title{font-size:21px;font-weight:bold;line-height:1.25;outline:none}
+.step-title:focus,.step-title:focus-visible,.modal-sheet:focus,.modal-sheet:focus-visible{outline:none !important}
+.step-subtitle{font-size:15px;color:var(--grey);margin:4px 0 16px;max-width:62ch}
+
+.form-card{background:var(--white);border:1px solid var(--line);border-radius:11px;padding:20px 16px;margin-bottom:12px}
+.form-card-title{font-size:17px;font-weight:bold;line-height:1.3;margin-bottom:12px}
+.card-lead,.blk-lead{font-size:13px;color:var(--grey);margin:-4px 0 12px;max-width:62ch}
+@media (min-width:641px){.main-content{padding-top:24px}.form-card{padding:24px}}
+
+/* ---------- fields ---------- */
+.field-group{margin-bottom:16px}
+.field-group:last-child{margin-bottom:0}
+.field-row,.field-row-3{display:grid;gap:16px 12px;align-items:end;margin-bottom:16px}
+.field-row{grid-template-columns:1fr 1fr}
+.field-row-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.field-row:last-child,.field-row-3:last-child{margin-bottom:0}
+.field-row>.field-group,.field-row-3>.field-group{margin-bottom:0;min-width:0}
+@media (max-width:420px){.field-row:not(.keep){grid-template-columns:1fr}}
+label,.field-label{display:block;font-size:13px;font-weight:bold;line-height:1.35;color:var(--black);margin-bottom:6px}
+input[type="text"],input[type="email"],input[type="tel"],input[type="date"],input[type="time"],input[type="number"],input[type="search"],select,textarea{
+  width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--ctl);border-radius:6px;
+  font-size:16px;line-height:1.3;color:var(--black);background:var(--white);-webkit-appearance:none;appearance:none}
+input,select,textarea{min-width:0;max-width:100%;scroll-margin-top:calc(var(--strip-h) + 88px);scroll-margin-bottom:104px}
+input[type="date"],input[type="time"]{display:block}
+input::-webkit-date-and-time-value{text-align:left}
+input::placeholder,textarea::placeholder{color:#66676A;opacity:1}
+input:focus,select:focus,textarea:focus{border-color:var(--black)}
+textarea{resize:vertical;min-height:88px;line-height:1.45}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232D2A26' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+.field-hint{font-size:13px;color:var(--grey);margin-top:6px}
+.field-hint b{color:var(--black)}
+.field-hint.above{margin:-2px 0 8px}
+
+/* ---------- chips: one pattern for every tap-to-pick ---------- */
+.chips,.density-chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:4px 14px;
+  border:1px solid var(--ctl);border-radius:18px;background:var(--white);color:var(--black);
+  font-size:13px;font-weight:bold;line-height:1.2;text-align:center;cursor:pointer;-webkit-user-select:none;user-select:none}
+.chip.selected{background:var(--black);border-color:var(--black);color:var(--white)}
+.scale-row{display:flex;gap:8px}
+.scale-btn{flex:1;min-height:48px;border-radius:6px;font-size:17px;padding:0}
+.scale-labels{display:flex;justify-content:space-between;font-size:12px;color:var(--grey);margin-top:6px}
+
+/* ---------- checkboxes ---------- */
+.checkbox-grid,.checklist-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media (max-width:380px){.checkbox-grid,.checklist-grid{grid-template-columns:1fr}}
+.checkbox-item,.checklist-item{display:flex;align-items:center;gap:10px;min-height:44px;margin:0;padding:8px 12px;
+  border:1px solid var(--ctl);border-radius:6px;background:var(--white);font-weight:normal;cursor:pointer;-webkit-user-select:none;user-select:none}
+.checkbox-item span,.checklist-item span{font-size:13px;line-height:1.3}
+.checkbox-item input,.checklist-item input{width:20px;height:20px;min-height:0;flex:none;accent-color:var(--black)}
+.checkbox-item.checked,.checkbox-item:has(input:checked),.checklist-item:has(input:checked){border-color:var(--black);box-shadow:inset 0 0 0 1px var(--black);background:var(--bg)}
+
+/* ---------- buttons ---------- */
+.btn{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;min-height:48px;padding:0 12px;border:1px solid transparent;border-radius:6px;font-size:15px;font-weight:bold;cursor:pointer;white-space:nowrap}
+.btn-primary{background:var(--red);color:var(--white)}
+.btn-secondary{background:var(--white);color:var(--black);border-color:var(--ctl)}
+.btn-add-area{background:var(--black);color:var(--white);flex:1.1}
+.btn[disabled]{opacity:1;background:var(--grey);color:var(--white);cursor:progress}
+.btn-add{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:44px;padding:0 12px;border:1px dashed var(--ctl);border-radius:6px;background:var(--white);color:var(--black);font-size:13px;font-weight:bold;cursor:pointer}
+.btn-sm{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 12px;border:1px solid var(--ctl);border-radius:6px;background:var(--white);color:var(--black);font-size:13px;font-weight:bold;cursor:pointer;white-space:nowrap}
+.btn-sm.danger{background:var(--red);border-color:var(--red);color:var(--white)}
+@media (hover:hover){
+  .btn-primary:hover{background:var(--red-d)}
+  .btn-secondary:hover,.tbtn:hover,.btn-sm:hover,.btn-add:hover,.chip:not(.selected):hover,.add-btn:hover,.who-btn:hover,.saved-open:hover,.head-btn:hover{background:var(--bg)}
+  .btn-add-area:hover,.btn-done-room:hover{background:#000}
+  .btn-sm.danger:hover{background:var(--red-d)}
+  .step-dot:hover{color:var(--black)}
+  .back:hover{text-decoration:underline}
+}
+
+/* ---------- bottom bar ---------- */
+.bottom-nav{position:fixed;left:0;right:0;bottom:0;z-index:100;background:var(--white);border-top:1px solid var(--line);
+  padding:12px max(16px,var(--sar)) max(12px,var(--sab)) max(16px,var(--sal));box-shadow:0 -6px 16px -8px rgba(45,42,38,.18)}
+.bottom-nav-inner{max-width:648px;margin:0 auto;display:flex;gap:8px}
+#btnBack{flex:.6}
+#btnNext{flex:1.2}
+@media (max-width:339px){.bottom-nav{padding-left:12px;padding-right:12px}.bottom-nav .btn{font-size:13px;padding:0 6px}}
+
+/* ---------- start step ---------- */
+.who-card{width:100%;display:flex;align-items:center;gap:12px;min-height:64px;margin-bottom:12px;padding:10px 16px;text-align:left;
+  background:var(--white);border:2px solid var(--red);border-radius:11px;cursor:pointer}
+.who-card.set{border:1px solid var(--line)}
+.who-card .who-txt{flex:1;min-width:0;display:flex;flex-direction:column}
+.who-card .who-lbl{font-size:13px;color:var(--grey)}
+.who-card .who-val{font-size:17px;font-weight:bold;line-height:1.3;overflow-wrap:anywhere}
+.who-card .who-change{font-size:13px;font-weight:bold;text-decoration:underline;text-underline-offset:3px}
+.remind{background:var(--white);border:1px solid var(--line);border-radius:11px;margin-bottom:12px}
+.remind>summary{list-style:none;display:flex;align-items:center;gap:8px;min-height:52px;padding:0 16px;cursor:pointer}
+.remind>summary::-webkit-details-marker{display:none}
+.remind-title{font-size:17px;font-weight:bold;flex:1}
+.remind-count{font-size:13px;color:var(--grey)}
+.remind>summary .ic{transition:transform .18s ease-out}
+.remind[open]>summary .ic{transform:rotate(180deg)}
+.remind-list{list-style:none;padding:0 16px 8px}
+.remind-list li{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line);font-size:13px;line-height:1.5}
+.remind-list li .ic{margin-top:1px}
+.remind-list b{display:block;font-size:15px;line-height:1.35}
+
+.ask-card.needs{border:2px solid var(--red)}
+.ask-card .form-card-title{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 12px}
+.ask-tag{padding:2px 8px;border:1px solid var(--red);border-radius:18px;background:var(--red-t);color:var(--red-d);font-size:12px;line-height:1.3;white-space:nowrap}
+.ask-card .card-lead{font-size:15px;color:var(--black);margin-top:0}
+.ask-more{margin-top:16px}
+.ask-calc{font-size:15px;font-weight:bold;margin:-4px 0 16px}
+.ask-calc:empty{display:none}
+
+/* ---------- walk step ---------- */
+.totals-bar{position:sticky;top:calc(var(--strip-h) + 8px);z-index:50;display:flex;justify-content:space-between;gap:8px;
+  background:var(--black);border-radius:11px;padding:8px 14px;margin-bottom:12px;box-shadow:0 6px 14px -6px rgba(45,42,38,.45)}
+.totals-bar::before{content:"";position:absolute;left:-1px;right:-1px;bottom:100%;height:9px;background:var(--bg)}
+.totals-bar .tot{text-align:center;min-width:0}
+.totals-bar .tot b{display:inline-block;min-width:22px;color:var(--white);font-size:17px;line-height:1.3;font-variant-numeric:tabular-nums}
+.totals-bar .tot span{display:block;font-size:12px;line-height:1.3;color:#D6D4D2;white-space:nowrap}
+.totals-bar .tot.hot b{background:var(--red);border-radius:18px;padding:0 8px}
+@media (max-width:359px){.totals-bar{display:grid;grid-template-columns:repeat(3,1fr)}}
+
+.empty-areas{font-size:15px;font-weight:bold;margin-bottom:8px}
+.add-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.add-grid-top{margin-bottom:16px}
+.add-btn{min-height:52px;padding:6px 4px;border:1px solid var(--ctl);border-radius:6px;background:var(--white);color:var(--black);font-size:13px;font-weight:bold;line-height:1.2;cursor:pointer;-webkit-user-select:none;user-select:none}
+.add-btn.add-nc{color:var(--grey)}
+.add-btn.add-custom{border-style:dashed}
+.bottom-add{margin:8px 0 20px}
+.bottom-add-label{font-size:15px;font-weight:bold;margin-bottom:8px}
+@media (max-width:360px){.add-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.area-card{background:var(--white);border:1px solid var(--line);border-radius:11px;margin-bottom:8px;scroll-margin-top:calc(var(--strip-h) + 88px)}
+.area-card:not(.collapsed){border-color:var(--black)}
+.area-head{display:flex;align-items:center;gap:8px;padding:6px 8px 6px 4px}
+.area-toggle{flex:1;min-width:0;display:flex;align-items:center;gap:8px;min-height:52px;padding:4px 4px 4px 8px;border:0;border-radius:6px;background:none;text-align:left;cursor:pointer}
+.area-num{width:28px;height:28px;flex:none;border-radius:50%;background:var(--bg);border:1px solid var(--line);font-size:13px;font-weight:bold;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+.area-titles{flex:1;min-width:0;display:block}
+.area-title-name{display:block;font-size:17px;font-weight:bold;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.area-card.collapsed .area-title-name{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+.area-title-sub{display:block;font-size:13px;color:var(--grey);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.area-chev{color:var(--grey);transition:transform .18s ease-out}
+.area-card.collapsed .area-chev{transform:rotate(-90deg)}
+.head-btn{width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center;border:1px solid var(--ctl);border-radius:6px;background:var(--white);color:var(--black);cursor:pointer}
+.area-card.collapsed .head-del,.area-card:not(.collapsed) .head-dup{display:none}
+.area-badges{display:flex;flex-wrap:wrap;gap:0 6px;padding:0 12px 0 48px}
+.area-badge{align-items:center;gap:4px;min-height:24px;margin-bottom:8px;padding:2px 8px;border:1px solid var(--ctl);border-radius:18px;font-size:12px;font-weight:bold;line-height:1.3;background:var(--white);color:var(--black)}
+.area-badge.badge-noname,.area-badge.badge-hot{border-color:var(--red);background:var(--red-t);color:var(--red-d)}
+.area-card.collapsed .area-body{display:none}
+.area-body{padding:12px 12px 12px;border-top:1px solid var(--line)}
+.blk{margin-bottom:20px}
+.blk:last-child{margin-bottom:0}
+.blk-title{display:flex;align-items:baseline;justify-content:space-between;gap:8px;font-size:13px;font-weight:bold;margin-bottom:6px}
+.blk-title label{margin:0}
+.blk-title .blk-hint{font-size:12px;font-weight:normal;color:var(--grey);text-align:right}
+.a-typerow{margin-bottom:16px}
+.rate-hint{font-size:12px;color:var(--grey);margin-top:4px;min-height:16px}
+.blk-name .a-name{font-size:17px;font-weight:bold;min-height:52px;padding:10px 12px;border:2px solid var(--black)}
+.blk-name .a-name.needs-name{border-color:var(--red);background:var(--red-t)}
+.blk-name .a-name::placeholder{font-weight:normal;font-size:15px}
+.measure-one{display:flex;align-items:center;gap:12px}
+.measure-one .a-sqft{flex:1;text-align:center;font-size:28px;font-weight:bold;min-height:64px;padding:8px 12px;border:2px solid var(--black);font-variant-numeric:tabular-nums}
+.measure-one .m-unit{font-size:15px;font-weight:bold;color:var(--grey)}
+.stepper-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stepper{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;padding:8px 4px 10px;background:var(--bg);border:1px solid transparent;border-radius:6px}
+.stepper-label{font-size:13px;white-space:nowrap}
+.stepper-ctrl{display:flex;align-items:center;gap:4px}
+.stepper-ctrl button{width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:1px solid var(--ctl);border-radius:6px;background:var(--white);color:var(--black);cursor:pointer}
+.stepper-val{min-width:36px;text-align:center;font-size:21px;font-weight:bold;line-height:1;color:var(--grey);font-variant-numeric:tabular-nums}
+.stepper.has-val{background:var(--white);border-color:var(--ctl)}
+.stepper.has-val .stepper-val{color:var(--black)}
+.size-chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px}
+.size-chips .size-lbl{flex:0 0 100%;font-size:13px;font-weight:bold}
+.size-chip,.walk-chip,.clean-chip,.sp-chip{border-radius:6px;padding:4px 6px}
+.size-chip{flex:1}
+.clean-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.clean-chip.is-default:not(.selected){border-style:dashed}
+.nc-block{background:var(--bg);border-radius:6px;padding:12px}
+.nc-block .nc-lead{font-size:13px;color:var(--black);margin-bottom:10px}
+.nc-block .stepper{background:var(--white)}
+.btn-nc-photo{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:48px;margin-top:10px;border:1px solid var(--ctl);border-radius:6px;background:var(--white);color:var(--black);font-size:13px;font-weight:bold;cursor:pointer}
+.floor-type-chips{display:flex;flex-wrap:wrap;gap:6px}
+.floor-chip{padding:4px 12px}
+.floor-more{border-style:dashed;color:var(--grey)}
+.floor-type-chips .floor-hidden{display:none}
+.floor-type-chips.show-all .floor-hidden{display:inline-flex}
+.floor-type-chips.show-all .floor-more{display:none}
+.floor-split{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px}
+.floor-split:empty{margin-top:0}
+.split-label{font-size:13px;color:var(--grey)}
+.split-item{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:bold;margin:0}
+.split-inp{width:64px !important;padding:8px !important;text-align:center}
+.floor-other{margin-top:8px}
+.special-row{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sp-chip.sp-hot.selected{background:var(--red);border-color:var(--red)}
+.sp-reveal{margin-top:10px}
+.hs-note textarea{border-color:var(--red)}
+.photo-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}
+.photo-row:empty{margin-top:0}
+.photo-thumb{position:relative;width:72px;height:72px;border:1px solid var(--line);border-radius:6px;background:var(--bg) center/cover}
+.photo-del{position:absolute;top:-10px;right:-10px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:2px solid var(--white);border-radius:50%;background:var(--black);color:var(--white);cursor:pointer}
+.photo-del::after{content:"";position:absolute;inset:-8px}
+.photo-add{width:72px;height:72px;display:flex;align-items:center;justify-content:center;border:1px dashed var(--ctl);border-radius:6px;background:var(--white);color:var(--black);cursor:pointer}
+.walk-chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+@media (min-width:480px){.walk-chips{grid-template-columns:repeat(6,minmax(0,1fr))}}
+.area-actions2{display:flex;gap:8px;margin-top:4px}
+.btn-dup,.btn-done-room{display:flex;align-items:center;justify-content:center;gap:6px;min-height:52px;padding:0 8px;border-radius:6px;font-size:15px;font-weight:bold;cursor:pointer}
+.btn-dup{flex:1.15;border:1px solid var(--ctl);background:var(--white);color:var(--black)}
+.btn-done-room{flex:1.25;border:1px solid var(--black);background:var(--black);color:var(--white)}
+.walk-card{margin-top:4px}
+
+/* ---------- scope step ---------- */
+.req-card{padding:16px 0;border-top:1px solid var(--line)}
+.req-card:first-child{border-top:0;padding-top:0}
+.room-entry-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.room-number{font-size:15px;font-weight:bold}
+#requestsContainer:not(:empty){margin-bottom:16px}
+.auto-totals{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;padding:8px 8px 8px 12px;background:var(--bg);border-radius:6px;font-size:13px}
+.sales-notes{margin-top:20px}
+.sales-notes>summary{list-style:none;display:flex;align-items:center;gap:8px;min-height:52px;padding:8px 16px;background:var(--white);border:1px solid var(--ctl);border-radius:6px;font-size:15px;font-weight:bold;cursor:pointer;-webkit-user-select:none;user-select:none}
+.sales-notes>summary::-webkit-details-marker{display:none}
+.sales-notes>summary span{flex:1}
+.sales-notes>summary small{display:block;font-size:13px;font-weight:normal;color:var(--grey)}
+.sales-notes>summary .ic{transition:transform .18s ease-out}
+.sales-notes[open]>summary .ic{transform:rotate(180deg)}
+.sales-notes[open]>summary{margin-bottom:12px}
+
+/* ---------- save step ---------- */
+.save-checks{background:var(--white);border:1px solid var(--red);border-radius:11px;padding:16px;margin-bottom:12px}
+.save-checks h3{display:flex;align-items:center;gap:8px;font-size:17px;line-height:1.3;margin-bottom:4px}
+.save-checks h3 .ic{color:var(--red)}
+.save-checks p{font-size:13px;color:var(--grey);margin-bottom:8px}
+.save-checks li{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 0;border-top:1px solid var(--line);font-size:15px}
+.review-section{margin-bottom:20px}
+.review-section:last-child{margin-bottom:0}
+.review-section-title{font-size:15px;font-weight:bold;line-height:1.35;padding-bottom:6px;border-bottom:1px solid var(--black);margin-bottom:2px}
+.review-row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;font-size:13px;border-bottom:1px solid var(--line)}
+.review-row:last-child{border-bottom:0}
+.review-label{color:var(--grey);flex-shrink:0;max-width:50%}
+.review-value{font-weight:bold;text-align:right;overflow-wrap:anywhere}
+.review-value.is-empty{font-weight:normal;color:var(--grey)}
+.review-value.small{font-weight:normal}
+.review-note{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.45;background:var(--bg);padding:8px 12px;border-radius:6px;margin:6px 0;white-space:pre-wrap}
+.review-note.hot-note{background:var(--red-t);color:var(--black)}
+.review-note .ic{color:var(--red);margin-top:1px}
+.review-noname{display:inline-block;font-size:12px;font-weight:bold;color:var(--red-d)}
+.review-hot{display:inline-flex;vertical-align:-3px;color:var(--red)}
+.review-none{font-size:13px;color:var(--grey);padding:8px 0}
+
+/* ---------- sheets ---------- */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(45,42,38,.55);align-items:flex-end;justify-content:center}
+.modal-overlay.show{display:flex;animation:fadeIn .16s ease-out}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-sheet{width:100%;max-width:680px;max-height:82dvh;overflow-y:auto;overscroll-behavior:contain;background:var(--white);border-radius:11px 11px 0 0;
+  padding:8px max(16px,var(--sar)) max(16px,var(--sab)) max(16px,var(--sal));animation:slideUp .26s cubic-bezier(.16,1,.3,1);outline:none;scrollbar-width:thin;scrollbar-color:var(--ctl) transparent}
+@keyframes slideUp{from{transform:translateY(40%);opacity:0}to{transform:none;opacity:1}}
+@media (min-width:720px){.modal-overlay{align-items:center}.modal-sheet{border-radius:11px;max-width:560px}}
+.sheet-head{position:sticky;top:-8px;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--white);padding:8px 0;margin-bottom:4px}
+.modal-title{font-size:17px;font-weight:bold;line-height:1.3}
+.sheet-close{width:44px;height:44px;flex:none;display:flex;align-items:center;justify-content:center;border:1px solid var(--ctl);border-radius:6px;background:var(--white);cursor:pointer}
+.sheet-note{font-size:13px;color:var(--grey);margin-top:12px}
+#whoSearch{margin-bottom:8px}
+.who-list{min-height:120px}
+.who-group{font-size:13px;font-weight:bold;color:var(--grey);padding:12px 0 6px}
+.who-btn{width:100%;min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;padding:8px 12px;text-align:left;background:var(--white);border:1px solid var(--ctl);border-radius:6px;cursor:pointer}
+.who-btn.selected{border-color:var(--black);box-shadow:inset 0 0 0 1px var(--black);background:var(--bg)}
+.who-btn .who-name{font-size:15px;font-weight:bold}
+.who-btn .who-role{font-size:13px;color:var(--grey);text-align:right}
+.who-note{padding:20px 0;font-size:15px;color:var(--grey)}
+.saved-item{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line)}
+.saved-item:first-child{border-top:0}
+.saved-open{display:block;min-height:52px;padding:6px 8px;border:0;border-radius:6px;background:none;text-align:left;cursor:pointer}
+.saved-name{display:block;font-size:15px;font-weight:bold;line-height:1.35;overflow-wrap:anywhere}
+.saved-meta{display:block;font-size:13px;color:var(--grey)}
+.saved-now{display:inline-block;margin-left:6px;padding:1px 8px;border:1px solid var(--ctl);border-radius:18px;font-size:12px;font-weight:bold;vertical-align:1px}
+.saved-confirm{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px;padding:12px;background:var(--red-t);border-radius:6px;font-size:13px}
+.saved-confirm span{flex:1 1 200px}
+.saved-confirm div{display:flex;gap:8px}
+.btn-team-list{display:flex;align-items:center;justify-content:center;min-height:48px;margin-top:12px;padding:0 12px;border:1px solid var(--black);border-radius:6px;background:var(--black);color:var(--white);font-size:15px;font-weight:bold;text-decoration:none}
+#addSheet .add-btn{min-height:56px}
+
+/* ---------- messages ---------- */
+.snackbar{position:fixed;left:max(16px,var(--sal));right:max(16px,var(--sar));bottom:calc(84px + var(--sab));z-index:250;max-width:520px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px 16px;background:var(--black);color:var(--white);border-radius:6px;font-size:13px;line-height:1.45;box-shadow:0 10px 24px -8px rgba(45,42,38,.5);
+  opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .2s ease-out,transform .26s cubic-bezier(.16,1,.3,1)}
+.snackbar.show{opacity:1;transform:none;pointer-events:auto}
+.snackbar button{flex:none;min-height:44px;margin:-8px -8px -8px 0;padding:0 12px;border:0;background:none;color:var(--white);font-size:13px;font-weight:bold;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+
+@media print{
+  .top,.strip,.bottom-nav,.btn-add,.snackbar,.modal-overlay{display:none !important}
+  .step-panel{display:block !important}
+  .main-content{padding:0}
+}
+
+/* ---------- short screens (a phone on its side) ---------- */
+@media (max-height:500px){
+  .totals-bar{position:static}
+  .totals-bar::before{display:none}
+  .bottom-nav{padding-top:6px;padding-bottom:max(6px,var(--sab))}
+  .bottom-nav .btn{min-height:44px}
+  .main-content{padding-bottom:calc(96px + var(--sab))}
+  .snackbar{bottom:calc(64px + var(--sab))}
+  .modal-sheet{max-height:94dvh}
+  .area-card{scroll-margin-top:calc(var(--strip-h) + 8px)}
 }
 </style>
 <link rel="stylesheet" href="https://citywidelv.github.io/cw-base.css">
@@ -1585,46 +385,49 @@ select {
 </head>
 <body>
 
-<!-- ============================================
-     HEADER
-     ============================================ -->
-<header class="app-header">
-  <div class="header-inner">
-    <div class="logo-area">
-      <img class="logo-img" src="data:image/png;base64,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" alt="City Wide Facility Solutions">
-      <div class="logo-meta">
-        <span class="logo-label">Building Survey</span>
-        <span id="saveStatus" class="save-status">Auto-save on</span>
-      </div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+<symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4l9 16H3zM12 10v4.5M12 17.5h.01"/></symbol>
+<symbol id="i-pencil" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/></symbol>
+<symbol id="i-ruler" viewBox="0 0 24 24"><path d="M3 16L16 3l5 5L8 21zM7.5 12.5l2 2M10.5 9.5l2 2M13.5 6.5l2 2"/></symbol>
+<symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 18h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+<symbol id="i-can" viewBox="0 0 24 24"><path d="M5 7h14M9 7V4.5h6V7M7 7l1 13h8l1-13"/></symbol>
+<symbol id="i-tag" viewBox="0 0 24 24"><path d="M4 4h8l8 8-8 8-8-8z"/><path d="M8.5 8.5h.01"/></symbol>
+<symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 10.5a3.75 3.75 0 0 1-.5 7.5H7z"/><path d="M9.5 13.5l2 2 3.5-3.5"/></symbol>
+<symbol id="i-cloud-off" viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 10.5a3.75 3.75 0 0 1-.5 7.5H7zM4 4l16 16"/></symbol>
+</defs></svg>
+
+<header class="top">
+  <div class="top-in">
+    <a class="back" id="returnHub" href="https://citywidelv.github.io/sales-hub/" aria-label="Return to the Sales Hub"><svg class="ic" aria-hidden="true"><use href="#i-back"/></svg>Sales Hub</a>
+    <div class="top-actions">
+      <button type="button" class="tbtn" onclick="showSavedSurveys()" aria-label="Surveys saved on this phone"><svg class="ic" aria-hidden="true"><use href="#i-list"/></svg><span>Surveys</span></button>
+      <button type="button" class="tbtn" onclick="startNewSurvey()" aria-label="Start a new survey"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg><span>New</span></button>
     </div>
-    <div class="header-actions">
-      <button class="btn-icon" onclick="showSavedSurveys()" title="Saved Surveys">&#128196;</button>
-      <button class="btn-icon" onclick="startNewSurvey()" title="New Survey">&#43;</button>
+    <div class="brand">
+      <img class="logo-img" src="data:image/png;base64,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" alt="City Wide Facility Solutions" width="171" height="24">
+      <h1>Building Survey</h1>
     </div>
   </div>
-  <a class="btn-return" id="returnHub" href="https://citywidelv.github.io/sales-hub/">&larr; Return to the Sales Hub</a>
 </header>
 
-<!-- ============================================
-     PROGRESS
-     ============================================ -->
-<div class="progress-wrap">
-  <div class="progress-inner">
-    <div class="progress-label">
-      <span class="progress-step" id="progressStepLabel">Step 1 of 11</span>
-      <span class="progress-pct" id="progressPct">9%</span>
-    </div>
-    <div class="progress-track">
-      <div class="progress-fill" id="progressFill" style="width: 9%"></div>
-    </div>
-    <div class="step-dots" id="stepDots"></div>
+<div class="strip">
+  <div class="strip-in">
+    <nav class="step-dots" id="stepDots" aria-label="Survey steps"></nav>
+    <div id="saveStatus" class="save-status"><span><span class="ss-1">Auto-save on</span></span></div>
+    <span class="sr" id="saveSay" role="status" aria-live="polite"></span>
   </div>
 </div>
-
-<!-- ============================================
-     SAVE TOAST
-     ============================================ -->
-<div class="save-toast" id="saveToast">Saved</div>
 
 <!-- ============================================
      MAIN CONTENT
@@ -1633,41 +436,70 @@ select {
 
   <!-- ============ STEP 1: Company Info ============ -->
   <section class="step-panel active" data-step="1">
-    <h2 class="step-title">Start</h2>
-    <p class="step-subtitle">Who and where. Everything else waits until after the walk.</p>
+    <h2 class="step-title" tabindex="-1">Start</h2>
+    <p class="step-subtitle">Who, where and the cleaning window. Everything else waits until after the walk.</p>
 
     <button type="button" class="who-card" id="whoBtn" onclick="openWhoSheet()"></button>
     <input type="hidden" id="surveyorField" data-field="surveyor">
     <input type="hidden" id="surveyorEmailField" data-field="surveyorEmail">
 
-    <div class="remind-card">
-      <div class="remind-title">Before you walk</div>
+    <details class="remind" open>
+      <summary><span class="remind-title">Before you walk</span><span class="remind-count">5 things to capture</span><svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
       <ul class="remind-list">
-        <li><span class="ri">1</span><span><b>Measure every cleanable area.</b> Laser it, type the sq ft. No sq ft, no room in the bid.</span></li>
-        <li><span class="ri">2</span><span><b>Note anything special, room by room.</b> Deep clean, spot clean, floors only, clean room. Tap it on the card while you are standing in it.</span></li>
-        <li><span class="ri">3</span><span><b>Document travel time.</b> Walks between cleanable areas, between buildings, and a far dumpster all cost minutes. The tool asks. Answer it.</span></li>
-        <li><span class="ri">4</span><span><b>Cans in areas we do not clean.</b> If the crew empties them, count them and size them. Normal (small or medium), large, or XL barrel. Barrels are a huge time element. Take a photo of them so the count is there when you get back to the office.</span></li>
+        <li><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span><b>Ask about start and stop times.</b> Our rates assume a wide cleaning window. If the crew cannot start before a set time, or must be out by one, get the times. It changes the price.</span></li>
+        <li><svg class="ic" aria-hidden="true"><use href="#i-ruler"/></svg><span><b>Measure every cleanable area.</b> Laser it, type the sq ft. No sq ft, no room in the bid.</span></li>
+        <li><svg class="ic" aria-hidden="true"><use href="#i-tag"/></svg><span><b>Note anything special, room by room.</b> Deep clean, spot clean, floors only, clean room. Tap it on the card while you are standing in it.</span></li>
+        <li><svg class="ic" aria-hidden="true"><use href="#i-route"/></svg><span><b>Document travel time.</b> Walks between cleanable areas, between buildings, and a far dumpster all cost minutes. The tool asks. Answer it.</span></li>
+        <li><svg class="ic" aria-hidden="true"><use href="#i-can"/></svg><span><b>Cans in areas we do not clean.</b> If the crew empties them, count them and size them. Normal (small or medium), large, or XL barrel. Barrels are a huge time element. Take a photo of them so the count is there when you get back to the office.</span></li>
       </ul>
+    </details>
+
+    <div class="form-card ask-card needs" id="windowCard">
+      <h3 class="form-card-title">Cleaning Window<span class="ask-tag" id="windowTag">Not answered</span></h3>
+      <p class="card-lead">Our rates assume a wide cleaning window. A set start or stop time squeezes the same work into fewer hours. That takes a bigger crew and changes the price. Ask every time.</p>
+      <p class="field-label" id="gWindow">Does the customer require a set start or stop time?</p>
+      <div class="density-chips" role="group" aria-labelledby="gWindow">
+        <button type="button" class="chip density-chip" aria-pressed="false" data-cf="cleanWindow" data-cv="No set times" onclick="selectOpt(this);syncWindow()">No set times</button>
+        <button type="button" class="chip density-chip" aria-pressed="false" data-cf="cleanWindow" data-cv="Set times" onclick="selectOpt(this);syncWindow()">Yes, set times</button>
+      </div>
+      <div id="windowTimes" class="ask-more" hidden>
+        <div class="field-row keep">
+          <div class="field-group">
+            <label for="windowStart">Crew cannot start before</label>
+            <input type="time" id="windowStart" data-field="windowStart" oninput="syncWindow()" onchange="syncWindow()">
+          </div>
+          <div class="field-group">
+            <label for="windowEnd">Crew must be out by</label>
+            <input type="time" id="windowEnd" data-field="windowEnd" oninput="syncWindow()" onchange="syncWindow()">
+          </div>
+        </div>
+        <p class="ask-calc" id="windowCalc" aria-live="polite"></p>
+        <div class="field-group">
+          <label for="startRestrictions">Why, and on which days?</label>
+          <input type="text" id="startRestrictions" data-field="startRestrictions" placeholder="Alarm sets at 10 PM, tenants in until 7, weekdays only..." oninput="syncWindow()">
+        </div>
+        <p class="field-hint">Leave a time blank if only one applies. Check that Region &amp; Shift below still fits these hours.</p>
+      </div>
     </div>
 
 <div class="form-card">
-      <div class="form-card-title">Business Details</div>
+      <h3 class="form-card-title">Business Details</h3>
       <div class="field-group">
         <label for="companyName">Company Name</label>
-        <input type="text" id="companyName" data-field="companyName" placeholder="ABC Properties LLC">
+        <input type="text" autocapitalize="words" id="companyName" data-field="companyName" placeholder="ABC Properties LLC">
       </div>
       <div class="field-group">
         <label for="address">Address</label>
-        <input type="text" id="address" data-field="address" placeholder="123 Main St, Suite 200">
+        <input type="text" autocapitalize="words" id="address" data-field="address" placeholder="123 Main St, Suite 200">
       </div>
-      <div class="field-row">
+      <div class="field-row keep">
         <div class="field-group">
           <label for="city">City</label>
-          <input type="text" id="city" data-field="city">
+          <input type="text" autocapitalize="words" id="city" data-field="city">
         </div>
         <div class="field-group">
           <label for="stateZip">State, Zip</label>
-          <input type="text" id="stateZip" data-field="stateZip" placeholder="NV 89101">
+          <input type="text" autocapitalize="characters" id="stateZip" data-field="stateZip" placeholder="NV 89101">
         </div>
       </div>
       <div class="field-group">
@@ -1896,44 +728,44 @@ select {
       <div class="field-group">
         <label for="rateTier">Region &amp; Shift (labor rate)</label>
         <select id="rateTier" data-field="rateTier">
-            <option value="Nevada — Standard" selected>Nevada — Standard</option>
-            <option value="Nevada — Day">Nevada — Day</option>
-            <option value="Nevada — 3rd Shift">Nevada — 3rd Shift</option>
-            <option value="Nevada — Kitchen">Nevada — Kitchen</option>
-            <option value="Nevada — Medical">Nevada — Medical</option>
-            <option value="Arizona — Standard">Arizona — Standard</option>
-            <option value="Arizona — Day">Arizona — Day</option>
-            <option value="Arizona — 3rd Shift">Arizona — 3rd Shift</option>
-            <option value="Arizona — Kitchen">Arizona — Kitchen</option>
-            <option value="Arizona — Medical">Arizona — Medical</option>
-            <option value="Reno — Standard">Reno — Standard</option>
-            <option value="Reno — Day">Reno — Day</option>
-            <option value="Reno — 3rd Shift">Reno — 3rd Shift</option>
-            <option value="Reno — Kitchen">Reno — Kitchen</option>
-            <option value="Reno — Medical">Reno — Medical</option>
-            <option value="TRIC / US Parkway — Standard">TRIC / US Parkway — Standard</option>
-            <option value="TRIC / US Parkway — Day">TRIC / US Parkway — Day</option>
-            <option value="TRIC / US Parkway — 3rd Shift">TRIC / US Parkway — 3rd Shift</option>
-            <option value="TRIC / US Parkway — Kitchen">TRIC / US Parkway — Kitchen</option>
-            <option value="TRIC / US Parkway — Medical">TRIC / US Parkway — Medical</option>
-            <option value="TRIC / US Parkway — Industrial">TRIC / US Parkway — Industrial</option>
-            <option value="Carson City — Standard">Carson City — Standard</option>
-            <option value="Carson City — Day">Carson City — Day</option>
-            <option value="Carson City — 3rd Shift">Carson City — 3rd Shift</option>
-            <option value="Carson City — Kitchen">Carson City — Kitchen</option>
-            <option value="Carson City — Medical">Carson City — Medical</option>
+            <option value="Nevada — Standard" selected>Nevada · Standard</option>
+            <option value="Nevada — Day">Nevada · Day</option>
+            <option value="Nevada — 3rd Shift">Nevada · 3rd Shift</option>
+            <option value="Nevada — Kitchen">Nevada · Kitchen</option>
+            <option value="Nevada — Medical">Nevada · Medical</option>
+            <option value="Arizona — Standard">Arizona · Standard</option>
+            <option value="Arizona — Day">Arizona · Day</option>
+            <option value="Arizona — 3rd Shift">Arizona · 3rd Shift</option>
+            <option value="Arizona — Kitchen">Arizona · Kitchen</option>
+            <option value="Arizona — Medical">Arizona · Medical</option>
+            <option value="Reno — Standard">Reno · Standard</option>
+            <option value="Reno — Day">Reno · Day</option>
+            <option value="Reno — 3rd Shift">Reno · 3rd Shift</option>
+            <option value="Reno — Kitchen">Reno · Kitchen</option>
+            <option value="Reno — Medical">Reno · Medical</option>
+            <option value="TRIC / US Parkway — Standard">TRIC / US Parkway · Standard</option>
+            <option value="TRIC / US Parkway — Day">TRIC / US Parkway · Day</option>
+            <option value="TRIC / US Parkway — 3rd Shift">TRIC / US Parkway · 3rd Shift</option>
+            <option value="TRIC / US Parkway — Kitchen">TRIC / US Parkway · Kitchen</option>
+            <option value="TRIC / US Parkway — Medical">TRIC / US Parkway · Medical</option>
+            <option value="TRIC / US Parkway — Industrial">TRIC / US Parkway · Industrial</option>
+            <option value="Carson City — Standard">Carson City · Standard</option>
+            <option value="Carson City — Day">Carson City · Day</option>
+            <option value="Carson City — 3rd Shift">Carson City · 3rd Shift</option>
+            <option value="Carson City — Kitchen">Carson City · Kitchen</option>
+            <option value="Carson City — Medical">Carson City · Medical</option>
         </select>
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Primary Contact</div>
+      <h3 class="form-card-title">Primary Contact</h3>
       <div class="field-group">
         <label for="contactName">Contact Name</label>
-        <input type="text" id="contactName" data-field="contactName">
+        <input type="text" autocapitalize="words" id="contactName" data-field="contactName">
       </div>
       <div class="field-group">
         <label for="contactTitle">Title</label>
-        <input type="text" id="contactTitle" data-field="contactTitle" placeholder="Facility Manager">
+        <input type="text" autocapitalize="words" id="contactTitle" data-field="contactTitle" placeholder="Facility Manager">
       </div>
       <div class="field-row">
         <div class="field-group">
@@ -1942,7 +774,7 @@ select {
         </div>
         <div class="field-group">
           <label for="email">Email</label>
-          <input type="email" id="email" data-field="email">
+          <input type="email" autocapitalize="none" autocorrect="off" spellcheck="false" id="email" data-field="email">
         </div>
       </div>
       <div class="field-group">
@@ -1954,13 +786,13 @@ select {
 
   <!-- ============ STEP 2: Walkthrough ============ -->
   <section class="step-panel" data-step="2">
-    <h2 class="step-title">Walk</h2>
+    <h2 class="step-title" tabindex="-1">Walk</h2>
     <p class="step-subtitle">Add an area, measure it, count the fixtures, tap Done. Duplicate when the next room is the same.</p>
 
-    <div class="totals-bar" id="totalsBar"></div>
+    <div class="totals-bar" id="totalsBar" role="group" aria-label="Running totals for this walk"></div>
 
+    <p class="empty-areas" id="areasEmpty">Tap the type of the first area you are standing in.</p>
     <div class="add-grid add-grid-top" id="quickChips"></div>
-    <div class="empty-areas" id="areasEmpty">Tap the type of the first area you are standing in.</div>
     <div id="areasContainer"></div>
 
     <div class="bottom-add" id="bottomAdd" style="display:none">
@@ -1969,27 +801,27 @@ select {
     </div>
 
     <div class="form-card walk-card" id="walksCard">
-      <div class="form-card-title">Walks &amp; Trash</div>
+      <h3 class="form-card-title">Walks &amp; Trash</h3>
       <p class="blk-lead">Before you leave. This is the time the estimate usually misses.</p>
 
       <div class="field-group">
-        <label>Walk to the dumpster from the farthest trash point (one way)</label>
-        <div class="density-chips">
-          <span class="density-chip" data-cf="dumpsterWalk" data-cv="Under 1 min" onclick="selectOpt(this)">Under 1 min</span>
-          <span class="density-chip" data-cf="dumpsterWalk" data-cv="2 min" onclick="selectOpt(this)">2 min</span>
-          <span class="density-chip" data-cf="dumpsterWalk" data-cv="5 min" onclick="selectOpt(this)">5 min</span>
-          <span class="density-chip" data-cf="dumpsterWalk" data-cv="10 min" onclick="selectOpt(this)">10 min</span>
-          <span class="density-chip" data-cf="dumpsterWalk" data-cv="15+ min" onclick="selectOpt(this)">15+ min</span>
+        <p class="field-label" id="gDumpWalk">Walk to the dumpster from the farthest trash point (one way)</p>
+        <div class="density-chips" role="group" aria-labelledby="gDumpWalk">
+          <button type="button" class="chip density-chip" aria-pressed="false" data-cf="dumpsterWalk" data-cv="Under 1 min" onclick="selectOpt(this)">Under 1 min</button>
+          <button type="button" class="chip density-chip" aria-pressed="false" data-cf="dumpsterWalk" data-cv="2 min" onclick="selectOpt(this)">2 min</button>
+          <button type="button" class="chip density-chip" aria-pressed="false" data-cf="dumpsterWalk" data-cv="5 min" onclick="selectOpt(this)">5 min</button>
+          <button type="button" class="chip density-chip" aria-pressed="false" data-cf="dumpsterWalk" data-cv="10 min" onclick="selectOpt(this)">10 min</button>
+          <button type="button" class="chip density-chip" aria-pressed="false" data-cf="dumpsterWalk" data-cv="15+ min" onclick="selectOpt(this)">15+ min</button>
         </div>
       </div>
       <div class="field-group">
-        <label>Anything that slows the trash run?</label>
-        <div class="density-chips">
-          <span class="density-chip" data-cf="dumpsterRoute" data-cv="Easy" onclick="selectOpt(this)">Easy</span>
-          <span class="density-chip" data-cf="dumpsterRoute" data-cv="Long walk" onclick="selectOpt(this)">Long walk</span>
-          <span class="density-chip" data-cf="dumpsterRoute" data-cv="Locked gate / badge" onclick="selectOpt(this)">Locked gate / badge</span>
-          <span class="density-chip" data-cf="dumpsterRoute" data-cv="Stairs, no cart" onclick="selectOpt(this)">Stairs, no cart</span>
-          <span class="density-chip" data-cf="dumpsterRoute" data-cv="Compactor" onclick="selectOpt(this)">Compactor</span>
+        <p class="field-label" id="gDumpRoute">Anything that slows the trash run?</p>
+        <div class="density-chips" role="group" aria-labelledby="gDumpRoute">
+          <button type="button" class="chip density-chip" aria-pressed="false" data-cf="dumpsterRoute" data-cv="Easy" onclick="selectOpt(this)">Easy</button>
+          <button type="button" class="chip density-chip" aria-pressed="false" data-cf="dumpsterRoute" data-cv="Long walk" onclick="selectOpt(this)">Long walk</button>
+          <button type="button" class="chip density-chip" aria-pressed="false" data-cf="dumpsterRoute" data-cv="Locked gate / badge" onclick="selectOpt(this)">Locked gate / badge</button>
+          <button type="button" class="chip density-chip" aria-pressed="false" data-cf="dumpsterRoute" data-cv="Stairs, no cart" onclick="selectOpt(this)">Stairs, no cart</button>
+          <button type="button" class="chip density-chip" aria-pressed="false" data-cf="dumpsterRoute" data-cv="Compactor" onclick="selectOpt(this)">Compactor</button>
         </div>
       </div>
       <div class="field-group">
@@ -2003,19 +835,19 @@ select {
           <input type="number" id="floorsCount" data-field="floorsCount" inputmode="numeric" min="1" max="60" placeholder="1">
         </div>
         <div class="field-group">
-          <label>Elevator for the crew?</label>
-          <div class="density-chips">
-            <span class="density-chip" data-cf="elevator" data-cv="Yes" onclick="selectOpt(this)">Yes</span>
-            <span class="density-chip" data-cf="elevator" data-cv="No" onclick="selectOpt(this)">No</span>
-            <span class="density-chip" data-cf="elevator" data-cv="Freight only" onclick="selectOpt(this)">Freight only</span>
+          <p class="field-label" id="gElev">Elevator for the crew?</p>
+          <div class="density-chips" role="group" aria-labelledby="gElev">
+            <button type="button" class="chip density-chip" aria-pressed="false" data-cf="elevator" data-cv="Yes" onclick="selectOpt(this)">Yes</button>
+            <button type="button" class="chip density-chip" aria-pressed="false" data-cf="elevator" data-cv="No" onclick="selectOpt(this)">No</button>
+            <button type="button" class="chip density-chip" aria-pressed="false" data-cf="elevator" data-cv="Freight only" onclick="selectOpt(this)">Freight only</button>
           </div>
         </div>
       </div>
 
       <div class="field-group">
-        <label>Areas you walk through but do not clean</label>
-        <p class="field-hint" style="margin-top:0;margin-bottom:8px">Add each one as a <b>Not Cleaned</b> area above so the walk time and any extra trash cans get counted.</p>
-        <button type="button" class="btn-add" onclick="quickAdd('Not Cleaned','')">+ Add a Not Cleaned area</button>
+        <p class="field-label">Areas you walk through but do not clean</p>
+        <p class="field-hint above">Add each one as a <b>Not Cleaned</b> area above so the walk time and any extra trash cans get counted.</p>
+        <button type="button" class="btn-add" onclick="quickAdd('Not Cleaned','')"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Add a Not Cleaned area</button>
       </div>
     </div>
   </section>
@@ -2023,11 +855,11 @@ select {
 
   <!-- ============ STEP 3: Scope & Services ============ -->
   <section class="step-panel" data-step="3">
-    <h2 class="step-title">Scope &amp; Services</h2>
+    <h2 class="step-title" tabindex="-1">Scope &amp; Services</h2>
     <p class="step-subtitle">Fill this in after the walk, or in the car. Sales notes are at the bottom.</p>
 
 <div class="form-card">
-      <div class="form-card-title">Scope Details</div>
+      <h3 class="form-card-title">Scope Details</h3>
       <div class="field-row-3">
         <div class="field-group">
           <label for="daysPerWeek">Days / Week</label>
@@ -2044,42 +876,42 @@ select {
         </div>
         <div class="field-group">
           <label for="peoplePerNight">Crew / Night</label>
-          <input type="number" id="peoplePerNight" data-field="peoplePerNight" min="1" max="50" placeholder="2">
+          <input type="number" inputmode="numeric" id="peoplePerNight" data-field="peoplePerNight" min="1" max="50" placeholder="2">
         </div>
         <div class="field-group">
           <label for="hoursPerNight">Hours / Night</label>
-          <input type="text" id="hoursPerNight" data-field="hoursPerNight" placeholder="3.5">
+          <input type="text" inputmode="decimal" id="hoursPerNight" data-field="hoursPerNight" placeholder="3.5">
         </div>
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Building Density</div>
-      <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 8px;">Furniture / clutter level. Matches the Bid Calculator density dropdown.</p>
-      <div class="density-chips">
-        <span class="density-chip" data-cf="density" data-cv="Open Plan" onclick="selectOpt(this)">Open Plan</span>
-        <span class="density-chip" data-cf="density" data-cv="Very Light Use" onclick="selectOpt(this)">Very Light Use</span>
-        <span class="density-chip" data-cf="density" data-cv="Light Use" onclick="selectOpt(this)">Light Use</span>
-        <span class="density-chip" data-cf="density" data-cv="Normal" onclick="selectOpt(this)">Normal</span>
-        <span class="density-chip" data-cf="density" data-cv="Heavy Use" onclick="selectOpt(this)">Heavy Use</span>
-        <span class="density-chip" data-cf="density" data-cv="Very Heavy Use" onclick="selectOpt(this)">Very Heavy Use</span>
-        <span class="density-chip" data-cf="density" data-cv="Extreme Clutter" onclick="selectOpt(this)">Extreme Clutter</span>
+      <h3 class="form-card-title">Building Density</h3>
+      <p class="card-lead">Furniture / clutter level. Matches the Bid Calculator density dropdown.</p>
+      <div class="density-chips" role="group" aria-label="Building density">
+        <button type="button" class="chip density-chip" aria-pressed="false" data-cf="density" data-cv="Open Plan" onclick="selectOpt(this)">Open Plan</button>
+        <button type="button" class="chip density-chip" aria-pressed="false" data-cf="density" data-cv="Very Light Use" onclick="selectOpt(this)">Very Light Use</button>
+        <button type="button" class="chip density-chip" aria-pressed="false" data-cf="density" data-cv="Light Use" onclick="selectOpt(this)">Light Use</button>
+        <button type="button" class="chip density-chip" aria-pressed="false" data-cf="density" data-cv="Normal" onclick="selectOpt(this)">Normal</button>
+        <button type="button" class="chip density-chip" aria-pressed="false" data-cf="density" data-cv="Heavy Use" onclick="selectOpt(this)">Heavy Use</button>
+        <button type="button" class="chip density-chip" aria-pressed="false" data-cf="density" data-cv="Very Heavy Use" onclick="selectOpt(this)">Very Heavy Use</button>
+        <button type="button" class="chip density-chip" aria-pressed="false" data-cf="density" data-cv="Extreme Clutter" onclick="selectOpt(this)">Extreme Clutter</button>
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Traffic Level</div>
-      <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 8px;">How heavy is foot traffic and soil load?</p>
-      <div class="density-chips">
-        <span class="density-chip" data-cf="traffic" data-cv="Light" onclick="selectOpt(this)">Light</span>
-        <span class="density-chip" data-cf="traffic" data-cv="Normal" onclick="selectOpt(this)">Normal</span>
-        <span class="density-chip" data-cf="traffic" data-cv="Heavy" onclick="selectOpt(this)">Heavy</span>
+      <h3 class="form-card-title">Traffic Level</h3>
+      <p class="card-lead">How heavy is foot traffic and soil load?</p>
+      <div class="density-chips" role="group" aria-label="Traffic level">
+        <button type="button" class="chip density-chip" aria-pressed="false" data-cf="traffic" data-cv="Light" onclick="selectOpt(this)">Light</button>
+        <button type="button" class="chip density-chip" aria-pressed="false" data-cf="traffic" data-cv="Normal" onclick="selectOpt(this)">Normal</button>
+        <button type="button" class="chip density-chip" aria-pressed="false" data-cf="traffic" data-cv="Heavy" onclick="selectOpt(this)">Heavy</button>
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Building Logistics</div>
+      <h3 class="form-card-title">Building Logistics</h3>
       <div class="field-row">
         <div class="field-group">
           <label for="occupants">Occupants (Approx)</label>
-          <input type="number" id="occupants" data-field="occupants" min="0" placeholder="45">
+          <input type="number" inputmode="numeric" id="occupants" data-field="occupants" min="0" placeholder="45">
         </div>
         <div class="field-group">
           <label for="buildingHours">Building Hours</label>
@@ -2087,11 +919,11 @@ select {
         </div>
       </div>
       <div class="field-group">
-        <label>Day Porter Interest?</label>
-        <div class="density-chips">
-          <span class="density-chip" data-cf="porterInterest" data-cv="Yes" onclick="selectOpt(this)">Yes</span>
-          <span class="density-chip" data-cf="porterInterest" data-cv="No" onclick="selectOpt(this)">No</span>
-          <span class="density-chip" data-cf="porterInterest" data-cv="Maybe" onclick="selectOpt(this)">Maybe</span>
+        <p class="field-label" id="gPorter">Day Porter Interest?</p>
+        <div class="density-chips" role="group" aria-labelledby="gPorter">
+          <button type="button" class="chip density-chip" aria-pressed="false" data-cf="porterInterest" data-cv="Yes" onclick="selectOpt(this)">Yes</button>
+          <button type="button" class="chip density-chip" aria-pressed="false" data-cf="porterInterest" data-cv="No" onclick="selectOpt(this)">No</button>
+          <button type="button" class="chip density-chip" aria-pressed="false" data-cf="porterInterest" data-cv="Maybe" onclick="selectOpt(this)">Maybe</button>
         </div>
       </div>
       <div class="field-group">
@@ -2100,7 +932,7 @@ select {
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Access & Security</div>
+      <h3 class="form-card-title">Access & Security</h3>
       <div class="field-group">
         <label for="accessMethod">How Does the Crew Get In?</label>
         <select id="accessMethod" data-field="accessMethod">
@@ -2130,28 +962,28 @@ select {
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Building Totals</div>
-      <div class="field-row">
+      <h3 class="form-card-title">Building Totals</h3>
+      <div class="field-row keep">
         <div class="field-group">
           <label for="totalSqft">Total Cleanable SqFt</label>
-          <input type="text" id="totalSqft" data-field="totalSqft" placeholder="25,000">
+          <input type="text" inputmode="numeric" id="totalSqft" data-field="totalSqft" placeholder="25,000">
         </div>
         <div class="field-group">
           <label for="totalRR">Total Restrooms</label>
-          <input type="number" id="totalRR" data-field="totalRR" min="0" placeholder="6">
+          <input type="number" inputmode="numeric" id="totalRR" data-field="totalRR" min="0" placeholder="6">
         </div>
       </div>
       <div class="field-group">
         <label for="totalFixtures">Total Fixtures</label>
-        <input type="number" id="totalFixtures" data-field="totalFixtures" min="0" placeholder="24">
+        <input type="number" inputmode="numeric" id="totalFixtures" data-field="totalFixtures" min="0" placeholder="24">
       </div>
       <div class="auto-totals" id="autoTotalsLine" style="display:none">
         <span id="autoTotalsText"></span>
-        <button type="button" onclick="applyAutoTotals()">Apply</button>
+        <button type="button" class="btn-sm" onclick="applyAutoTotals()">Apply</button>
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Budget Discussion</div>
+      <h3 class="form-card-title">Budget Discussion</h3>
       <div class="field-group">
         <label for="budgetAmount">Budget (Monthly)</label>
         <input type="text" id="budgetAmount" data-field="budgetAmount" placeholder="$3,500 / month">
@@ -2162,14 +994,14 @@ select {
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Hard Surface Floor Care</div>
+      <h3 class="form-card-title">Hard Surface Floor Care</h3>
       <div class="checklist-grid">
         <label class="checklist-item"><input type="checkbox" data-field="fc_stripWax"> <span>Strip & Wax</span></label>
         <label class="checklist-item"><input type="checkbox" data-field="fc_topScrub"> <span>Top Scrub & Wax</span></label>
         <label class="checklist-item"><input type="checkbox" data-field="fc_machineScrub"> <span>Machine Scrub Ceramic</span></label>
         <label class="checklist-item"><input type="checkbox" data-field="fc_buff"> <span>Hi-Speed Buff</span></label>
       </div>
-      <div class="field-row" style="margin-top: 12px;">
+      <div class="field-row" style="margin-top:16px">
         <div class="field-group">
           <label for="fcFrequency">Frequency</label>
           <input type="text" id="fcFrequency" data-field="fcFrequency" placeholder="Quarterly, Monthly, etc.">
@@ -2180,15 +1012,15 @@ select {
         </div>
       </div>
       <div class="field-group">
-        <label>Bundle with JS?</label>
-        <div style="display:flex; gap: 8px; margin-top: 4px;">
-          <span class="density-chip" data-cf="bundleWithJS" data-cv="Yes" onclick="selectOpt(this)">Yes</span>
-          <span class="density-chip" data-cf="bundleWithJS" data-cv="No" onclick="selectOpt(this)">No</span>
+        <p class="field-label" id="gBundle">Bundle with JS?</p>
+        <div class="density-chips" role="group" aria-labelledby="gBundle">
+          <button type="button" class="chip density-chip" aria-pressed="false" data-cf="bundleWithJS" data-cv="Yes" onclick="selectOpt(this)">Yes</button>
+          <button type="button" class="chip density-chip" aria-pressed="false" data-cf="bundleWithJS" data-cv="No" onclick="selectOpt(this)">No</button>
         </div>
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Carpet Care</div>
+      <h3 class="form-card-title">Carpet Care</h3>
       <div class="checklist-grid">
         <label class="checklist-item"><input type="checkbox" data-field="cc_extraction"> <span>Carpet Extraction</span></label>
         <label class="checklist-item"><input type="checkbox" data-field="cc_trafficPattern"> <span>Traffic Pattern Cleaning</span></label>
@@ -2196,7 +1028,7 @@ select {
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Additional Services Needed</div>
+      <h3 class="form-card-title">Additional Services Needed</h3>
       <div class="checklist-grid">
         <label class="checklist-item"><input type="checkbox" data-field="svc_coi"> <span>COI Needed</span></label>
         <label class="checklist-item"><input type="checkbox" data-field="svc_bloodborne"> <span>Bloodborne Pathogens</span></label>
@@ -2216,7 +1048,7 @@ select {
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Current Supplies</div>
+      <h3 class="form-card-title">Current Supplies</h3>
       <div class="field-row">
         <div class="field-group">
           <label for="supplyBrands">Brands</label>
@@ -2243,13 +1075,13 @@ select {
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Special Requests & Hot Buttons</div>
-      <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 10px;">Anything specific they asked for during the visit. Area-level hot spots are captured in the walkthrough.</p>
+      <h3 class="form-card-title">Special Requests & Hot Buttons</h3>
+      <p class="card-lead">Anything specific they asked for during the visit. Area-level hot spots are captured in the walkthrough.</p>
       <div id="requestsContainer"></div>
-      <button class="btn-add" type="button" onclick="addRequest()">+ Add Special Request</button>
+      <button class="btn-add" type="button" onclick="addRequest()"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Add Special Request</button>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Extra Notes</div>
+      <h3 class="form-card-title">Extra Notes</h3>
       <div class="field-group">
         <label for="extraNotes">Anything else relevant to the scope or proposal?</label>
         <textarea id="extraNotes" data-field="extraNotes" rows="4" placeholder="Security requirements, after-hours access, parking info, key holder contacts..."></textarea>
@@ -2257,9 +1089,9 @@ select {
     </div>
 
     <details class="sales-notes" id="salesNotes">
-      <summary>Sales Notes (optional) — discovery, pain, decision process</summary>
+      <summary><span>Sales Notes (optional)<small>Discovery, pain, decision process</small></span><svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
 <div class="form-card">
-      <div class="form-card-title">Research Notes</div>
+      <h3 class="form-card-title">Research Notes</h3>
       <div class="field-group">
         <label for="preResearch">LinkedIn / Google / Website findings</label>
         <textarea id="preResearch" data-field="preResearch" rows="5" placeholder="What did you learn about the company and decision maker? Company size, recent news, their role, mutual connections..."></textarea>
@@ -2274,7 +1106,7 @@ select {
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Meeting Objectives</div>
+      <h3 class="form-card-title">Meeting Objectives</h3>
       <div class="checkbox-grid">
         <label class="checkbox-item" onclick="toggleCheck(this)">
           <input type="checkbox" data-field="obj_trust"> <span>Build Trust</span>
@@ -2303,14 +1135,14 @@ select {
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Rapport Notes</div>
+      <h3 class="form-card-title">Rapport Notes</h3>
       <div class="field-group">
         <label for="rapportNotes">What did you discuss? Personal interests, common ground, etc.</label>
         <textarea id="rapportNotes" data-field="rapportNotes" rows="4" placeholder="Kids, sports, hobbies, mutual connections..."></textarea>
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Current Janitorial Info</div>
+      <h3 class="form-card-title">Current Janitorial Info</h3>
       <div class="field-row">
         <div class="field-group">
           <label for="currentJSComp">Current JS Company</label>
@@ -2328,12 +1160,12 @@ select {
         </div>
         <div class="field-group">
           <label for="numCompPast5">Companies Past 5 Years</label>
-          <input type="number" id="numCompPast5" data-field="numCompPast5" min="0" max="20" placeholder="3">
+          <input type="number" inputmode="numeric" id="numCompPast5" data-field="numCompPast5" min="0" max="20" placeholder="3">
         </div>
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Their Perspective</div>
+      <h3 class="form-card-title">Their Perspective</h3>
       <div class="field-group">
         <label for="currentSituation">Tell me about your current situation?</label>
         <textarea id="currentSituation" data-field="currentSituation" rows="3" placeholder="Capture their words as closely as possible"></textarea>
@@ -2348,7 +1180,7 @@ select {
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Biggest Frustrations</div>
+      <h3 class="form-card-title">Biggest Frustrations</h3>
       <div class="checkbox-grid">
         <label class="checkbox-item" onclick="toggleCheck(this)">
           <input type="checkbox" data-field="frust_detail"> <span>Attention to Detail</span>
@@ -2380,14 +1212,14 @@ select {
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Satisfaction Scale</div>
-      <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 8px;">On a scale of 1 to 5, how satisfied are you with your current service?</p>
-      <div class="scale-row">
-        <button class="scale-btn" data-cf="satisfactionScale" data-cv="1" onclick="selectOpt(this)">1</button>
-        <button class="scale-btn" data-cf="satisfactionScale" data-cv="2" onclick="selectOpt(this)">2</button>
-        <button class="scale-btn" data-cf="satisfactionScale" data-cv="3" onclick="selectOpt(this)">3</button>
-        <button class="scale-btn" data-cf="satisfactionScale" data-cv="4" onclick="selectOpt(this)">4</button>
-        <button class="scale-btn" data-cf="satisfactionScale" data-cv="5" onclick="selectOpt(this)">5</button>
+      <h3 class="form-card-title">Satisfaction Scale</h3>
+      <p class="card-lead">On a scale of 1 to 5, how satisfied are you with your current service?</p>
+      <div class="scale-row" role="group" aria-label="Satisfaction, 1 to 5">
+        <button type="button" class="chip scale-btn" aria-pressed="false" data-cf="satisfactionScale" data-cv="1" onclick="selectOpt(this)">1</button>
+        <button type="button" class="chip scale-btn" aria-pressed="false" data-cf="satisfactionScale" data-cv="2" onclick="selectOpt(this)">2</button>
+        <button type="button" class="chip scale-btn" aria-pressed="false" data-cf="satisfactionScale" data-cv="3" onclick="selectOpt(this)">3</button>
+        <button type="button" class="chip scale-btn" aria-pressed="false" data-cf="satisfactionScale" data-cv="4" onclick="selectOpt(this)">4</button>
+        <button type="button" class="chip scale-btn" aria-pressed="false" data-cf="satisfactionScale" data-cv="5" onclick="selectOpt(this)">5</button>
       </div>
       <div class="scale-labels">
         <span>Very Unsatisfied</span>
@@ -2395,7 +1227,7 @@ select {
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Impact Questions</div>
+      <h3 class="form-card-title">Impact Questions</h3>
       <div class="field-group">
         <label for="timeOnJS">How much time do you spend managing janitorial? How does that affect you?</label>
         <textarea id="timeOnJS" data-field="timeOnJS" rows="3" placeholder="Get specific: hours per week, personal frustration, what they could be doing instead"></textarea>
@@ -2406,8 +1238,8 @@ select {
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Value Prop Delivered</div>
-      <p style="font-size: 13px; color: var(--cw-grey); margin-bottom: 10px;">Confirm you covered the three uniques and why City Wide:</p>
+      <h3 class="form-card-title">Value Prop Delivered</h3>
+      <p class="card-lead">Confirm you covered the three uniques and why City Wide:</p>
       <div class="checkbox-grid">
         <label class="checkbox-item" onclick="toggleCheck(this)">
           <input type="checkbox" data-field="vp_represent"> <span>We represent the client</span>
@@ -2424,14 +1256,10 @@ select {
       </div>
     </div>
 <div class="form-card">
-      <div class="form-card-title">Timeline & Process</div>
+      <h3 class="form-card-title">Timeline & Process</h3>
       <div class="field-group">
         <label for="timelineToSwitch">What is the timeline to switch?</label>
         <input type="text" id="timelineToSwitch" data-field="timelineToSwitch" placeholder="End of month, 30 days, etc.">
-      </div>
-      <div class="field-group">
-        <label for="startRestrictions">Any start time restrictions?</label>
-        <input type="text" id="startRestrictions" data-field="startRestrictions" placeholder="After 6pm, building closes at 5pm, etc.">
       </div>
       <div class="field-group">
         <label for="otherDecisionMakers">Besides yourself, who else is involved in the decision?</label>
@@ -2451,12 +1279,14 @@ select {
 
   <!-- ============ STEP 4: Review & Send ============ -->
   <section class="step-panel" data-step="4">
-    <h2 class="step-title">Save</h2>
+    <h2 class="step-title" tabindex="-1">Save</h2>
     <p class="step-subtitle">Check the summary, then tap Save. It goes to the hub and a fresh survey opens. Excel comes from Review past surveys on the Sales Hub.</p>
     <input type="hidden" id="senderEmail" data-field="senderEmail">
 
+<div id="saveChecks"></div>
+
 <div class="form-card" id="reviewContainer">
-      <div class="form-card-title">Survey Summary</div>
+      <h3 class="form-card-title">Survey Summary</h3>
       <div id="reviewContent"></div>
     </div>
   </section>
@@ -2468,48 +1298,41 @@ select {
      ============================================ -->
 <div class="bottom-nav">
   <div class="bottom-nav-inner">
-    <button class="btn btn-secondary" id="btnBack" onclick="prevStep()">Back</button>
-    <button class="btn btn-add-area" id="btnAddArea" onclick="openAddSheet()" style="display:none">&#43; Add area</button>
-    <button class="btn btn-primary" id="btnNext" onclick="nextStep()">Next</button>
+    <button type="button" class="btn btn-secondary" id="btnBack" onclick="prevStep()">Back</button>
+    <button type="button" class="btn btn-add-area" id="btnAddArea" onclick="openAddSheet()" style="display:none"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg>Add area</button>
+    <button type="button" class="btn btn-primary" id="btnNext" onclick="nextStep()">Next</button>
   </div>
 </div>
 
-<div class="snackbar" id="snackbar"><span id="snackMsg"></span><button type="button" id="snackUndo">UNDO</button></div>
+<div class="snackbar" id="snackbar" role="status" aria-live="polite"><span id="snackMsg"></span><button type="button" id="snackUndo">Undo</button></div>
 <input type="file" id="photoInput" accept="image/*" capture="environment" multiple hidden>
 
-<!-- ============================================
-     SAVED SURVEYS MODAL
-     ============================================ -->
+<!-- Surveys saved on this phone -->
 <div class="modal-overlay" id="savedModal" onclick="closeSavedModal(event)">
-  <div class="modal-sheet" onclick="event.stopPropagation()">
-    <div class="modal-handle"></div>
-    <div class="modal-title">Saved Surveys</div>
+  <div class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="savedTitle" tabindex="-1" onclick="event.stopPropagation()">
+    <div class="sheet-head"><h2 class="modal-title" id="savedTitle">Saved Surveys</h2><button type="button" class="sheet-close" onclick="closeSheet(this)" aria-label="Close"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
     <div id="savedList"></div>
-    <a class="btn-team-list" href="surveys.html">See every survey by person &rarr;</a>
-    <p style="font-size: 12px; color: var(--cw-grey); text-align: center; margin-top: 12px;">This list is what is on this phone. The team list has everything saved to the cloud.</p>
+    <a class="btn-team-list" href="surveys.html">See every survey by person</a>
+    <p class="sheet-note">This list is what is on this phone. The team list has everything saved to the hub.</p>
   </div>
 </div>
 
-<!-- ============================================
-     ADD AREA SHEET
-     ============================================ -->
+<!-- Add an area -->
 <div class="modal-overlay" id="addSheet" onclick="closeAddSheet(event)">
-  <div class="modal-sheet" onclick="event.stopPropagation()">
-    <div class="modal-handle"></div>
-    <div class="modal-title">What is this area?</div>
+  <div class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="addTitle" tabindex="-1" onclick="event.stopPropagation()">
+    <div class="sheet-head"><h2 class="modal-title" id="addTitle">What is this area?</h2><button type="button" class="sheet-close" onclick="closeSheet(this)" aria-label="Close"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
     <div class="add-grid" id="addGrid"></div>
   </div>
 </div>
 
-<!-- ============================================
-     WHO IS SURVEYING (CW Team Directory)
-     ============================================ -->
+<!-- Who is surveying (CW Team Directory) -->
 <div class="modal-overlay" id="whoSheet" onclick="closeWhoSheet(event)">
-  <div class="modal-sheet" onclick="event.stopPropagation()">
-    <div class="modal-handle"></div>
-    <div class="modal-title">Who is doing this survey?</div>
+  <div class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="whoTitle" tabindex="-1" onclick="event.stopPropagation()">
+    <div class="sheet-head"><h2 class="modal-title" id="whoTitle">Who is doing this survey?</h2><button type="button" class="sheet-close" onclick="closeSheet(this)" aria-label="Close"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+    <label class="sr" for="whoSearch">Search the team by name</label>
     <input type="search" id="whoSearch" placeholder="Type a name" autocomplete="off" oninput="filterWho()">
     <div id="whoList" class="who-list"></div>
+    <p class="sheet-note" id="whoNote" role="status" aria-live="polite"></p>
   </div>
 </div>
 
@@ -2530,6 +1353,11 @@ let requests = [];
 let saveTimeout = null;
 let lastDeleted = null;
 let photoTarget = null; // {kind:'area'|'request', id}
+
+// Icons come from the SVG sprite at the top of the page. One stroke weight, no emoji.
+function ic(name, cls) { return '<svg class="' + (cls || 'ic') + '" aria-hidden="true"><use href="#i-' + name + '"/></svg>'; }
+// People who asked their device for less motion get instant scrolling.
+const SMOOTH = (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'auto' : 'smooth';
 
 // ============================================
 // BID MODULE AREA TYPES (with production rate hints)
@@ -2646,7 +1474,7 @@ const photoDB = {
 // INIT
 // ============================================
 function init() {
-  const today = new Date().toISOString().split('T')[0];
+  const today = localToday();
   const dateField = document.getElementById('surveyDate');
   if (dateField && !dateField.value) dateField.value = today;
 
@@ -2676,6 +1504,7 @@ function init() {
   bindAutoSave();
   bindPhotoInput();
   recalcTotals();
+  syncWindow();
 
   // Never lose work when the screen locks or the salesperson switches apps
   document.addEventListener('visibilitychange', () => {
@@ -2701,9 +1530,11 @@ function goToStep(step) {
   renderStepDots();
 
   if (step === 3) updateAutoTotalsLine();
-  if (step === TOTAL_STEPS) { buildReview(); ensureLib('xlsx').catch(() => {}); ensureLib('jspdf').catch(() => {}); }
+  if (step === TOTAL_STEPS) buildReview();
 
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: SMOOTH });
+  const head = panel && panel.querySelector('.step-title');
+  if (head && document.body.dataset.ready) head.focus({ preventScroll: true });
 }
 
 function nextStep() {
@@ -2750,10 +1581,7 @@ async function finishSurvey() {
 function prevStep() { goToStep(currentStep - 1); }
 
 function updateProgress() {
-  const pct = Math.round((currentStep / TOTAL_STEPS) * 100);
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressPct').textContent = pct + '%';
-  document.getElementById('progressStepLabel').textContent = 'Step ' + currentStep + ' of ' + TOTAL_STEPS + ' · ' + STEP_NAMES[currentStep];
+  document.title = STEP_NAMES[currentStep] + ' · City Wide Building Survey';
 }
 
 function updateNav() {
@@ -2777,16 +1605,15 @@ function renderStepDots() {
   const container = document.getElementById('stepDots');
   container.innerHTML = '';
   for (let i = 1; i <= TOTAL_STEPS; i++) {
-    const dot = document.createElement('span');
+    const dot = document.createElement('button');
+    dot.type = 'button';
     dot.className = 'step-dot';
-    if (i === currentStep) dot.classList.add('active');
+    if (i === currentStep) { dot.classList.add('active'); dot.setAttribute('aria-current', 'step'); }
     else if (i < currentStep) dot.classList.add('complete');
     dot.textContent = STEP_NAMES[i];
     dot.onclick = () => goToStep(i);
     container.appendChild(dot);
   }
-  const activeDot = container.querySelector('.active');
-  if (activeDot) activeDot.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 }
 
 // ============================================
@@ -2806,20 +1633,33 @@ function debounceSave() {
   saveTimeout = setTimeout(() => { saveFormData(); setSaveStatus('saved'); scheduleCloudSave(); }, 600);
 }
 
-function setSaveStatus(state) {
+function clockStamp() {
+  const t = new Date();
+  let h = t.getHours(), m = t.getMinutes();
+  const ap = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return h + ':' + (m < 10 ? '0' : '') + m + ' ' + ap;
+}
+
+// One status area for both saves. kind: saving | phone | hub | offline
+let lastSaveKind = '';
+function paintSaveStatus(kind, line1, line2) {
   const el = document.getElementById('saveStatus');
   if (!el) return;
-  if (state === 'saving') {
-    el.textContent = 'Saving...';
-    el.classList.add('saving');
-  } else {
-    const t = new Date();
-    let h = t.getHours(), m = t.getMinutes();
-    const ap = h >= 12 ? 'PM' : 'AM';
-    h = h % 12 || 12;
-    el.textContent = 'Saved ' + h + ':' + (m < 10 ? '0' : '') + m + ' ' + ap + ' \u2713';
-    el.classList.remove('saving');
+  el.classList.toggle('saving', kind === 'saving');
+  el.classList.toggle('cloud-off', kind === 'offline');
+  const icon = kind === 'hub' ? ic('cloud', 'ic ic-s') : kind === 'offline' ? ic('cloud-off', 'ic ic-s') : '';
+  el.innerHTML = '<span><span class="ss-1">' + line1 + '</span>' + (line2 ? '<span class="ss-2">' + icon + line2 + '</span>' : '') + '</span>';
+  if (kind !== 'saving' && kind !== lastSaveKind) {
+    const say = document.getElementById('saveSay');
+    if (say) say.textContent = kind === 'hub' ? 'Saved to the hub.' : kind === 'offline' ? 'Saved on this phone only. The hub is offline.' : '';
+    lastSaveKind = kind;
   }
+}
+
+function setSaveStatus(state) {
+  if (state === 'saving') paintSaveStatus('saving', 'Saving');
+  else paintSaveStatus('phone', 'Saved ' + clockStamp(), 'On this phone');
 }
 
 function saveFormData() {
@@ -2893,7 +1733,7 @@ function loadSurvey(id) {
       const parent = el.closest('.checkbox-item');
       if (parent) parent.classList.toggle('checked', el.checked);
     } else {
-      el.value = formData[key];
+      setField(el, formData[key]);
     }
   });
 
@@ -2906,11 +1746,67 @@ function loadSurvey(id) {
   renderRequests();
   recalcTotals();
   renderWho();
+  syncWindow();
   goToStep(currentStep);
   localStorage.setItem('cw_current_survey', id);
 }
 
 function showSaveToast() { setSaveStatus('saved'); }
+
+// ---- cleaning window: required start and stop times ----
+// Rates assume a wide window. A set start or stop time means the same hours in less clock time,
+// so the survey has to capture it and the Excel has to carry it to the estimator.
+function fmtClock(t) {
+  if (!t) return '';
+  const p = String(t).split(':'); let h = Number(p[0]);
+  if (isNaN(h) || p.length < 2) return String(t);
+  const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
+  return h + ':' + p[1] + ' ' + ap;
+}
+function windowInfo() {
+  const ans = formData.cleanWindow || '';
+  const s = formData.windowStart || '', e = formData.windowEnd || '';
+  const set = ans === 'Set times' || (ans !== 'No set times' && !!(s || e));
+  let hours = null;
+  if (set && s && e) {
+    const mins = t => { const p = t.split(':'); return Number(p[0]) * 60 + Number(p[1]); };
+    let d = mins(e) - mins(s); if (d <= 0) d += 1440;
+    hours = Math.round(d / 6) / 10;
+  }
+  return { answered: !!ans || set, set: set, start: set ? s : '', end: set ? e : '', hours: hours, why: (formData.startRestrictions || '').trim() };
+}
+function windowText() {
+  const w = windowInfo();
+  if (!w.answered) return '';
+  if (!w.set) return 'No set times';
+  const bits = [];
+  if (w.start) bits.push('Start no earlier than ' + fmtClock(w.start));
+  if (w.end) bits.push('Out by ' + fmtClock(w.end));
+  if (w.hours) bits.push(w.hours + ' hour window');
+  return bits.join(' · ') || 'Set times, none entered';
+}
+function syncWindow() {
+  const card = document.getElementById('windowCard');
+  if (!card) return;
+  ['windowStart', 'windowEnd', 'startRestrictions'].forEach(id => { const el = document.getElementById(id); if (el) formData[id] = el.value; });
+  const w = windowInfo();
+  card.classList.toggle('needs', !w.answered);
+  document.getElementById('windowTag').hidden = w.answered;
+  document.getElementById('windowTimes').hidden = !(formData.cleanWindow === 'Set times' || (formData.cleanWindow !== 'No set times' && (w.start || w.end || w.why)));
+  document.getElementById('windowCalc').textContent = w.hours ? 'That is a ' + w.hours + ' hour window, ' + fmtClock(w.start) + ' to ' + fmtClock(w.end) + '.' : '';
+}
+
+// Today on this phone's clock, as YYYY-MM-DD.
+function localToday() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+// A dropdown with no blank choice (Region & Shift) falls back to its default instead of showing empty.
+function setField(el, v) {
+  el.value = v;
+  if (el.tagName === 'SELECT' && el.selectedIndex < 0) el.selectedIndex = Math.max(0, Array.from(el.options).findIndex(o => o.defaultSelected));
+}
 
 // ============================================
 // WALKTHROUGH: AREAS
@@ -2931,7 +1827,7 @@ const TRASH_SIZES = ['Normal (S/M)', 'Large', 'XL barrel'];
 const FLOOR_PRIMARY = ['Carpet', 'VCT', 'LVT', 'Ceramic Tile', 'Concrete', 'Polished Concrete'];
 
 function isCleaned(a) { return (a.cleanLevel || DEFAULT_CLEAN) !== NOT_CLEANED; }
-function cleanBadge(lvl) { return (lvl === NOT_CLEANED ? 'NOT CLEANED' : lvl.replace(/ Clean$/, '')).toUpperCase(); }
+function cleanBadge(lvl) { return lvl === NOT_CLEANED ? 'Not cleaned' : lvl; }
 
 function newArea(type, name) {
   return {
@@ -3024,7 +1920,7 @@ function addArea(type, name, level, nameAuto) {
   recalcTotals();
   debounceSave();
   setTimeout(() => {
-    node.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    node.scrollIntoView({ behavior: SMOOTH, block: 'start' });
     // The name is the first thing to capture. Enter in the name box jumps to the sq ft.
     const nm = node.querySelector('.a-name');
     const sq = node.querySelector('.a-sqft');
@@ -3056,7 +1952,7 @@ function duplicateArea(id) {
   recalcTotals();
   debounceSave();
   const node = document.querySelector('[data-area-id="' + copy.id + '"]');
-  if (node) setTimeout(() => node.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+  if (node) setTimeout(() => node.scrollIntoView({ behavior: SMOOTH, block: 'center' }), 100);
   showSnackbar('Added ' + copy.name + ', same as ' + copy.copyOf + '. Tap it to change anything.');
   setTimeout(hideSnackbar, 3500);
 }
@@ -3167,7 +2063,7 @@ function updateAreaHead(area) {
   else { bc.style.display = 'inline-flex'; bc.textContent = cleanBadge(lvl); bc.classList.toggle('badge-nc', lvl === NOT_CLEANED); }
   const bp = card.querySelector('.badge-photo');
   bp.style.display = (area.photos || []).length ? 'inline-flex' : 'none';
-  bp.textContent = '📷 ' + (area.photos || []).length;
+  bp.innerHTML = ic('camera', 'ic ic-s') + (area.photos || []).length;
 }
 
 function doneWithRoom(id) {
@@ -3183,7 +2079,7 @@ function doneWithRoom(id) {
   if (area.nameAuto || !area.name) { showSnackbar('No name on this room yet. Tap it to add one.'); setTimeout(hideSnackbar, 3000); }
   else { showSnackbar((area.name || area.type || 'Area') + ' done · ' + t.areas + ' areas · ' + t.sqft.toLocaleString() + ' sf so far'); setTimeout(hideSnackbar, 2500); }
   const bottom = document.getElementById('bottomAdd');
-  if (bottom) setTimeout(() => bottom.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+  if (bottom) setTimeout(() => bottom.scrollIntoView({ behavior: SMOOTH, block: 'center' }), 100);
 }
 
 function toggleAreaCollapse(id) {
@@ -3192,7 +2088,7 @@ function toggleAreaCollapse(id) {
   if (!area || !card) return;
   area.collapsed = !area.collapsed;
   card.classList.toggle('collapsed', area.collapsed);
-  if (!area.collapsed) setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+  if (!area.collapsed) setTimeout(() => card.scrollIntoView({ behavior: SMOOTH, block: 'start' }), 80);
 }
 
 function touched(area) { if (area.copyOf) { area.copyOf = ''; } }
@@ -3209,10 +2105,11 @@ function createAreaNode(area, idx) {
   ).join('');
 
   const showAllFloors = area.floorTypes.some(ft => !FLOOR_PRIMARY.includes(ft));
+  const pressed = on => ' aria-pressed="' + (on ? 'true' : 'false') + '"';
   const floorChips = FLOOR_TYPES.map(ft =>
-    '<span class="floor-chip ' + (area.floorTypes.includes(ft[0]) ? 'selected' : '') + (FLOOR_PRIMARY.includes(ft[0]) ? '' : ' floor-hidden') +
-    '" onclick="toggleFloor(\'' + area.id + '\',\'' + ft[0] + '\',this)">' + ft[1] + '</span>'
-  ).join('') + '<span class="floor-chip floor-more" onclick="this.parentElement.classList.add(\'show-all\')">More…</span>';
+    '<button type="button" class="chip floor-chip' + (area.floorTypes.includes(ft[0]) ? ' selected' : '') + (FLOOR_PRIMARY.includes(ft[0]) ? '' : ' floor-hidden') +
+    '"' + pressed(area.floorTypes.includes(ft[0])) + ' onclick="toggleFloor(\'' + area.id + '\',\'' + ft[0] + '\',this)">' + ft[1] + '</button>'
+  ).join('') + '<button type="button" class="chip floor-chip floor-more" onclick="this.parentElement.classList.add(\'show-all\')">More floor types</button>';
 
   const steppers = isRR
     ? stepperHtml(area.id, 'toilets', 'Toilets', area.toilets) + stepperHtml(area.id, 'urinals', 'Urinals', area.urinals) +
@@ -3221,37 +2118,43 @@ function createAreaNode(area, idx) {
       stepperHtml(area.id, 'toilets', 'Toilets', area.toilets) + stepperHtml(area.id, 'urinals', 'Urinals', area.urinals);
 
   const sizeChips = '<span class="size-lbl">Can size</span>' + TRASH_SIZES.map(sz =>
-    '<span class="size-chip ' + (area.trashSize === sz ? 'selected' : '') + '" onclick="setTrashSize(\'' + area.id + '\',\'' + sz + '\')">' + sz + '</span>'
+    '<button type="button" class="chip size-chip' + (area.trashSize === sz ? ' selected' : '') + '"' + pressed(area.trashSize === sz) + ' onclick="setTrashSize(\'' + area.id + '\',\'' + sz + '\')">' + sz + '</button>'
   ).join('');
+  const shown = on => ' style="display:' + (on ? 'inline-flex' : 'none') + '"';
+  const noName = area.nameAuto || !area.name;
 
   el.innerHTML =
-    '<div class="area-head" onclick="toggleAreaCollapse(\'' + area.id + '\')">' +
-      '<span class="area-num">' + (idx + 1) + '</span>' +
-      '<div class="area-titles">' +
-        '<div class="area-title-name">' + escHtml(area.name || area.type || 'New Area') + '</div>' +
-        '<div class="area-title-sub">' + escHtml(areaSummary(area)) + '</div>' +
-      '</div>' +
-      '<span class="area-badge badge-noname" style="display:' + (area.nameAuto || !area.name ? 'inline-flex' : 'none') + '">NAME?</span>' +
-      '<span class="area-badge badge-clean' + (lvl === NOT_CLEANED ? ' badge-nc' : '') + '" style="display:' + (lvl === DEFAULT_CLEAN ? 'none' : 'inline-flex') + '">' + escHtml(cleanBadge(lvl)) + '</span>' +
-      '<span class="area-badge badge-hot" style="display:' + (area.hotspot ? 'inline-flex' : 'none') + '">⚠</span>' +
-      '<span class="area-badge badge-flex" style="display:' + (area.flex ? 'inline-flex' : 'none') + '">FLEX</span>' +
-      '<span class="area-badge badge-photo" style="display:' + ((area.photos || []).length ? 'inline-flex' : 'none') + '">📷 ' + (area.photos || []).length + '</span>' +
-      '<button type="button" class="head-btn head-dup" onclick="event.stopPropagation();duplicateArea(\'' + area.id + '\')" title="Same again">⧉</button>' +
-      '<button type="button" class="head-btn head-del" onclick="event.stopPropagation();removeArea(\'' + area.id + '\')" title="Remove">&times;</button>' +
-      '<span class="area-chev">▾</span>' +
+    '<div class="area-head">' +
+      '<button type="button" class="area-toggle" aria-expanded="' + (area.collapsed ? 'false' : 'true') + '" onclick="toggleAreaCollapse(\'' + area.id + '\')">' +
+        '<span class="area-num">' + (idx + 1) + '</span>' +
+        '<span class="area-titles">' +
+          '<span class="area-title-name">' + escHtml(area.name || area.type || 'New Area') + '</span>' +
+          '<span class="area-title-sub">' + escHtml(areaSummary(area)) + '</span>' +
+        '</span>' +
+        ic('chev', 'ic area-chev') +
+      '</button>' +
+      '<button type="button" class="head-btn head-dup" onclick="duplicateArea(\'' + area.id + '\')" aria-label="Same again. Add a copy of this area" title="Same again">' + ic('copy') + '</button>' +
+      '<button type="button" class="head-btn head-del" onclick="removeArea(\'' + area.id + '\')" aria-label="Remove this area" title="Remove">' + ic('x') + '</button>' +
+    '</div>' +
+    '<div class="area-badges">' +
+      '<span class="area-badge badge-noname"' + shown(noName) + '>Needs a name</span>' +
+      '<span class="area-badge badge-clean' + (lvl === NOT_CLEANED ? ' badge-nc' : '') + '"' + shown(lvl !== DEFAULT_CLEAN) + '>' + escHtml(cleanBadge(lvl)) + '</span>' +
+      '<span class="area-badge badge-hot"' + shown(area.hotspot) + '>' + ic('alert', 'ic ic-s') + 'Hot spot</span>' +
+      '<span class="area-badge badge-flex"' + shown(area.flex) + '>Flex</span>' +
+      '<span class="area-badge badge-photo"' + shown((area.photos || []).length) + '>' + ic('camera', 'ic ic-s') + (area.photos || []).length + '</span>' +
     '</div>' +
     '<div class="area-body">' +
-      '<div class="a-typerow"><select class="a-type">' + typeOptions + '</select><div class="rate-hint"></div></div>' +
+      '<div class="a-typerow"><label class="sr" for="ty_' + area.id + '">Type of area</label><select class="a-type" id="ty_' + area.id + '">' + typeOptions + '</select><div class="rate-hint"></div></div>' +
 
       '<div class="blk blk-name">' +
-        '<div class="blk-title">Name this ' + (isCleaned(area) ? 'room' : 'area') + ' <span class="blk-hint">what the customer calls it</span></div>' +
-        '<input type="text" class="a-name' + (area.nameAuto || !area.name ? ' needs-name' : '') + '" value="' + escHtml(area.nameAuto ? '' : area.name) + '" placeholder="Suite 200, CEO office, north wing..." autocomplete="off" autocapitalize="words">' +
+        '<div class="blk-title"><label for="nm_' + area.id + '">Name this ' + (isCleaned(area) ? 'room' : 'area') + '</label> <span class="blk-hint">what the customer calls it</span></div>' +
+        '<input type="text" id="nm_' + area.id + '" class="a-name' + (noName ? ' needs-name' : '') + '" value="' + escHtml(area.nameAuto ? '' : area.name) + '" placeholder="Suite 200, CEO office, north wing..." autocomplete="off" autocapitalize="words" enterkeyhint="next">' +
       '</div>' +
 
       '<div class="blk blk-measure">' +
-        '<div class="blk-title">Measure <span class="blk-hint">cleanable sq ft from the laser</span></div>' +
+        '<div class="blk-title"><label for="sq_' + area.id + '">Measure</label> <span class="blk-hint">cleanable sq ft from the laser</span></div>' +
         '<div class="measure-one">' +
-          '<input type="text" class="a-sqft" inputmode="numeric" value="' + escHtml(area.sqft) + '" placeholder="0">' +
+          '<input type="text" id="sq_' + area.id + '" class="a-sqft" inputmode="numeric" value="' + escHtml(area.sqft) + '" placeholder="0" enterkeyhint="done">' +
           '<span class="m-unit">sq ft</span>' +
         '</div>' +
       '</div>' +
@@ -3264,9 +2167,9 @@ function createAreaNode(area, idx) {
 
       '<div class="blk blk-clean">' +
         '<div class="blk-title">How is it cleaned?</div>' +
-        '<div class="clean-grid">' + CLEAN_LEVELS.map(c =>
-          '<span class="clean-chip ' + c[2] + (c[0] === DEFAULT_CLEAN ? ' is-default' : '') + (lvl === c[0] ? ' selected' : '') +
-          '" data-lvl="' + c[0] + '" onclick="setCleanLevel(\'' + area.id + '\',\'' + c[0] + '\')">' + c[1] + '</span>'
+        '<div class="clean-grid" role="group" aria-label="How is it cleaned?">' + CLEAN_LEVELS.map(c =>
+          '<button type="button" class="chip clean-chip ' + c[2] + (c[0] === DEFAULT_CLEAN ? ' is-default' : '') + (lvl === c[0] ? ' selected' : '') +
+          '"' + pressed(lvl === c[0]) + ' data-lvl="' + c[0] + '" onclick="setCleanLevel(\'' + area.id + '\',\'' + c[0] + '\')">' + c[1] + '</button>'
         ).join('') + '</div>' +
       '</div>' +
 
@@ -3277,47 +2180,47 @@ function createAreaNode(area, idx) {
           stepperHtml(area.id, 'trash', 'Extra trash cans', area.trash) +
         '</div>' +
         '<div class="size-chips trash-size" style="display:' + (Number(area.trash) ? 'flex' : 'none') + '">' + sizeChips + '</div>' +
-        '<button type="button" class="btn-nc-photo" onclick="pickPhoto(\'area\',\'' + area.id + '\')">📷 Photo of the cans</button>' +
+        '<button type="button" class="btn-nc-photo" onclick="pickPhoto(\'area\',\'' + area.id + '\')">' + ic('camera') + 'Photo of the cans</button>' +
       '</div>' +
 
       '<div class="blk blk-floor" style="display:' + (isCleaned(area) ? 'block' : 'none') + '">' +
         '<div class="blk-title">Floor</div>' +
-        '<div class="floor-type-chips' + (showAllFloors ? ' show-all' : '') + '">' + floorChips + '</div>' +
+        '<div class="floor-type-chips' + (showAllFloors ? ' show-all' : '') + '" role="group" aria-label="Floor type">' + floorChips + '</div>' +
         '<div class="floor-split"></div>' +
-        '<div class="field-group floor-other" style="margin-top:8px; display:' + (area.floorTypes.includes('Other') ? 'block' : 'none') + '">' +
-          '<label>What kind of floor?</label>' +
-          '<input type="text" class="a-floorother" value="' + escHtml(area.floorOther || '') + '" placeholder="Cork, bamboo, brick..."></div>' +
+        '<div class="field-group floor-other" style="display:' + (area.floorTypes.includes('Other') ? 'block' : 'none') + '">' +
+          '<label for="fo_' + area.id + '">What kind of floor?</label>' +
+          '<input type="text" id="fo_' + area.id + '" class="a-floorother" value="' + escHtml(area.floorOther || '') + '" placeholder="Cork, bamboo, brick..."></div>' +
       '</div>' +
 
       '<div class="blk blk-special">' +
         '<div class="blk-title">Anything special?</div>' +
         '<div class="special-row">' +
-          '<span class="sp-chip sp-hot ' + (area.hotspot ? 'selected' : '') + '" onclick="toggleFlag(\'' + area.id + '\',\'hotspot\',this)">⚠ Hot spot</span>' +
-          '<span class="sp-chip sp-flex ' + (area.flex ? 'selected' : '') + '" onclick="toggleFlag(\'' + area.id + '\',\'flex\',this)">Flex clean</span>' +
-          '<span class="sp-chip sp-photo" onclick="pickPhoto(\'area\',\'' + area.id + '\')">📷 Photo</span>' +
-          '<span class="sp-chip sp-note ' + (area.notes ? 'selected' : '') + '" onclick="revealSpecial(this,\'.rv-note\',\'.a-notes\')">✎ Note</span>' +
+          '<button type="button" class="chip sp-chip sp-hot' + (area.hotspot ? ' selected' : '') + '"' + pressed(area.hotspot) + ' onclick="toggleFlag(\'' + area.id + '\',\'hotspot\',this)">' + ic('alert') + 'Hot spot</button>' +
+          '<button type="button" class="chip sp-chip sp-flex' + (area.flex ? ' selected' : '') + '"' + pressed(area.flex) + ' onclick="toggleFlag(\'' + area.id + '\',\'flex\',this)">Flex clean</button>' +
+          '<button type="button" class="sp-photo chip sp-chip" onclick="pickPhoto(\'area\',\'' + area.id + '\')">' + ic('camera') + 'Photo</button>' +
+          '<button type="button" class="chip sp-chip sp-note' + (area.notes ? ' selected' : '') + '"' + pressed(area.notes) + ' onclick="revealSpecial(this,\'.rv-note\',\'.a-notes\')">' + ic('pencil') + 'Note</button>' +
         '</div>' +
         '<div class="sp-reveal rv-hot"' + (area.hotspot ? '' : ' hidden') + '>' +
-          '<div class="field-group hs-note"><label>What is the problem here?</label>' +
-          '<textarea class="a-hsnote" rows="2" placeholder="Client complaint, damage, odor, what they pointed at...">' + escHtml(area.hotspotNote) + '</textarea></div>' +
+          '<div class="field-group hs-note"><label for="hs_' + area.id + '">What is the problem here?</label>' +
+          '<textarea id="hs_' + area.id + '" class="a-hsnote" rows="2" placeholder="Client complaint, damage, odor, what they pointed at...">' + escHtml(area.hotspotNote) + '</textarea></div>' +
         '</div>' +
         '<div class="sp-reveal rv-note"' + (area.notes ? '' : ' hidden') + '>' +
-          '<div class="field-group"><label>Note</label>' +
-          '<textarea class="a-notes" rows="2" placeholder="Special instructions, condition, what they asked for here...">' + escHtml(area.notes) + '</textarea></div>' +
+          '<div class="field-group"><label for="nt_' + area.id + '">Note</label>' +
+          '<textarea id="nt_' + area.id + '" class="a-notes" rows="2" placeholder="Special instructions, condition, what they asked for here...">' + escHtml(area.notes) + '</textarea></div>' +
         '</div>' +
-        '<div class="photo-row" style="margin-top:' + ((area.photos || []).length ? '10px' : '0') + '"></div>' +
+        '<div class="photo-row"></div>' +
       '</div>' +
 
       '<div class="blk blk-walk">' +
         '<div class="blk-title">Walk from here to the next area <span class="blk-hint">minutes</span></div>' +
-        '<div class="walk-chips">' + WALK_OPTS.map(w =>
-          '<span class="walk-chip ' + (String(area.walkNext || '') === w[0] ? 'selected' : '') + '" data-w="' + w[0] + '" onclick="setWalkNext(\'' + area.id + '\',\'' + w[0] + '\')">' + w[1] + '</span>'
+        '<div class="walk-chips" role="group" aria-label="Minutes to walk to the next area">' + WALK_OPTS.map(w =>
+          '<button type="button" class="chip walk-chip' + (String(area.walkNext || '') === w[0] ? ' selected' : '') + '"' + pressed(String(area.walkNext || '') === w[0]) + ' data-w="' + w[0] + '" onclick="setWalkNext(\'' + area.id + '\',\'' + w[0] + '\')">' + w[1] + '</button>'
         ).join('') + '</div>' +
       '</div>' +
 
       '<div class="area-actions2">' +
-        '<button type="button" class="btn-dup" onclick="duplicateArea(\'' + area.id + '\')">⧉ Same again</button>' +
-        '<button type="button" class="btn-done-room" onclick="doneWithRoom(\'' + area.id + '\')">&#10003; Done</button>' +
+        '<button type="button" class="btn-dup" onclick="duplicateArea(\'' + area.id + '\')">' + ic('copy') + 'Same again</button>' +
+        '<button type="button" class="btn-done-room" onclick="doneWithRoom(\'' + area.id + '\')">' + ic('check') + 'Done</button>' +
       '</div>' +
     '</div>';
 
@@ -3389,11 +2292,11 @@ function revealSpecial(chip, revealSel, focusSel) {
 }
 
 function stepperHtml(id, field, label, val) {
-  return '<div class="stepper' + (Number(val) ? ' has-val' : '') + '" data-f="' + field + '"><span class="stepper-label">' + label + '</span>' +
+  return '<div class="stepper' + (Number(val) ? ' has-val' : '') + '" data-f="' + field + '" role="group" aria-label="' + label + '"><span class="stepper-label">' + label + '</span>' +
     '<div class="stepper-ctrl">' +
-    '<button type="button" onclick="stepFixture(\'' + id + '\',\'' + field + '\',-1,this)">&minus;</button>' +
-    '<span class="stepper-val">' + (val || 0) + '</span>' +
-    '<button type="button" onclick="stepFixture(\'' + id + '\',\'' + field + '\',1,this)">+</button>' +
+    '<button type="button" aria-label="One fewer, ' + label + '" onclick="stepFixture(\'' + id + '\',\'' + field + '\',-1,this)">' + ic('minus') + '</button>' +
+    '<span class="stepper-val" aria-live="polite">' + (val || 0) + '</span>' +
+    '<button type="button" aria-label="One more, ' + label + '" onclick="stepFixture(\'' + id + '\',\'' + field + '\',1,this)">' + ic('plus') + '</button>' +
     '</div></div>';
 }
 
@@ -3498,8 +2401,8 @@ function updateFloorSplit(el, area) {
   const wrap = el.querySelector('.floor-split');
   if (area.floorTypes.length < 2) { wrap.innerHTML = ''; return; }
   wrap.innerHTML = '<span class="split-label">Split %</span>' + area.floorTypes.map(ft =>
-    '<span class="split-item">' + (FLOOR_LABEL[ft] || ft) +
-    ' <input type="text" inputmode="numeric" class="split-inp" data-ft="' + ft + '" value="' + escHtml(area.floorSplit[ft] || '') + '" placeholder="%"></span>'
+    '<label class="split-item">' + (FLOOR_LABEL[ft] || ft) +
+    ' <input type="text" inputmode="numeric" class="split-inp" data-ft="' + ft + '" value="' + escHtml(area.floorSplit[ft] || '') + '" placeholder="%"></label>'
   ).join('');
   wrap.querySelectorAll('.split-inp').forEach(inp => {
     inp.addEventListener('input', () => { area.floorSplit[inp.dataset.ft] = inp.value; debounceSave(); });
@@ -3589,11 +2492,10 @@ function compressImage(file) {
 function renderPhotoRow(card, area) {
   const row = card.querySelector('.photo-row');
   row.innerHTML = '';
-  row.style.marginTop = (area.photos || []).length ? '10px' : '0';
   (area.photos || []).forEach(pid => {
     const t = document.createElement('div');
     t.className = 'photo-thumb';
-    t.innerHTML = '<button type="button" class="photo-del" onclick="delPhoto(\'' + area.id + '\',\'' + pid + '\')">&times;</button>';
+    t.innerHTML = '<button type="button" class="photo-del" aria-label="Remove this photo" onclick="delPhoto(\'' + area.id + '\',\'' + pid + '\')">' + ic('x', 'ic ic-s') + '</button>';
     getPhoto(area, pid).then(p => {
       if (p) t.style.backgroundImage = 'url(' + p.data + ')';
     });
@@ -3625,13 +2527,24 @@ function addRequest() {
   debounceSave();
 }
 
+let lastReqRemoved = null;
 function removeRequest(id) {
   const idx = requests.findIndex(r => r.id === id);
   if (idx < 0) return;
-  (requests[idx].photos || []).forEach(pid => photoDB.del(pid).catch(() => {}));
+  const purge = r => (r.photos || []).forEach(pid => photoDB.del(pid).catch(() => {}));
+  if (lastReqRemoved) { clearTimeout(lastReqRemoved.timer); purge(lastReqRemoved.req); }
+  const gone = { req: requests[idx], index: idx, timer: null };
+  lastReqRemoved = gone;
   requests.splice(idx, 1);
   renderRequests();
   debounceSave();
+  showSnackbar('Request removed', () => {
+    clearTimeout(gone.timer);
+    requests.splice(Math.min(gone.index, requests.length), 0, gone.req);
+    lastReqRemoved = null;
+    renderRequests(); debounceSave(); hideSnackbar();
+  });
+  gone.timer = setTimeout(() => { if (lastReqRemoved === gone) { purge(gone.req); lastReqRemoved = null; hideSnackbar(); } }, 6000);
 }
 
 function renderRequests() {
@@ -3648,17 +2561,17 @@ function createReqNode(req, idx) {
   el.innerHTML =
     '<div class="room-entry-header">' +
       '<span class="room-number">Request ' + (idx + 1) + '</span>' +
-      '<button type="button" class="btn-remove-room" onclick="removeRequest(\'' + req.id + '\')">&times;</button>' +
+      '<button type="button" class="btn-sm" onclick="removeRequest(\'' + req.id + '\')">Remove</button>' +
     '</div>' +
-    '<div class="field-group"><label>Request / Requirement</label>' +
-      '<textarea class="r-text" rows="2" placeholder="What did they ask for? Special cleaning, event support, supplies...">' + escHtml(req.text) + '</textarea></div>' +
+    '<div class="field-group"><label for="rt_' + req.id + '">Request / Requirement</label>' +
+      '<textarea id="rt_' + req.id + '" class="r-text" rows="2" placeholder="What did they ask for? Special cleaning, event support, supplies...">' + escHtml(req.text) + '</textarea></div>' +
     '<div class="field-row">' +
-      '<div class="field-group"><label>Requested By</label>' +
-        '<input type="text" class="r-who" value="' + escHtml(req.who) + '" placeholder="Name / title"></div>' +
-      '<div class="field-group"><label>Location</label>' +
-        '<input type="text" class="r-where" value="' + escHtml(req.where) + '" placeholder="Area / floor"></div>' +
+      '<div class="field-group"><label for="rw_' + req.id + '">Requested By</label>' +
+        '<input type="text" id="rw_' + req.id + '" class="r-who" value="' + escHtml(req.who) + '" placeholder="Name / title"></div>' +
+      '<div class="field-group"><label for="rl_' + req.id + '">Location</label>' +
+        '<input type="text" id="rl_' + req.id + '" class="r-where" value="' + escHtml(req.where) + '" placeholder="Area / floor"></div>' +
     '</div>' +
-    '<div class="field-group"><label>Photos</label><div class="photo-row"></div></div>';
+    '<div class="field-group"><p class="field-label">Photos</p><div class="photo-row"></div></div>';
 
   el.querySelector('.r-text').addEventListener('input', e => { req.text = e.target.value; debounceSave(); });
   el.querySelector('.r-who').addEventListener('input', e => { req.who = e.target.value; debounceSave(); });
@@ -3673,14 +2586,15 @@ function renderReqPhotoRow(card, req) {
   (req.photos || []).forEach(pid => {
     const t = document.createElement('div');
     t.className = 'photo-thumb';
-    t.innerHTML = '<button type="button" class="photo-del" onclick="delReqPhoto(\'' + req.id + '\',\'' + pid + '\')">&times;</button>';
+    t.innerHTML = '<button type="button" class="photo-del" aria-label="Remove this photo" onclick="delReqPhoto(\'' + req.id + '\',\'' + pid + '\')">' + ic('x', 'ic ic-s') + '</button>';
     getPhoto(req, pid).then(p => { if (p) t.style.backgroundImage = 'url(' + p.data + ')'; });
     row.appendChild(t);
   });
   const add = document.createElement('button');
   add.type = 'button';
   add.className = 'photo-add';
-  add.innerHTML = '📷';
+  add.innerHTML = ic('camera');
+  add.setAttribute('aria-label', 'Add a photo');
   add.onclick = () => pickPhoto('request', req.id);
   row.appendChild(add);
 }
@@ -3728,7 +2642,7 @@ function recalcTotals() {
       '<div class="tot"><b>' + t.fixtures + '</b><span>Fixtures</span></div>' +
       '<div class="tot"><b>' + t.trash + '</b><span>Trash</span></div>' +
       '<div class="tot"><b>' + t.walk + '</b><span>Walk min</span></div>' +
-      '<div class="tot' + (t.hotspots ? ' hot' : '') + '"><b>' + t.hotspots + '</b><span>Hot</span></div>';
+      '<div class="tot' + (t.hotspots ? ' hot' : '') + '"><b>' + t.hotspots + '</b><span>Hot spots</span></div>';
   }
   updateAutoTotalsLine();
 }
@@ -3847,17 +2761,9 @@ function cloudSaveBeacon() {
 }
 
 function setCloudStatus(state) {
-  const el = document.getElementById('saveStatus');
-  if (!el) return;
-  el.classList.remove('saving', 'cloud-off');
-  if (state === 'saving') { el.textContent = 'Saving to cloud...'; el.classList.add('saving'); return; }
-  const t = new Date();
-  let h = t.getHours(), m = t.getMinutes();
-  const ap = h >= 12 ? 'PM' : 'AM';
-  h = h % 12 || 12;
-  const stamp = h + ':' + (m < 10 ? '0' : '') + m + ' ' + ap;
-  if (state === 'saved') { el.textContent = 'Saved to cloud ' + stamp + ' ✓'; return; }
-  el.textContent = 'Saved on phone ' + stamp + ' · cloud offline'; el.classList.add('cloud-off');
+  if (state === 'saving') { paintSaveStatus('saving', 'Saving', 'To the hub'); return; }
+  if (state === 'saved') { paintSaveStatus('hub', 'Saved ' + clockStamp(), 'Phone and hub'); return; }
+  paintSaveStatus('offline', 'Saved ' + clockStamp(), 'Phone only');
 }
 
 // ---- open from the team list (?open=ID) ----
@@ -3981,16 +2887,44 @@ function sortStaff(staff) {
   return staff.filter(isSales).sort(byName).concat(staff.filter(s => !isSales(s)).sort(byName));
 }
 
+// The four salespeople always show, whatever the Team Directory returns and even with no signal.
+// The directory still supplies everyone else, and its own row wins when it has one (it carries the email).
+const SALES_TEAM = [
+  { name: 'Becky Beltrame', also: ['rebecca beltrame'], market: 'Las Vegas' },
+  { name: 'Scott Obst', also: [], market: 'Las Vegas' },
+  { name: 'Josh McElhinny', also: ['joshua mcelhinny'], market: 'Northern Nevada' },
+  { name: 'Justin Olier', also: [], market: 'Northern Nevada' }
+];
+function withSalesTeam(staff) {
+  const out = (staff || []).map(s => Object.assign({}, s, { name: String(s.name || '').replace(/\s+/g, ' ').trim() }));
+  SALES_TEAM.forEach(p => {
+    const keys = [p.name.toLowerCase()].concat(p.also);
+    const hit = out.find(s => keys.includes(s.name.toLowerCase()));
+    if (hit) { if (!/sales/i.test(hit.role || '')) hit.role = hit.role ? 'Sales · ' + hit.role : 'Sales'; }
+    else out.push({ name: p.name, role: 'Sales', market: p.market, email: '' });
+  });
+  return out;
+}
+
 function openWhoSheet() {
   const sheet = document.getElementById('whoSheet');
   const list = document.getElementById('whoList');
   const search = document.getElementById('whoSearch');
+  const note = document.getElementById('whoNote');
   sheet.classList.add('show');
   search.value = '';
-  list.innerHTML = '<div class="who-note">Loading the team directory...</div>';
-  loadStaff().then(staff => renderWhoList(sortStaff(staff), ''))
-    .catch(() => { list.innerHTML = '<div class="who-note">Could not reach the directory. Check the signal and try again.</div>'; });
-  setTimeout(() => search.focus(), 100);
+  const c = staffCached();
+  const paint = staff => renderWhoList(sortStaff(withSalesTeam(staff)), search.value);
+  // What this phone already has shows at once. No wait on the directory.
+  paint(c ? c.staff : []);
+  note.textContent = '';
+  if (!c || Date.now() - c.ts > 60 * 60 * 1000) {
+    if (!c) note.textContent = 'Getting the rest of the team...';
+    loadStaff(true).then(staff => { if (sheet.classList.contains('show')) paint(staff); note.textContent = ''; })
+      .catch(() => { note.textContent = c ? '' : 'Could not reach the team directory. The sales team is listed. Check the signal for anyone else.'; });
+  }
+  // A phone keyboard would cover the names, so only a mouse and keyboard get the cursor in the search box.
+  if (window.matchMedia && matchMedia('(pointer: fine)').matches) setTimeout(() => search.focus(), 100);
 }
 
 function renderWhoList(staff, q) {
@@ -4002,7 +2936,7 @@ function renderWhoList(staff, q) {
   rows.forEach(s => {
     const group = /sales/i.test(s.role || '') ? 'Sales' : 'Everyone else';
     if (group !== lastGroup && !needle) { html += '<div class="who-group">' + group + '</div>'; lastGroup = group; }
-    html += '<button type="button" class="who-btn' + (formData.surveyor === s.name ? ' selected' : '') + '" onclick="pickWho(' + escAttr(JSON.stringify({ name: s.name, email: s.email || '' })) + ')">' +
+    html += '<button type="button" class="who-btn' + (formData.surveyor === s.name ? ' selected' : '') + '"' + (formData.surveyor === s.name ? ' aria-current="true"' : '') + ' onclick="pickWho(' + escAttr(JSON.stringify({ name: s.name, email: s.email || '' })) + ')">' +
       '<span class="who-name">' + escHtml(s.name) + '</span><span class="who-role">' + escHtml([s.role, s.market].filter(Boolean).join(' · ')) + '</span></button>';
   });
   list.innerHTML = html;
@@ -4040,10 +2974,10 @@ function renderWho() {
   if (!btn) return;
   if (formData.surveyor) {
     btn.classList.add('set');
-    btn.innerHTML = '<span class="who-lbl">Surveyed by</span><span class="who-val">' + escHtml(formData.surveyor) + '</span><span class="who-change">change</span>';
+    btn.innerHTML = ic('user') + '<span class="who-txt"><span class="who-lbl">Surveyed by</span><span class="who-val">' + escHtml(formData.surveyor) + '</span></span><span class="who-change">Change</span>';
   } else {
     btn.classList.remove('set');
-    btn.innerHTML = '<span class="who-lbl">Who is doing this survey?</span><span class="who-val">Tap to pick your name</span>';
+    btn.innerHTML = ic('user') + '<span class="who-txt"><span class="who-lbl">Who is doing this survey?</span><span class="who-val">Tap to pick your name</span></span>' + ic('chev');
   }
 }
 
@@ -4090,7 +3024,7 @@ function showSavedSurveys() {
   const index = JSON.parse(localStorage.getItem('cw_survey_index') || '[]');
 
   if (index.length === 0) {
-    list.innerHTML = '<p style="text-align:center;color:var(--cw-grey);padding:20px;font-size:14px;">No saved surveys yet.</p>';
+    list.innerHTML = '<p class="who-note">No saved surveys on this phone yet.</p>';
   } else {
     list.innerHTML = index.map(id => {
       const raw = localStorage.getItem(id);
@@ -4099,14 +3033,26 @@ function showSavedSurveys() {
       const date = new Date(s.updatedAt).toLocaleDateString();
       const name = (s.companyName || 'Untitled') + (s.surveyor ? ' · ' + s.surveyor : '');
       const isCurrent = id === surveyId;
-      return '<div class="saved-item" onclick="loadAndClose(\'' + id + '\')">' +
-        '<div class="saved-item-info"><h4>' + escHtml(name) + (isCurrent ? ' <span style="color:var(--cw-teal);font-size:11px;">CURRENT</span>' : '') + '</h4>' +
-        '<p>Step ' + (s.step || 1) + ' of ' + TOTAL_STEPS + ' &middot; ' + date + '</p></div>' +
-        '<div class="saved-item-actions" onclick="event.stopPropagation()">' +
-        '<button class="btn-sm btn-sm-red" onclick="deleteSurvey(\'' + id + '\')">Delete</button></div></div>';
+      return '<div class="saved-item">' +
+        '<button type="button" class="saved-open" onclick="loadAndClose(\'' + id + '\')">' +
+        '<span class="saved-name">' + escHtml(name) + (isCurrent ? '<span class="saved-now">Open now</span>' : '') + '</span>' +
+        '<span class="saved-meta">Step ' + (s.step || 1) + ' of ' + TOTAL_STEPS + ' · ' + date + '</span></button>' +
+        '<button type="button" class="btn-sm" onclick="askDeleteSurvey(this)">Delete</button>' +
+        '<div class="saved-confirm" hidden><span>Delete this survey from this phone and the hub? It cannot be recovered.</span>' +
+        '<div><button type="button" class="btn-sm" onclick="askDeleteSurvey(this, true)">Keep it</button>' +
+        '<button type="button" class="btn-sm danger" onclick="deleteSurvey(\'' + id + '\')">Delete</button></div></div></div>';
     }).join('');
   }
   modal.classList.add('show');
+}
+
+// Delete asks once, right in the row. No browser pop-up.
+function askDeleteSurvey(btn, cancel) {
+  const row = btn.closest('.saved-item');
+  const box = row.querySelector('.saved-confirm');
+  if (cancel) { box.hidden = true; row.querySelector(':scope > .btn-sm').focus(); return; }
+  box.hidden = false;
+  box.querySelector('.btn-sm').focus();
 }
 
 function closeSavedModal(e) {
@@ -4119,14 +3065,13 @@ function loadAndClose(id) {
   document.querySelectorAll('[data-cf]').forEach(c => c.classList.remove('selected'));
   document.querySelectorAll('[data-field]').forEach(el => {
     if (el.type === 'checkbox') { el.checked = false; const p = el.closest('.checkbox-item'); if (p) p.classList.remove('checked'); }
-    else el.value = '';
+    else setField(el, '');
   });
   loadSurvey(id);
   document.getElementById('savedModal').classList.remove('show');
 }
 
 function deleteSurvey(id) {
-  if (!confirm("Are you sure you want to delete? You can't recover.")) return;
   clearTimeout(cloudTimer); cloudDirty = false;
   cwApi('bs_delete', { id: id }).catch(() => {});
   try { localStorage.removeItem('cw_survey_list_cache'); } catch (e) {}
@@ -4154,13 +3099,14 @@ function deleteSurvey(id) {
 }
 
 function startNewSurvey() {
-  if (!confirm('Start a new survey? Your current survey is saved and accessible from the folder icon.')) return;
+  const prevId = surveyId;
   saveFormData(); // persist the OLD survey under its own id first
   cloudSave();
   resetToBlankSurvey();
   prefillWho();
-  showSnackbar('New survey started');
-  setTimeout(hideSnackbar, 2000);
+  // Nothing is lost, so no pop-up. The last survey is one tap away.
+  showSnackbar('New survey started. The last one is under Surveys.', () => { hideSnackbar(); loadAndClose(prevId); });
+  setTimeout(hideSnackbar, 6000);
 }
 
 // Full in-place reset. No location.reload() here on purpose: reloading let the
@@ -4179,14 +3125,14 @@ function resetToBlankSurvey() {
       el.checked = false;
       const p = el.closest('.checkbox-item'); if (p) p.classList.remove('checked');
     } else {
-      el.value = '';
+      setField(el, '');
     }
   });
   document.querySelectorAll('[data-cf]').forEach(c => c.classList.remove('selected'));
 
   // Re-apply the two conveniences a fresh page load gives you
   const dateField = document.getElementById('surveyDate');
-  if (dateField) dateField.value = new Date().toISOString().split('T')[0];
+  if (dateField) dateField.value = localToday();
   const savedEmail = localStorage.getItem('cw_survey_email');
   const emailField = document.getElementById('senderEmail');
   if (savedEmail && emailField) emailField.value = savedEmail;
@@ -4196,6 +3142,7 @@ function resetToBlankSurvey() {
   recalcTotals();
   clearTimeout(cloudTimer); cloudDirty = false;
   renderWho();
+  syncWindow();
 
   // Go to step 1 WITHOUT goToStep() - goToStep calls saveFormData(), which
   // would immediately file an empty "Untitled Survey" in the saved list.
@@ -4207,7 +3154,7 @@ function resetToBlankSurvey() {
   updateNav();
   renderStepDots();
   updateAutoTotalsLine();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: SMOOTH });
 }
 
 // ============================================
@@ -4264,17 +3211,17 @@ function buildReview() {
   const activeSvc = checkedList(SVC_LABELS) || 'None';
 
   let roomsHtml = areas.map((r, i) =>
-    '<div class="review-row"><span class="review-label">' + escHtml(r.name || 'Area ' + (i + 1)) + (r.nameAuto || !r.name ? ' <span class="review-noname">no name</span>' : '') + (r.hotspot ? ' ⚠' : '') + '</span>' +
+    '<div class="review-row"><span class="review-label">' + escHtml(r.name || 'Area ' + (i + 1)) + (r.nameAuto || !r.name ? ' <span class="review-noname">Needs a name</span>' : '') + (r.hotspot ? ' <span class="review-hot">' + ic('alert', 'ic ic-s') + '<span class="sr">Hot spot</span></span>' : '') + '</span>' +
     '<span class="review-value">' + escHtml(areaLine(r)) + '</span></div>' +
-    (r.hotspot && r.hotspotNote ? '<div class="review-note hot-note">⚠ ' + escHtml(r.hotspotNote) + '</div>' : '')
+    (r.hotspot && r.hotspotNote ? '<div class="review-note hot-note">' + ic('alert', 'ic ic-s') + '<span>' + escHtml(r.hotspotNote) + '</span></div>' : '')
   ).join('');
 
   let reqHtml = requests.filter(r => r.text).map(r =>
     '<div class="review-note">' + escHtml(r.text) + (r.who ? ', ' + escHtml(r.who) : '') + (r.where ? ' (' + escHtml(r.where) + ')' : '') + '</div>'
-  ).join('') || '<p style="font-size:13px;color:var(--cw-grey);">None captured.</p>';
+  ).join('') || '<p class="review-none">None captured.</p>';
 
   c.innerHTML =
-    '<div class="review-section"><div class="review-section-title">Company</div>' +
+    '<div class="review-section"><h3 class="review-section-title">Company</h3>' +
     '<div class="review-row"><span class="review-label">Name</span><span class="review-value">' + escHtml(val('companyName')) + '</span></div>' +
     '<div class="review-row"><span class="review-label">Address</span><span class="review-value">' + escHtml([val('address'), [val('city'), val('stateZip')].filter(Boolean).join(' ')].filter(Boolean).join(', ')) + '</span></div>' +
     '<div class="review-row"><span class="review-label">Type</span><span class="review-value">' + escHtml(val('businessType')) + '</span></div>' +
@@ -4283,17 +3230,21 @@ function buildReview() {
     '<div class="review-row"><span class="review-label">Date</span><span class="review-value">' + escHtml(val('surveyDate')) + '</span></div>' +
     '<div class="review-row"><span class="review-label">Surveyed By</span><span class="review-value">' + escHtml(val('surveyor')) + '</span></div></div>' +
 
-    '<div class="review-section"><div class="review-section-title">Current Situation</div>' +
+    '<div class="review-section"><h3 class="review-section-title">Current Situation</h3>' +
     '<div class="review-row"><span class="review-label">Current JS</span><span class="review-value">' + escHtml(val('currentJSComp') + (val('timeWithCurrent') ? ' (' + val('timeWithCurrent') + ')' : '')) + '</span></div>' +
     '<div class="review-row"><span class="review-label">Previous JS</span><span class="review-value">' + escHtml(val('previousJSComp')) + '</span></div>' +
     '<div class="review-row"><span class="review-label">Companies (5yr)</span><span class="review-value">' + escHtml(val('numCompPast5')) + '</span></div></div>' +
 
-    '<div class="review-section"><div class="review-section-title">Pain & Satisfaction</div>' +
+    '<div class="review-section"><h3 class="review-section-title">Pain & Satisfaction</h3>' +
     '<div class="review-row"><span class="review-label">Frustrations</span><span class="review-value">' + activeFrust + '</span></div>' +
     '<div class="review-row"><span class="review-label">Satisfaction</span><span class="review-value">' + (formData.satisfactionScale || 'Not rated') + ' / 5</span></div>' +
     (val('mostImportantChange') ? '<div class="review-note">' + escHtml(val('mostImportantChange')) + '</div>' : '') + '</div>' +
 
-    '<div class="review-section"><div class="review-section-title">Budget & Scope</div>' +
+    '<div class="review-section"><h3 class="review-section-title">Cleaning Window</h3>' +
+    '<div class="review-row"><span class="review-label">Required start or stop</span><span class="review-value">' + escHtml(windowText()) + '</span></div>' +
+    (val('startRestrictions') ? '<div class="review-note"><span>' + escHtml(val('startRestrictions')) + '</span></div>' : '') + '</div>' +
+
+    '<div class="review-section"><h3 class="review-section-title">Budget & Scope</h3>' +
     '<div class="review-row"><span class="review-label">Budget</span><span class="review-value">' + escHtml(val('budgetAmount')) + '</span></div>' +
     '<div class="review-row"><span class="review-label">Days/Week</span><span class="review-value">' + escHtml(val('daysPerWeek')) + '</span></div>' +
     '<div class="review-row"><span class="review-label">Crew/Night</span><span class="review-value">' + escHtml(val('peoplePerNight')) + '</span></div>' +
@@ -4304,7 +3255,7 @@ function buildReview() {
     '<div class="review-row"><span class="review-label">Total SqFt</span><span class="review-value">' + escHtml(val('totalSqft')) + '</span></div>' +
     '<div class="review-row"><span class="review-label">Total RR / Fixtures</span><span class="review-value">' + escHtml(val('totalRR')) + ' / ' + escHtml(val('totalFixtures')) + '</span></div></div>' +
 
-    '<div class="review-section"><div class="review-section-title">Access & Logistics</div>' +
+    '<div class="review-section"><h3 class="review-section-title">Access & Logistics</h3>' +
     '<div class="review-row"><span class="review-label">Access</span><span class="review-value">' + escHtml(val('accessMethod')) + '</span></div>' +
     (val('accessNotes') ? '<div class="review-note">' + escHtml(val('accessNotes')) + '</div>' : '') +
     '<div class="review-row"><span class="review-label">Dumpster</span><span class="review-value">' + escHtml(val('dumpsterLocation')) + '</span></div>' +
@@ -4312,21 +3263,51 @@ function buildReview() {
     '<div class="review-row"><span class="review-label">Dumpster Walk</span><span class="review-value">' + escHtml([formData.dumpsterWalk, formData.dumpsterRoute, val('dumpsterNotes')].filter(Boolean).join(' · ')) + '</span></div>' +
     '<div class="review-row"><span class="review-label">Floors / Elevator</span><span class="review-value">' + escHtml(val('floorsCount')) + ' / ' + escHtml(formData.elevator || '') + '</span></div></div>' +
 
-    '<div class="review-section"><div class="review-section-title">Decision Making</div>' +
+    '<div class="review-section"><h3 class="review-section-title">Decision Making</h3>' +
     '<div class="review-row"><span class="review-label">Timeline</span><span class="review-value">' + escHtml(val('timelineToSwitch')) + '</span></div>' +
-    '<div class="review-row"><span class="review-label">Restrictions</span><span class="review-value">' + escHtml(val('startRestrictions')) + '</span></div>' +
     '<div class="review-row"><span class="review-label">Other DMs</span><span class="review-value">' + escHtml(val('otherDecisionMakers')) + '</span></div>' +
     '<div class="review-row"><span class="review-label">Proposal Date</span><span class="review-value">' + escHtml(val('proposalDate')) + '</span></div></div>' +
 
-    '<div class="review-section"><div class="review-section-title">Walkthrough (' + areas.length + ' areas · ' + t.sqft.toLocaleString() + ' sqft · ' + t.trash + ' trash · ' + t.walk + ' walk min · ' + t.hotspots + ' hot spots)</div>' +
-    (roomsHtml || '<p style="font-size:13px;color:var(--cw-grey);">No areas added.</p>') + '</div>' +
+    '<div class="review-section"><h3 class="review-section-title">Walkthrough (' + areas.length + ' areas · ' + t.sqft.toLocaleString() + ' sqft · ' + t.trash + ' trash · ' + t.walk + ' walk min · ' + t.hotspots + ' hot spots)</h3>' +
+    (roomsHtml || '<p class="review-none">No areas added.</p>') + '</div>' +
 
-    '<div class="review-section"><div class="review-section-title">Special Requests</div>' + reqHtml + '</div>' +
+    '<div class="review-section"><h3 class="review-section-title">Special Requests</h3>' + reqHtml + '</div>' +
 
-    '<div class="review-section"><div class="review-section-title">Services & Supplies</div>' +
-    '<div class="review-row"><span class="review-label">Additional Svc</span><span class="review-value" style="font-size:11px">' + activeSvc + '</span></div>' +
+    '<div class="review-section"><h3 class="review-section-title">Services & Supplies</h3>' +
+    '<div class="review-row"><span class="review-label">Additional Svc</span><span class="review-value small">' + activeSvc + '</span></div>' +
     '<div class="review-row"><span class="review-label">Brands</span><span class="review-value">' + escHtml(val('supplyBrands')) + '</span></div>' +
     '<div class="review-row"><span class="review-label">Bundle FC w/ JS</span><span class="review-value">' + (formData.bundleWithJS || '') + '</span></div></div>';
+  tidyReview(c);
+  renderSaveChecks();
+}
+
+// Blank answers read as "Not entered" instead of an empty line or a lone slash.
+function tidyReview(c) {
+  c.querySelectorAll('.review-value').forEach(v => {
+    if (/^[\s\/·]*$/.test(v.textContent)) { v.textContent = 'Not entered'; v.classList.add('is-empty'); }
+  });
+}
+
+// The things that cost money when they are missing, listed before the rep taps Save. Never blocks the save.
+function renderSaveChecks() {
+  const box = document.getElementById('saveChecks');
+  if (!box) return;
+  const items = [];
+  if (!formData.surveyor) items.push(['No name picked for who did the survey', 1]);
+  if (!formData.companyName) items.push(['No company name', 1]);
+  const win = windowInfo();
+  if (!win.answered) items.push(['Cleaning window not answered. A set start or stop time changes the price', 1]);
+  else if (win.set && !win.start && !win.end) items.push(['Set times picked, but no start or stop time entered', 1]);
+  if (!areas.length) items.push(['No areas added', 2]);
+  const noName = areas.filter(a => a.nameAuto || !a.name).length;
+  if (noName) items.push([noName + (noName === 1 ? ' area needs a name' : ' areas need a name'), 2]);
+  const noSq = areas.filter(a => isCleaned(a) && !sqftNum(a)).length;
+  if (noSq) items.push([noSq + (noSq === 1 ? ' cleaned area has no sq ft' : ' cleaned areas have no sq ft'), 2]);
+  if (!items.length) { box.innerHTML = ''; return; }
+  box.innerHTML = '<div class="save-checks"><h3>' + ic('alert') + 'Check before you save</h3>' +
+    '<p>You can still save. These are the gaps that slow the bid down later.</p><ul>' +
+    items.map(it => '<li><span>' + it[0] + '</span><button type="button" class="btn-sm" onclick="goToStep(' + it[1] + ')">Go to ' + STEP_NAMES[it[1]] + '</button></li>').join('') +
+    '</ul></div>';
 }
 
 // ============================================
@@ -4354,7 +3335,8 @@ const SHEET_FIELDS = [
   ['Dumpster Walk (one way)', 'dumpsterWalk'], ['Trash Run Route', 'dumpsterRoute'], ['Trash Run Notes', 'dumpsterNotes'],
   ['Floors Served', 'floorsCount'], ['Elevator', 'elevator'],
   ['Total Cleanable SqFt', 'totalSqft'], ['Total Restrooms', 'totalRR'], ['Total Fixtures', 'totalFixtures'],
-  ['Timeline to Switch', 'timelineToSwitch'], ['Start Restrictions', 'startRestrictions'],
+  ['Cleaning Window', 'cleanWindow'], ['Crew Cannot Start Before', 'windowStart'], ['Crew Must Be Out By', 'windowEnd'], ['Start / Stop Reason', 'startRestrictions'],
+  ['Timeline to Switch', 'timelineToSwitch'],
   ['Other Decision Makers', 'otherDecisionMakers'], ['Decision Process', 'decisionProcess'], ['Proposal Date', 'proposalDate'],
   ['Floor Care Frequency', 'fcFrequency'], ['Primary Floor Type', 'fcFloorType'], ['Bundle FC with JS', 'bundleWithJS'],
   ['Extra Notes', 'extraNotes'],
@@ -4489,6 +3471,7 @@ const CLAUDE_PROMPT_LINES = [
   '4. Fill in: Account Name (C3), Industry Type (C5), Shift (C6) from the General Info block; then the Calc table rows from the Rooms table. Each room row carries a Clean Mode: set it to the exact matching value in that column\'s dropdown. Leave other defaulted columns (Fixture Mins, Room Count formulas) alone unless a value is given.',
   '5. Put the Prospect Budget in its input cell if one is given. Add Additional Tasks (Step 3) for the services listed under Requested Services, using the task dropdown.',
   '6. The WALK TIME block lists travel the crew does that is not room cleaning: walk-through of areas not in scope, walking between areas, and the trash run to the dumpster. Add it as an Additional Task or time adder if the workbook has one; otherwise carry it as a note for the estimator. Trash cans in NOT CLEANED areas are still emptied.',
+  '7. The CLEANING WINDOW block says whether the customer requires a set start or stop time. Rates assume a wide cleaning window. When a window is given, divide the nightly labor hours by the window length to get the smallest crew that can finish inside it, check that Shift (C6) fits those hours, and put the window and that crew number at the top of your summary so the estimator prices for it. Do not change any rate on your own. If it says NOT ASKED, say so at the top of your summary.',
   ''
 ];
 
@@ -4565,6 +3548,17 @@ function buildExcelWorkbook() {
   rows.push(['Occupants', v('occupants')]);
   rows.push([]);
 
+  const win = windowInfo();
+  rows.push(['CLEANING WINDOW. Required start and stop times. Rates assume a wide window, so a set time has to be priced.']);
+  rows.push(['Required start or stop time?', win.set ? 'YES' : (win.answered ? 'No set times' : 'NOT ASKED. Confirm with the customer before pricing.')]);
+  if (win.set) {
+    rows.push(['Crew cannot start before', fmtClock(win.start) || 'No limit given']);
+    rows.push(['Crew must be out by', fmtClock(win.end) || 'No limit given']);
+    rows.push(['Window length (hours)', win.hours || '']);
+  }
+  if (win.why) rows.push(['Reason / days', win.why]);
+  rows.push([]);
+
   rows.push(['ROOMS — consolidated by type + floor + clean mode. Paste into the Calc table (Step 2).']);
   rows.push(['Room Type', 'Room Name', 'Square Feet', 'Floor Type', 'Room Count', 'Fixtures', 'Trash Cans', 'Clean Mode', 'Days per Week', 'Density', 'Notes']);
   const consolidated = consolidateRooms();
@@ -4634,7 +3628,7 @@ function buildExcelWorkbook() {
 
 function excelFileName() {
   const name = (formData.companyName || 'Building Survey').replace(/[^\w\- ]/g, '').trim() || 'Building Survey';
-  const d = formData.surveyDate || new Date().toISOString().split('T')[0];
+  const d = formData.surveyDate || localToday();
   return name + ' - Bid Input ' + d + '.xlsx';
 }
 
@@ -4649,7 +3643,7 @@ function downloadExcel() {
     XLSX.writeFile(buildExcelWorkbook(), excelFileName());
     showSnackbar('Excel saved to your Downloads folder');
     setTimeout(hideSnackbar, 4000);
-  }).catch(e => { hideSnackbar(); alert('Could not build the Excel file: ' + e.message); })
+  }).catch(e => { showSnackbar('Could not build the Excel file. ' + e.message); setTimeout(hideSnackbar, 6000); })
     .finally(() => { if (btn) { btn.disabled = false; btn.textContent = orig; } });
 }
 
@@ -4979,9 +3973,56 @@ async function generatePDF() {
 }
 
 // ============================================
+// ACCESS GLUE
+// ============================================
+// The rest of the script shows state by adding and removing classes. This keeps the
+// state screen readers and keyboards rely on in step with those classes, in one place.
+function closeSheet(btn) { btn.closest('.modal-overlay').classList.remove('show'); }
+
+function watchState() {
+  let sheetReturn = null;
+  const pressedOf = el => el.classList.contains('selected') ? 'true' : 'false';
+  const sheetChanged = ov => {
+    const open = ov.classList.contains('show');
+    if (open === !!ov._open) return;
+    ov._open = open;
+    if (open) {
+      sheetReturn = document.activeElement;
+      document.body.style.overflow = 'hidden';
+      if (ov.id !== 'whoSheet' || !(window.matchMedia && matchMedia('(pointer: fine)').matches)) { const sh = ov.querySelector('.modal-sheet'); if (sh) setTimeout(() => sh.focus({ preventScroll: true }), 30); }
+    } else {
+      if (!document.querySelector('.modal-overlay.show')) document.body.style.overflow = '';
+      if (sheetReturn && document.contains(sheetReturn)) sheetReturn.focus({ preventScroll: true });
+      sheetReturn = null;
+    }
+  };
+  new MutationObserver(list => {
+    list.forEach(m => {
+      const t = m.target;
+      if (m.type !== 'attributes' || !t.classList) return;
+      if (t.classList.contains('chip')) { if (t.hasAttribute('aria-pressed') && t.getAttribute('aria-pressed') !== pressedOf(t)) t.setAttribute('aria-pressed', pressedOf(t)); }
+      else if (t.classList.contains('area-card')) { const tg = t.querySelector('.area-toggle'); if (tg) tg.setAttribute('aria-expanded', t.classList.contains('collapsed') ? 'false' : 'true'); }
+      else if (t.classList.contains('modal-overlay')) sheetChanged(t);
+    });
+  }).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+
+  document.addEventListener('keydown', e => {
+    const ov = document.querySelector('.modal-overlay.show');
+    if (!ov) return;
+    if (e.key === 'Escape') { ov.classList.remove('show'); return; }
+    if (e.key !== 'Tab') return;
+    const f = Array.from(ov.querySelectorAll('button, a[href], input, select, textarea')).filter(x => x.offsetParent !== null);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && (document.activeElement === first || !ov.contains(document.activeElement))) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+}
+
+// ============================================
 // BOOT
 // ============================================
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => { watchState(); init(); document.body.dataset.ready = '1'; });
 
 </script>
 
